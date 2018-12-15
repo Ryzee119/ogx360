@@ -17,6 +17,7 @@ The ogx360 is a small circuit board which allows you to use Wireless Xbox 360 Co
 
 #### Folder Structure
 See the respective folder for open source licensing.
+
 | Folder | Description |
 | --- | --- |
 | [`Hardware`](https://github.com/Ryzee119/ogx360/tree/master/Hardware) | This folder contains the schematic and PCB layout files. These were created using [Autodesk Eagle 9.2.2.](https://www.autodesk.com/products/eagle/overview)|

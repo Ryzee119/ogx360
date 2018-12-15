@@ -28,15 +28,21 @@ This may sound slow but all this happens every 4 milliseconds. The same rate tha
 * Download [libusb0.dll](https://github.com/Ryzee119/ogx360/blob/master/Firmware/libusb0.dll) and place it in the avrdude working folder.
 * Download the correct hex file from this repository or the one compiled yourself and place it in the avrdude folder. The folder should have an avrdude.conf, avrdude.exe, libusb0.dll and the hex files.
 *Note that each module must be programmed individually, also the slave devices (player 2,3 and 4) must use the slave hex file. The master (player 1) must use the master hex file.*
+
 ![avrdude folder](https://github.com/Ryzee119/ogx360/blob/master/Images/programming2.JPG?raw=true"ogx360-2")
+
 * Connect the respective board you want to update into the USB port on the PC.
 * Press the RESET button located on the ogx360 PCB. The programming bootloader should initialise and enumerate itself as a COM Port.
 * Check which COM Port the device takes from your Device Manager. *Note: The bootloader is only active for a handful of seconds so if you're too slow just press RESET again.*
+
 ![COM Port](https://github.com/Ryzee119/ogx360/blob/master/Images/programming1.JPG?raw=true"ogx360-3")
+
 * Once the COM Port number has been determined, edit COM17 and ogx360_32u4_master.hex in the below command to suit your requirements. i.e. if you're programming a slave device `ogx360_32u4_master.hex` should be modified to `ogx360_32u4_slave.hex`
 * Press the RESET button again to restart to bootloader and run the following command from the avrdude directory:
 `avrdude -C avrdude.conf -F -p atmega32u4 -c avr109 -b 57600 -P COM17 -Uflash:w:ogx360_32u4_master.hex:i`.
+
 ![avrdude output](https://github.com/Ryzee119/ogx360/blob/master/Images/programming3.JPG?raw=true"ogx360-4")
+
 * Repeat the process for any other modules you need to update.
 * If you're having issues with avrdude, you can try installing the latest version of the Arduino IDE which contains all the relevent drivers and try running avrdude again after installation.
 
@@ -83,6 +89,7 @@ The device descriptor and the below responses are  coded in `xboxcontroller.c`.
 ## XID Descriptor - Custom Vendor Request
 This is what I obtained when monitoring the USB bus between the controller and the console.
 The controller responds with this when `bmRequestType = 0xC1, bRequest = 0x06 and wValue = 0x4200` from the host.
+
 | byte | Data |
 | --- | --- |
 | 00 | 0x10 - bLength, Length of report. 16 bytes |
@@ -100,6 +107,7 @@ This is what I obtained when monitoring the USB bus between the controller and t
 The controller responds with this when `bmRequestType = 0xC1, bRequest = 0x01 and wValue = 0x0100` from the host.
 It will have bits set (1) where the bit is valid in the HID Input Report.
 If the bit is auto-generated, it will be cleared (0). Refer http://xboxdevwiki.net/Xbox_Input_Devices
+
 | byte | Data |
 | --- | --- |
 | 00 | 0x00 - Always 0x00 |
@@ -113,6 +121,7 @@ This is what I obtained when monitoring the USB bus between the controller and t
 The controller responds with this when `bmRequestType = 0xC1, bRequest = 0x01 and wValue = 0x0200` from the host.
 It will have bits set (1) where the bit is valid in the HID Output Report.
 If the bit is auto-generated, it will be cleared (0). Refer http://xboxdevwiki.net/Xbox_Input_Devices
+
 | byte | Data |
 | --- | --- |
 | 00 | 0x00 - Always 0x00 |
@@ -129,7 +138,6 @@ The following library modifications have been made: (These are usually comments 
 The following modifications to the Arduino libraries have been made:
 Wire.cpp, line 272,273 and 274. Added code to the TwiWire::flush function.
 twi.c, line 62-84. twi_timeout function added, line 95, 184, 186, 225, 227, 267, 269, 311, 313, 411, 413
-
 
 
 The following modifications to the USB Host Shield Library have been made:
