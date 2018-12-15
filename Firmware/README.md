@@ -131,19 +131,28 @@ If the bit is auto-generated, it will be cleared (0). Refer http://xboxdevwiki.n
 # References
 The code comprises of the following libraries:
 LUFA USB Stack under the MIT license. http://www.fourwalledcubicle.com/files/LUFA/Doc/170418/html/_page__license_info.html
+
 USB Host Shield Library under the GNU General Public License. https://github.com/felis/USB_Host_Shield_2.0
+
 Arduino libraries have also been incorporates to allow compatability with the USB Host Shield library under the GNU Lesser General Public License. https://www.arduino.cc
+
 
 The following library modifications have been made: (These are usually comments with 'Ryzee' in the respective files)
 The following modifications to the Arduino libraries have been made:
+
 Wire.cpp, line 272,273 and 274. Added code to the TwiWire::flush function.
+
 twi.c, line 62-84. twi_timeout function added, line 95, 184, 186, 225, 227, 267, 269, 311, 313, 411, 413
 
 
 The following modifications to the USB Host Shield Library have been made:
+
 XBOXRECV.cpp, Poll() function, removed the checkStatus() call. This is done in main.cpp now.
+
 XBOXRECV.cpp, checkStatus() added an input uint8_t status to toggle between battery and controller status.
+
 XBOXRECV.h, checkStatus() function made a public function (see the .h file).
+
 
 
 
