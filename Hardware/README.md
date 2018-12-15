@@ -9,13 +9,17 @@ I will preface by saying that the design contains *very* small and fine pitch su
 # PCB
 The unpopulated PCB can be man1ufacturered from dozens of cheap Chinese fabricators around online. I have used www.elecrow.com. Just download the PCB [Gerber](https://github.com/Ryzee119/ogx360/tree/master/Hardware/Gerbers) files from this repository, zip them up and upload to their online ordering service. It's like $5 for 5 boards plus extra for shipping.
 Use the following PCB parameters:
+
 *2 layers, 98x37mm, 1.6mm thick, HASL, 1oz copper, no castellated holes.*
+
 Alternatively, you can buy the unpopulated PCB directly from OSHPark here: https://oshpark.com/shared_projects/FR7744mc
+
 **These will be UNPOPULATED boards!**
 
 # Bill of Materials
 Digikey Quick Cart: https://www.digikey.com.au/short/j15mm1 (Does not include non-digikey items, see 'other items' below for the remainder)
 This also shows the bare minimum quantities, I would suggest you get a few spares in case you drop one of the tiny resistors etc. Use your best judgement.
+
 | Qty | Value/Model | Description | Marking | URL |
 | --- | --- | --- | --- | --- |
 | 1 | RED | LED RED 0805 | PWR | https://www.digikey.com.au/product-detail/en/SML-LXR85IC-TR/67-1556-1-ND |
