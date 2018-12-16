@@ -17,7 +17,7 @@ Alternatively, you can buy the unpopulated PCB directly from OSHPark here: https
 **These will be UNPOPULATED boards!**
 
 # Bill of Materials
-Digikey Quick Cart: https://www.digikey.com.au/short/j15mm1 (Does not include non-digikey items, see 'other items' below for the remainder)
+Digikey Quick Cart: https://www.digikey.com.au/short/pctdjd (Does not include non-digikey items, see 'other items' below for the remainder)
 This also shows the bare minimum quantities, I would suggest you get a few spares in case you drop one of the tiny resistors etc. Use your best judgement.
 
 | Qty | Value/Model | Description | Marking | URL |
