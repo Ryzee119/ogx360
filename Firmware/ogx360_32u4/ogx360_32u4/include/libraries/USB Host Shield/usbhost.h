@@ -75,8 +75,8 @@ public:
                 SPI_MISO::SetDirRead();
                 SPI_SS::SetDirWrite();
                 /* mode 00 (CPOL=0, CPHA=0) master, fclk/2. Mode 11 (CPOL=11, CPHA=11) is also supported by MAX3421E */
-                SPCR = 0x50;
-                SPSR = 0x01; // 0x01
+                SPCR = 0x50; //SPI Enable and MASTER,
+                SPSR = 0x00; // 0x01 = SPI2X Ryzee119, changed from 0x01 to 0x00 to disable SPI2X. Speed is fclk/4 now.
                 /**/
                 //tmp = SPSR;
                 //tmp = SPDR;

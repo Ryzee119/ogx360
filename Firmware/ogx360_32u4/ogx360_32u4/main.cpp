@@ -37,31 +37,23 @@ HID reports to send to the OG Xbox via the controller port.
 
 */
 
-//#define HOST //Comment this line out to compile for Player 2, 3 and 4 slave boards.
-//Uncomment to compile for Player 1 master board.
+#define HOST //Comment this line out to compile for Player 2, 3 and 4 slave boards.
 
 #ifdef HOST
 #include <XBOXRECV.h>
-#include <SPI.h>
 #endif
 
 #include "xboxcontroller.h"
 #include "Wire.h"
 
-extern uint8_t two_timeout_error;
-
 
 #ifdef HOST
 USB UsbHost;						//USB Host Controller USB class.
 XBOXRECV Xbox360(&UsbHost);			//USB Host Controller Xbox 360 Receiver Class
-uint32_t loopCount =0;				//Monitors the current loop
 #else
 uint8_t input_buffer[100];			//Input buffer used by slave devices
-uint32_t wire_timeout=0;			//I2C comms timeout counter used for slave devices
-uint8_t no_i2c = 0;
 #endif
-uint32_t startTime = 0;				//Stores a millsecond timestamp  at the start of each loop.
-uint8_t  playerID;					//playerID is set in the main program based on the slot the Arduino is installed.
+uint8_t playerID;					//playerID is set in the main program based on the slot the Arduino is installed.
 
 
 /*** Slave I2C Requests ***/
@@ -69,21 +61,26 @@ uint8_t  playerID;					//playerID is set in the main program based on the slot t
 //This function executes whenever a data request is sent from the I2C Master.
 //The master only requests the actuator values from the slave.
 void sendRumble(){
-	Wire.write(&XboxOG[0].left_actuator,1); //when compiled for the slave devices the current state is stored in XboxOG[0]
-	Wire.write(&XboxOG[0].right_actuator,1); //when compiled for the slave devices the current state is stored in XboxOG[0]	
+	Wire.write(&XboxOG[0].left_actuator,1);
+	Wire.write(&XboxOG[0].right_actuator,1);
 }
 
-//This function executes whenever data is sent from the I2C Master. The master only sends the button and
-//axis state of the Xbox360 controllers
+//This function executes whenever data is sent from the I2C Master.
+//The master sends either the controller state if a wireless controller
+//is synced or a disable packet {0xF0} if a controller is not synced.
 void getControllerData(int len){
 	for (int i=0;i<len;i++){
 		input_buffer[i]=Wire.read();
 	}
 	
-	//If data is being received from the master,
-	//it means that a wireless controller is synced. so set attach flag.
-	USB_Attach(); 
-	wire_timeout=millis(); //Update the timeout value
+	if(input_buffer[0]==0xF0){
+		USB_Detach(); 	
+		digitalWrite(ARDUINO_LED_PIN, HIGH);
+	} else {
+		USB_Attach(); 
+		if(enumerationComplete)	digitalWrite(ARDUINO_LED_PIN, LOW);
+		memcpy(&XboxOG[0],input_buffer,sizeof(USB_XboxGamepad_Data_t)-15); //Last 15 bytes aren't part of the HID report.
+	}
 }
 #endif
 
@@ -120,12 +117,11 @@ int main(void)
 	Serial1.print(playerID+1);
 	
 	
+	//Init the XboxOG data arrays to zero.
+	memset(&XboxOG,0x00,sizeof(USB_XboxGamepad_Data_t)*4);
 	
 	
 	#ifdef HOST
-	//Init the XboxOG data arrays to zero.
-	memset(&XboxOG,0x00,sizeof(USB_XboxGamepad_Data_t)*4);
-
 	//Init Usb Host Controller
 	digitalWrite(USB_HOST_RESET_PIN, LOW);
 	delay(20);//wait 20ms to reset the IC. Reseting at startup improves reliability in my experience.
@@ -151,8 +147,6 @@ int main(void)
 	Serial1.print(F("\r\nThis is a slave device"));
 	#endif
 	
-	
-	
 	while (1){
 		#ifdef HOST
 		/*** USB HOST TASKS ***/
@@ -160,17 +154,6 @@ int main(void)
 		if (Xbox360.XboxReceiverConnected) {
 			for (uint8_t i = 0; i < 4; i++) {
 				if (Xbox360.Xbox360Connected[i]) {
-					
-					//If Player 1 Wireless Controller is Synced, Enable the USB Peripheral for this Player
-					//Only applicable for Player 1. i.e when i==0.
-					//Slave devices will attach USB when they receive I2C commands. See getControllerData() function.
-					if (i==0) {
-						USB_Attach();
-						if(enumerationComplete){
-							digitalWrite(ARDUINO_LED_PIN, LOW);
-							digitalWrite(PLAYER_LED_PIN, HIGH);  //This LED was included in the prototypes only. N/A anymore
-						}
-					}
 					
 					//Read Digital Buttons
 					Xbox360.getButtonPress(UP, i)    ? XboxOG[i].digButtons |= DUP       : XboxOG[i].digButtons &= ~DUP;
@@ -204,11 +187,10 @@ int main(void)
 					//Send data to slave devices, and retrieve actuator/rumble values from slave devices.
 					//Applicable to player 2, 3 and 4 only. i.e when i>0.
 					if(i>0){
-						
-						//Send the button press data to the slave device. The last 11 bytes are not
+						//Send the button press data to the slave device. The last 15 bytes are not
 						//used as part of the HID report so we dont need to send them
 						Wire.beginTransmission(i);
-						Wire.write((char*)&XboxOG[i],sizeof(USB_XboxGamepad_Data_t)-11); 
+						Wire.write((char*)&XboxOG[i],sizeof(USB_XboxGamepad_Data_t)-15); 
 						Wire.endTransmission(true);
 
 						if(Wire.requestFrom(i, (uint8_t)2)==2){
@@ -231,11 +213,10 @@ int main(void)
 					
 					
 					//Anything that sends a command to the Xbox 360 controllers happens here. (i.e rumble, LED changes, controller off command)
-					//The Xbox 360 controller OUT endpoints have a pole rate of 8ms (8 USB Frames), and each loop is 4-5ms.
-					//Consequently, loopCount%2 only enters every second loop so it should be about 8ms. 
+					//The Xbox 360 controller OUT endpoints have a pole rate of 8ms (8 USB Frames), so should be limited to that.
 					//If you send commands faster than 8 USB frames apart to the OUT endpoints all sorts of strange things happen.
 					//All this code is in else if chains to ensure only one command is ever sent per loop per OUT endpoint.
-					if(loopCount%2){
+					if(millis()-XboxOG[i].commandTimer>=8){
 						//If you hold the XBOX button for more than ~1second, turn off controller
 						if (Xbox360.getButtonPress(XBOX, i)) {
 							if(XboxOG[i].xbox_holdtime==0){
@@ -249,6 +230,7 @@ int main(void)
 								Xbox360.setRumbleOff(i);
 								delay(10);
 								Xbox360.disconnect(i);
+								XboxOG[i].commandTimer=millis();
 							} else if ((millis()-XboxOG[i].xbox_holdtime)>1100){
 								XboxOG[i].xbox_holdtime=0;
 							}
@@ -256,19 +238,21 @@ int main(void)
 						//If Xbox button isnt held down, perform the normal commands to the controller (rumbles, led changes:
 						} else {
 							XboxOG[i].xbox_holdtime=0; //Reset the XBOX button hold time counter.
-							
+
 							//Send actuator levels to the Xbox 360 controllers if new rumble values have been received.
-							//If not, check the time since last rumble update and set rumbles back to zero if no updates have been
-							//received after 250ms or so. Prevents the rumble getting locked on.
-							//Else, finally just poll the controllers for status, battery and set the LEDs.
 							if(XboxOG[i].rumbleUpdate==1){
 								Xbox360.setRumbleOn(XboxOG[i].left_actuator, XboxOG[i].right_actuator, i);
 								XboxOG[i].rumbleUpdate=0;
 								XboxOG[i].rumbleTimer=millis();
+								XboxOG[i].commandTimer=millis();
+							//If no new rumbles, check the time since last rumble update and set rumbles back to zero if no updates have been
+							//received after 250ms or so. Prevents the rumble getting locked on
 							} else if (millis()-XboxOG[i].rumbleTimer>250 && (XboxOG[i].left_actuator!=0x00 || XboxOG[i].right_actuator!=0x00)){
 								XboxOG[i].right_actuator=0x00;
 								XboxOG[i].left_actuator=0x00;
 								Xbox360.setRumbleOn(XboxOG[i].left_actuator, XboxOG[i].right_actuator, i);
+								XboxOG[i].commandTimer=millis();
+							//Else, finally just poll the controllers for status, battery and set the LEDs.
 							} else {
 								static uint8_t statusToggle = 0;
 								switch (statusToggle){
@@ -276,10 +260,12 @@ int main(void)
 									case 100:
 									case 101:
 									Xbox360.checkStatus(statusToggle);	
+									XboxOG[i].commandTimer=millis();
 									statusToggle++; //Toggle between checking controller status and battery status. Both need to be checked regularly.
 									break;
 									case 102:
 									Xbox360.setLedOn((LEDEnum)(i+1),i); //If nothing else needed to be sent, just make sure the right LED quadrant is on.
+									XboxOG[i].commandTimer=millis();
 									statusToggle=0;
 									break;
 									default:
@@ -289,59 +275,40 @@ int main(void)
 							}
 						}
 					}
-				} else { //If Controller is not connected (Only applicable for Player 1)
-					if (i==0) {
-						digitalWrite(ARDUINO_LED_PIN, HIGH);
-						digitalWrite(PLAYER_LED_PIN, LOW); //This LED was included in the prototypes only. N/A anymore
-						USB_Detach();
+				} else {
+					//If the respective controller isn't synced, we instead send a disablePacket over the i2c bus
+					//so that the slave device knows to disable its USB.
+					if(i>0){
+						static uint8_t disablePacket[2] = {0xF0,0xF0};
+						Wire.beginTransmission(i);
+						Wire.write((char*)disablePacket,2);
+						Wire.endTransmission(true);	
 					}
 				}
 			}
 		}
 		
-		loopCount++;
-		/***END USB HOST TASKS ***/
-		#endif
 		
-		
-		#ifndef HOST
-		/*** TASKS SPECIFIC TO THE SLAVE DEVICES ***/
-		//This area is specific to Player 2 and 3 and 4 when compiled as a slave device.
-		//Input buffer is set by the getControllerData i2c event
-		//Slave devices always use XboxOG[0] for their current controller state.
-		//If no i2c command received after 1000ms, the msater isn't sending them likely because the x360 controller isn't synced.
-		//If the x360 controller isn't synced we should use USB_Detach.
-		//This makes the game pause etc. if you turn off the wireless controller.
-		if(millis()-wire_timeout>1000){
-			USB_Detach(); //Will detach the usb device from the Xbox console. The is the same as unplugging an original controller from the console.
-			digitalWrite(PLAYER_LED_PIN, LOW);  //This LED was included in the prototypes only. N/A anymore
-			if(!digitalRead(ARDUINO_LED_PIN)){
-				Serial1.print(F("\r\nI2C timed out after 1000ms, disconnecting USB controller from OG Xbox"));	
-			}
-			digitalWrite(ARDUINO_LED_PIN, HIGH);
-			Wire.flush();
-			
-		} else {
-			//Copy the i2c input_buffer into the XboxOG array.
-			memcpy(&XboxOG[0],input_buffer,sizeof(USB_XboxGamepad_Data_t)-11); //Last 11 bytes aren't part of the HID report.
+		//Handle Player 1 controller connect/disconnect events.
+		if (Xbox360.Xbox360Connected[0]){
+			USB_Attach();
 			if(enumerationComplete){
 				digitalWrite(ARDUINO_LED_PIN, LOW);
 				digitalWrite(PLAYER_LED_PIN, HIGH);  //This LED was included in the prototypes only. N/A anymore
-			}
+			}	
+		} else {
+			digitalWrite(ARDUINO_LED_PIN, HIGH);
+			digitalWrite(PLAYER_LED_PIN, LOW); //This LED was included in the prototypes only. N/A anymore
+			USB_Detach();
 		}
 		
-		/*** END TASKS SPECIFIC TO THE SLAVE DEVICES  ***/
+		/***END USB HOST TASKS ***/
 		#endif
 		
-		
-		/*** USB DEVICE TASKS ***/
-		//HID Reports should be limited to every 4 USB Frames. I made it 5 to account for differences in timing accuracies.
-		while (millis() - startTime < 5){
-			USB_USBTask(); //Process any control transfers that happen to come through while we wait though.
+		if(USB_Device_GetFrameNumber()-Xbox_HID_Interface.State.PrevFrameNum>=4){
+			HID_Device_USBTask(&Xbox_HID_Interface); //Send OG Xbox HID Report
 		}
-		startTime +=5;
-		HID_Device_USBTask(&Xbox_HID_Interface); //Send OG Xbox HID Report
-		
+		USB_USBTask();
 		/*** END USB DEVICE TASKS ***/
 		
 		

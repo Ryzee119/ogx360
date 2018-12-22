@@ -60,7 +60,6 @@ static volatile uint8_t twi_rxBufferIndex;
 
 static volatile uint8_t twi_error;
 
-volatile uint8_t two_timeout_error =0;
 
 /** RYZEE119 CUSTOM FUNUCTION **/
  /* 
@@ -82,8 +81,6 @@ uint8_t twi_timeout(uint8_t reset) {
 		twi_timeout_cnt=0;
 		twi_init();
 		digitalWrite(17, HIGH);
-		two_timeout_error=1;
-		
 		return 1;
 	}
 	return 0;

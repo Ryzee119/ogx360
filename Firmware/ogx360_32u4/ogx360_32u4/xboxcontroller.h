@@ -101,6 +101,7 @@ extern "C" {
 		uint8_t rumbleUpdate;
 		uint32_t rumbleTimer;
 		uint32_t xbox_holdtime;
+		uint32_t commandTimer;
 	} USB_XboxGamepad_Data_t;
 
 	uint16_t CALLBACK_USB_GetDescriptor(const uint16_t wValue,

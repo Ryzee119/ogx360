@@ -8,7 +8,7 @@ This software is released under GNU General Public License v3 (GPL-3).
 The software is written in C++ with links to C libraries. It is compiled in Atmel Studio 7. The microcontrollers are Atmega32U4's which have a built in USB 2.0 device Controller. The Arduino Pro Micro Leonardo boards are used as modules in this design to easily incorporate this functionality. One module is required for each Player that you wish to support. i.e 4 modules are required for 4 player support. The USB Host Controller is a MAX3421 which enumerates and communicates with the Xbox 360 wireless receiver.
 
 Player 1 module is the 'master'. This communicates with the USB Host Controller and gathers data from the Xbox 360 wireless receiver for all four wireless controllers if they are synced. This data is then collated and sent to Player 2,3 and 4 slave devices, where they are converted to HID game controller reports that are compatible with the Original Xbox. The 'master' module will generate its own HID report for Player 1.
-This main databus is bi-directional and facilites button states, axis states and controller rumble values for all four controllers.
+This main data bus is bi-directional and facilitates button states, axis states and controller rumble values for all four controllers.
 
 This may sound slow but all this happens every 4 milliseconds. The same rate that a genuine Xbox controller is polled from the console so there should be no perceivable difference in input lag from a genuine controller.
 
@@ -17,9 +17,9 @@ This may sound slow but all this happens every 4 milliseconds. The same rate tha
 # Compiling
 * Download and install [Atmel Studio 7.0](https://www.microchip.com/mplab/avr-support/atmel-studio-7). Ensure you tick *'AVR 8-bit MCU'* support during the installation.
 * Download the source code files from this repository and open `ogx360_32u4.atsln` with Atmel Studio 7.0.
-* To compile for the master device uncomment `#define HOST` from main.cpp line 23.
-* To compile for the slave devices comment out `#define HOST` from main.cpp line 23. i.e. `//#define HOST`.
-* Finally to compile go to Build>Build Solution. You should be presented with a Build succeeded message in the output console.
+* To compile for the master device, uncomment `#define HOST` from main.cpp line 23.
+* To compile for the slave devices, comment out `#define HOST` from main.cpp line 23. i.e. `//#define HOST`.
+* Finally, to compile go to Build>Build Solution. You should be presented with a Build succeeded message in the output console.
 * On compilation the output .hex file is located in the project directory in /ogx360_32u4/Debug/ogx360_32u4.hex
 
 # Programming
@@ -44,15 +44,15 @@ This may sound slow but all this happens every 4 milliseconds. The same rate tha
 ![avrdude output](https://github.com/Ryzee119/ogx360/blob/master/Images/programming3.JPG?raw=true"ogx360-4")
 
 * Repeat the process for any other modules you need to update.
-* If you're having issues with avrdude, you can try installing the latest version of the Arduino IDE which contains all the relevent drivers and try running avrdude again after installation.
+* If you're having issues with avrdude, you can try installing the latest version of the Arduino IDE which contains all the relevant drivers and try running avrdude again after installation.
 
 # Original Xbox Controller USB Protocol
 The Original Xbox Controllers actually have a inbuilt 3 port USB hub. One channel is connected to the controller and the other two connect to the expansion ports on top of the controller.
 The controller basically a standard 'Human Input Device Class' as defined by the [USB Definition](https://www.usb.org/hid), however implement some custom vendor requests and are required for the controller to be detected correctly on an Original Xbox Console. The Original Xbox controller also does not have a HID Report Descriptor, consequently will not work in a Windows machine via a USB adaptor without custom drivers.
 My code does not emulate the USB Hub and enumerates as the controller directly. The Xbox console doesn't seem to care.
 
-A device descriptor dump from my Original Controller can be seen  [here](https://github.com/Ryzee119/ogx360/tree/master/Firmware/DescriptorDump_VID045E_PID0289.md). There's a few variations around the world it seems, infact my own two controllers had slightly different descriptors but I guess all would work the same.
-The device descriptor and the below responses are  coded in `xboxcontroller.c`.
+A device descriptor dump from my Original Controller can be seen [here](https://github.com/Ryzee119/ogx360/tree/master/Firmware/DescriptorDump_VID045E_PID0289.md). There's a few variations around the world it seems, infact my own two controllers had slightly different descriptors but I guess all would work the same.
+The device descriptor and the below responses are coded in `xboxcontroller.c`.
 
 ### HID Input Report (The data that is sent to the host when the host requests the HID Report)
 | byte | Data |

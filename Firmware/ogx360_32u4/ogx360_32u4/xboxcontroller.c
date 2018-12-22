@@ -32,7 +32,6 @@ this software.
 
 USB_XboxGamepad_Data_t XboxOG[4]; //Xbox gamepad data structure to store all button and actuator states for all four controllers.
 uint8_t PrevXboxHIDReportBuffer[sizeof(USB_XboxGamepad_Data_t)]; //Need to store the previous controller state aswell.
-uint8_t left_actuator, right_actuator; //Stores the actuator values for the rumble of the controller.
 bool enumerationComplete=false; //Just a fla which is set when enumeration has been completed by the host.
 
 /** LUFA HID Class driver interface configuration and state information. This structure is
@@ -48,7 +47,7 @@ USB_ClassInfo_HID_Device_t Xbox_HID_Interface = {
 			.Banks                = 1,
 		},
 		.PrevReportINBuffer           = PrevXboxHIDReportBuffer,
-		.PrevReportINBufferSize       = sizeof(PrevXboxHIDReportBuffer)-11, //Last 11 bytes aren't part of the HID report. I use them for other things
+		.PrevReportINBufferSize       = sizeof(PrevXboxHIDReportBuffer)-15, //Last 15 bytes aren't part of the HID report. I use them for other things
 	},
 };
 
