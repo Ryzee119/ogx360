@@ -2,6 +2,8 @@
 
 The ogx360 is a small circuit board which allows you to use Wireless Xbox 360 Controllers via an Xbox 360 Wireless Receiver on the Original Xbox Console.
 
+A simple video showing some its feature is on youtube https://youtu.be/ycZjQUjz1Fk
+
 Any questions please email me at n360-usb@outlook.com.
 
 ![alt text](https://github.com/Ryzee119/ogx360/blob/master/Images/image1.jpg?raw=true "ogx360-1")
