@@ -13,7 +13,7 @@ Any questions please email me at n360-usb@outlook.com.
 * Low level programming with minimal input lag. Less than 4ms over than an original controller.
 * 100% USB Bus powered from the Original Xbox controller ports. No requirement for external power supplies.
 * Basically instant boot up time so you can use controllers straight away from power on.
-* To connect to the OG Xbox you will need an Xbox to USB adaptor, and a microUSB cable. I recommend keeping all cables as short as possible, including the Xbox 360 wireless receiver cable. If the voltage drop between the console and the wireless receiver is too excessive it will not work reliably. Particularly third-party receivers which have cheap thin cables.
+* To connect to the OG Xbox you will need an Xbox to USB adaptor, and a short microUSB cable.
 * I can't claim 100% compatibility; however, I haven't found a game that doesn't work. If you find one, let me know and I'll see if I can work it out.
 * Supports Genuine Microsoft Xbox 360 Wireless Receivers (USB_VID 0x045E, USB_PID 0x0719) , Mad Catz Receivers (USB_VID 0x1BAD, USB_PID 0x0719) and Generic Third Party Wireless Receivers (USB_VID 0x045E, USB_PID 0x0291). **Wired controllers are not supported.**
 
