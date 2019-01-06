@@ -37,7 +37,7 @@ HID reports to send to the OG Xbox via the controller port.
 
 */
 
-//#define HOST //Comment this line out to compile for Player 2, 3 and 4 slave boards.
+#define HOST //Comment this line out to compile for Player 2, 3 and 4 slave boards.
 
 #ifdef HOST
 #include <XBOXRECV.h>
@@ -167,7 +167,7 @@ int main(void)
 					Xbox360.getButtonPress(R3, i)    ? XboxOG[i].digButtons |= RS_BTN    : XboxOG[i].digButtons &= ~RS_BTN;
 
 					//Read Analog Buttons - have to be converted to digital because x360 controllers don't have analog buttons
-					Xbox360.getButtonPress(A, i)     ? XboxOG[i].A += 0xFF              : XboxOG[i].A = 0x00;
+					Xbox360.getButtonPress(A, i)     ? XboxOG[i].A = 0xFF              : XboxOG[i].A = 0x00;
 					Xbox360.getButtonPress(B, i)     ? XboxOG[i].B = 0xFF              : XboxOG[i].B = 0x00;
 					Xbox360.getButtonPress(X, i)     ? XboxOG[i].X = 0xFF              : XboxOG[i].X = 0x00;
 					Xbox360.getButtonPress(Y, i)     ? XboxOG[i].Y = 0xFF              : XboxOG[i].Y = 0x00;
