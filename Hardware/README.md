@@ -7,14 +7,14 @@ I will preface by saying that the design contains *very* small and fine pitch su
 ![alt text](https://github.com/Ryzee119/ogx360/blob/master/Images/pcb2.jpg?raw=true "ogx360-1")
 
 # PCB
-The unpopulated PCB can be manufacturered from dozens of cheap Chinese fabricators around online. I have used www.elecrow.com. Just download the PCB [Gerber](https://github.com/Ryzee119/ogx360/tree/master/Hardware/Gerbers) files from this repository, zip them up and upload to their online ordering service. It's like $5 for 5 boards plus extra for shipping.
+The unpopulated PCB can be manufactured from dozens of cheap Chinese fabricators around online. I have used www.elecrow.com. Just download the PCB [Gerber](https://github.com/Ryzee119/ogx360/tree/master/Hardware/Gerbers) files from this repository, zip them up and upload to their online ordering service. It's like $5 for 5 boards plus extra for shipping.
 Use the following PCB parameters:
 
 *2 layers, 98x37mm, 1.6mm thick, HASL, 1oz copper, no castellated holes.*
 
 Alternatively, you can buy the unpopulated PCB directly from OSHPark here: https://oshpark.com/shared_projects/FR7744mc
 
-**These will be UNPOPULATED boards!** meaning they will be bare boards and not have any components on them and won't work. Don't email the PCB fab asking where the components are and don't email me asking where the components are. See the Bill of Materials below. They need to be purchase seperately and soldered on yourself. If you pay the PCB fabricator alot more money and provide them the materials list they may do it for you.
+**These will be UNPOPULATED boards!** meaning they will be bare boards and not have any components on them and won't work. Don't email the PCB fab asking where the components are and don't email me asking where the components are. See the Bill of Materials below. They need to be purchased seperately and soldered on yourself. If you pay the PCB fabricator alot more money and provide them the materials list they may do it for you.
 
 # Bill of Materials
 Digikey Quick Cart: https://www.digikey.com.au/short/pctdjd (Does not include non-digikey items, see 'other items' below for the remainder)

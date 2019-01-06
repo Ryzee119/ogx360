@@ -224,8 +224,8 @@ public:
                 pFuncOnInit = funcOnInit;
         };
 		
-		void checkStatus(uint8_t status =0); //Ryzee - moved function to public and added input variable.
-
+		void checkStatus1(uint8_t controller = 0); //Ryzee - moved function to public and split into two functions.
+		void checkStatus2(uint8_t controller = 0); //Ryzee - moved function to public and split into two functions.
 		
         /**@}*/
 

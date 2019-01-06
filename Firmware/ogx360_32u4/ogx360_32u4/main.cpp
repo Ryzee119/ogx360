@@ -37,7 +37,7 @@ HID reports to send to the OG Xbox via the controller port.
 
 */
 
-#define HOST //Comment this line out to compile for Player 2, 3 and 4 slave boards.
+//#define HOST //Comment this line out to compile for Player 2, 3 and 4 slave boards.
 
 #ifdef HOST
 #include <XBOXRECV.h>
@@ -73,6 +73,7 @@ void getControllerData(int len){
 		input_buffer[i]=Wire.read();
 	}
 	
+	//0xF0 is a packet sent from the master if the respective wireless controller isn't synced.
 	if(input_buffer[0]==0xF0){
 		USB_Detach(); 	
 		digitalWrite(ARDUINO_LED_PIN, HIGH);
@@ -166,7 +167,7 @@ int main(void)
 					Xbox360.getButtonPress(R3, i)    ? XboxOG[i].digButtons |= RS_BTN    : XboxOG[i].digButtons &= ~RS_BTN;
 
 					//Read Analog Buttons - have to be converted to digital because x360 controllers don't have analog buttons
-					Xbox360.getButtonPress(A, i)     ? XboxOG[i].A = 0xFF              : XboxOG[i].A = 0x00;
+					Xbox360.getButtonPress(A, i)     ? XboxOG[i].A += 0xFF              : XboxOG[i].A = 0x00;
 					Xbox360.getButtonPress(B, i)     ? XboxOG[i].B = 0xFF              : XboxOG[i].B = 0x00;
 					Xbox360.getButtonPress(X, i)     ? XboxOG[i].X = 0xFF              : XboxOG[i].X = 0x00;
 					Xbox360.getButtonPress(Y, i)     ? XboxOG[i].Y = 0xFF              : XboxOG[i].Y = 0x00;
@@ -195,12 +196,12 @@ int main(void)
 
 						if(Wire.requestFrom(i, (uint8_t)2)==2){
 							int temp = Wire.read(); //read first 8 bytes - this is left actuator, returns -1 or 0xFF on error.
-							if(temp!=-1 && XboxOG[i].left_actuator!=temp && temp!=0xFF){
+							if(temp!=-1 && (uint8_t)temp!=0xFF && XboxOG[i].left_actuator!=(uint8_t)temp){
 								XboxOG[i].left_actuator=(uint8_t)temp;
 								XboxOG[i].rumbleUpdate=1;
 							}
 							temp = Wire.read();    //read second 8 bytes - this is right actuator, returns -1 or 0xFF on error.
-							if(temp!=-1 && XboxOG[i].right_actuator!=temp && temp!=0xFF){
+							if(temp!=-1 && (uint8_t)temp!=0xFF && XboxOG[i].right_actuator!=(uint8_t)temp){
 								XboxOG[i].right_actuator=(uint8_t)temp;
 								XboxOG[i].rumbleUpdate=1;
 							}
@@ -224,52 +225,46 @@ int main(void)
 							}
 							if((millis()-XboxOG[i].xbox_holdtime)>1000 && (millis()-XboxOG[i].xbox_holdtime)<1100){
 								XboxOG[i].digButtons = 0x00;
-								XboxOG[i].left_actuator = 0x00;
-								XboxOG[i].right_actuator = 0x00;
-								XboxOG[i].xbox_holdtime=0;
 								Xbox360.setRumbleOff(i);
 								delay(10);
 								Xbox360.disconnect(i);
 								XboxOG[i].commandTimer=millis();
-							} else if ((millis()-XboxOG[i].xbox_holdtime)>1100){
-								XboxOG[i].xbox_holdtime=0;
 							}
-							
+						} else if (Xbox360.getButtonPress(START, i) && Xbox360.getButtonPress(BACK, i) && XboxOG[i].L>0x00 && XboxOG[i].R>0x00) {
+							Xbox360.setRumbleOff(i);
+							XboxOG[i].commandTimer=millis();
+							XboxOG[i].rumbleUpdate=0;
 						//If Xbox button isnt held down, perform the normal commands to the controller (rumbles, led changes:
 						} else {
 							XboxOG[i].xbox_holdtime=0; //Reset the XBOX button hold time counter.
-
 							//Send actuator levels to the Xbox 360 controllers if new rumble values have been received.
 							if(XboxOG[i].rumbleUpdate==1){
 								Xbox360.setRumbleOn(XboxOG[i].left_actuator, XboxOG[i].right_actuator, i);
 								XboxOG[i].rumbleUpdate=0;
-								XboxOG[i].rumbleTimer=millis();
 								XboxOG[i].commandTimer=millis();
-							//If no new rumbles, check the time since last rumble update and set rumbles back to zero if no updates have been
-							//received after 250ms or so. Prevents the rumble getting locked on
-							} else if (millis()-XboxOG[i].rumbleTimer>250 && (XboxOG[i].left_actuator!=0x00 || XboxOG[i].right_actuator!=0x00)){
-								XboxOG[i].right_actuator=0x00;
-								XboxOG[i].left_actuator=0x00;
-								Xbox360.setRumbleOn(XboxOG[i].left_actuator, XboxOG[i].right_actuator, i);
-								XboxOG[i].commandTimer=millis();
-							//Else, finally just poll the controllers for status, battery and set the LEDs.
 							} else {
-								static uint8_t statusToggle = 0;
-								switch (statusToggle){
-									//Happen every 100 loops or so.. ~ half a second and only needs to happen every so often.
-									case 100:
-									case 101:
-									Xbox360.checkStatus(statusToggle);	
+								//These are low priority commands that only happen if nothing else was required. commandToggle increases once every 8 ms or so
+								//so we can roughly time things here without just spamming uneeded commands to the controllers.
+								static uint8_t commandToggle[4] = {0,0,0,0};
+								switch (commandToggle[i]){
+									//Happen every 250 loops ~ 2 seconds. A windows PC does this every 2.5 seconds or so.
+									case 250:
+									Xbox360.checkStatus1(i);	
 									XboxOG[i].commandTimer=millis();
-									statusToggle++; //Toggle between checking controller status and battery status. Both need to be checked regularly.
+									commandToggle[i]++;
 									break;
-									case 102:
+									case 251:
+									Xbox360.checkStatus2(i);	
+									XboxOG[i].commandTimer=millis();
+									commandToggle[i]++;
+									break;
+									case 252:
 									Xbox360.setLedOn((LEDEnum)(i+1),i); //If nothing else needed to be sent, just make sure the right LED quadrant is on.
 									XboxOG[i].commandTimer=millis();
-									statusToggle=0;
+									commandToggle[i]=0;
 									break;
 									default:
-									statusToggle++;
+									commandToggle[i]++;
 									break;
 								}
 							}
@@ -305,7 +300,7 @@ int main(void)
 		/***END USB HOST TASKS ***/
 		#endif
 		
-		if(USB_Device_GetFrameNumber()-Xbox_HID_Interface.State.PrevFrameNum>=4){
+		if(USB_Device_GetFrameNumber()-Xbox_HID_Interface.State.PrevFrameNum>4){
 			HID_Device_USBTask(&Xbox_HID_Interface); //Send OG Xbox HID Report
 		}
 		USB_USBTask();

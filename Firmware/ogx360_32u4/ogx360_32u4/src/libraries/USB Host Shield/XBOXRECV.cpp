@@ -541,35 +541,30 @@ void XBOXRECV::setLedMode(LEDModeEnum ledMode, uint8_t controller) { // This fun
 Thanks to BusHound from Perisoft.net for the Windows USB Analysis output
 Found by timstamp.co.uk
  */
-//Ryzee added status input variable.
-void XBOXRECV::checkStatus(uint8_t status) {
-       
-	    if(!bPollEnable)
-                return;
-        // Get controller info
-		
-		//Ryzee added the status toggle flag to toggle between battery and controller status.
-		if(status%2){
-			//Get status
-			writeBuf[0] = 0x08;
-			writeBuf[1] = 0x00;
-			writeBuf[2] = 0x0f;
-			writeBuf[3] = 0xc0;
-			for(uint8_t i = 0; i < 4; i++) {
-				XboxCommand(i, writeBuf, 4);
-			}
-		} else {
-			//Get battery status
-			writeBuf[0] = 0x00;
-			writeBuf[1] = 0x00;
-			writeBuf[2] = 0x00;
-			writeBuf[3] = 0x40;
-			for(uint8_t i = 0; i < 4; i++) {
-				if(Xbox360Connected[i])
-				XboxCommand(i, writeBuf, 4);
-			}
-			
-		}
+//Ryzee split function into two and added controller input variable
+void XBOXRECV::checkStatus1(uint8_t controller) {
+	if(!bPollEnable){
+		return;
+	}
+	//Get status
+	writeBuf[0] = 0x08;
+	writeBuf[1] = 0x00;
+	writeBuf[2] = 0x0f;
+	writeBuf[3] = 0xc0;
+	XboxCommand(controller, writeBuf, 4);
+
+}
+
+void XBOXRECV::checkStatus2(uint8_t controller) {
+	if(!bPollEnable){
+		return;
+	}
+	//Get battery status
+	writeBuf[0] = 0x00;
+	writeBuf[1] = 0x00;
+	writeBuf[2] = 0x00;
+	writeBuf[3] = 0x40;
+	XboxCommand(controller, writeBuf, 4);
 }
 
 
