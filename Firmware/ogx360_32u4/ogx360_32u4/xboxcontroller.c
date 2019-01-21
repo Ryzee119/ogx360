@@ -117,14 +117,13 @@ const uint8_t PROGMEM USB_DESCRIPTOR_CONFIGURATION[] = {
 const uint8_t HID_DESCRIPTOR_XID[] = {
 	0x10,   //bLength - Length of report. 16 bytes
 	0x42,   //bDescriptorType - always 0x42
-	0x00,   //bcdXid
-	0x01,   //bType - 1=Xbox Gamecontroller?
-	0x01,   //bSubType, 0x01 = Gamepad? This is what I got from my logic analyser
-	0x02,   //bMaxInputReportSize //0x02 from logic analyser
-	0x14,   //bMaxOutputReportSize - Controller button report - 20 bytes
-	0x06,   //wAlternateProductIds - 0x06 from logic analyser
-	0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF //The OG controller has this padding for some reason
-}; 
+	0x00, 0x01,  //bcdXid
+	0x01,   //bType - 1=Xbox Gamecontroller
+	0x02,   //bSubType, 0x02 = Gamepad S, 0x01 = Gamepad (Duke)
+	0x14,   //bMaxInputReportSize //HID Report from controller - 20 bytes
+	0x06,   //bMaxOutputReportSize - Rumble report from host - 6 bytes
+	0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF  //wAlternateProductIds
+};
 
 
 //It will have bits set (1) where the bit is valid in the controller button report.
@@ -179,7 +178,6 @@ void EVENT_USB_Device_Connect(void){
 /** Event handler for the library USB Disconnection event. */
 void EVENT_USB_Device_Disconnect(void){
 	enumerationComplete=false;
-	digitalWrite(PLAYER_LED_PIN, LOW);
 	digitalWrite(ARDUINO_LED_PIN, HIGH);
 }
 
@@ -201,7 +199,7 @@ void EVENT_USB_Device_ControlRequest(void)
 	//These are caught and processed here before going into the standard HID driver.
 	//These are required for the controller to actually work on the console. Some games are more picky than others.
 	//See http://xboxdevwiki.net/Xbox_Input_Device under GET_DESCRIPTOR and GET_CAPABILITIES
-	//The actual responses were obtained from a USB analyser when communicating with an Xbox console.
+	//The actual responses were obtained from a USB analyser when communicating with an OG Xbox console.
 	if (USB_ControlRequest.bmRequestType == 0xC1 && USB_ControlRequest.bRequest == 0x06 && USB_ControlRequest.wValue == 0x4200) {
 		Endpoint_ClearSETUP();
 		Endpoint_Write_Control_Stream_LE(&HID_DESCRIPTOR_XID, 0x10);

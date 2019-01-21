@@ -48,7 +48,8 @@ This may sound slow but all this happens every 4 milliseconds. The same rate tha
 
 # Original Xbox Controller USB Protocol
 The Original Xbox Controllers actually have a inbuilt 3 port USB hub. One channel is connected to the controller and the other two connect to the expansion ports on top of the controller.
-The controller basically a standard 'Human Input Device Class' as defined by the [USB Definition](https://www.usb.org/hid), however implement some custom vendor requests and are required for the controller to be detected correctly on an Original Xbox Console. The Original Xbox controller also does not have a HID Report Descriptor, consequently will not work in a Windows machine via a USB adaptor without custom drivers.
+
+The controller basically is a standard 'Human Input Device Class' as defined by the [USB Definition](https://www.usb.org/hid), however implement some custom vendor requests and are required for the controller to be detected correctly on an Original Xbox Console. The Original Xbox controller also does not have a HID Report Descriptor, consequently will not work in a Windows machine via a USB adaptor without custom drivers.
 My code does not emulate the USB Hub and enumerates as the controller directly. The Xbox console doesn't seem to care.
 
 A device descriptor dump from my Original Controller can be seen [here](https://github.com/Ryzee119/ogx360/tree/master/Firmware/DescriptorDump_VID045E_PID0289.md). There's a few variations around the world it seems, infact my own two controllers had slightly different descriptors but I guess all would work the same.

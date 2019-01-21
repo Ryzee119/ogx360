@@ -15,7 +15,7 @@ As I'm getting ALOT of emails asking this, I am currently getting a small batch 
 * Support up to 4 Xbox Wireless Controllers using a modular design with readily available [Arduino Pro Micro](https://www.sparkfun.com/products/12640) boards. I have linked Sparkfun but any cheaper clone will work the same.
 * Full Rumble Pak support on all controllers.
 * Firmware can be updated over USB. No programming hardware is required. See [Firmware](https://github.com/Ryzee119/ogx360/tree/master/Firmware) for programming instructions.
-* Low level programming with minimal input lag. Less than 4ms over than an original controller.
+* Low level programming with minimal input lag. Less than 4ms over an original controller. (See https://youtu.be/V7Pnba7Y12Y)
 * 100% USB Bus powered from the Original Xbox controller ports. No requirement for external power supplies.
 * Basically instant boot up time so you can use controllers straight away from power on.
 * To connect to the OG Xbox you will need an Xbox to USB adaptor, and a short microUSB cable.
