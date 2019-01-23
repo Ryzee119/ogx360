@@ -174,8 +174,15 @@ public:
 
         /** True if a Xbox ONE controller is connected. */
         bool XboxOneConnected;
+		  uint16_t PID, VID;
 		  
 		  void enableInput();
+		  void pdpInit1();
+		  void pdpInit2();
+		  void powerAInit1();
+		  void powerAInit2();
+		  void horiInit();
+		  
 
 protected:
         /** Pointer to USB class instance. */

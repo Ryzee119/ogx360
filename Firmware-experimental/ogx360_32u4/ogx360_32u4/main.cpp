@@ -37,7 +37,7 @@ HID reports to send to the OG Xbox via the controller port.
 
 */
 
-#define HOST //Comment this line out to compile for Player 2, 3 and 4 slave boards.
+//#define HOST //Comment this line out to compile for Player 2, 3 and 4 slave boards.
 
 #ifdef HOST
 #include <XBOXRECV.h>
@@ -127,6 +127,8 @@ void setLedOn(LEDEnum led, uint8_t controller){
 		//no LEDs on Xbox One Controller. I think it is possible to adjust brightness but this is not implemented.
 	}
 }
+
+
 #endif
 
 #ifndef HOST
@@ -311,7 +313,9 @@ int main(void)
 								if(Xbox360Wireless.Xbox360Connected[i]) {
 									Xbox360Wireless.checkStatus1(i); //Only applicable for Xbox360 Wireless
 								}
-								if(XboxOneWired[i]->XboxOneConnected) XboxOneWired[i]->enableInput();
+								if(XboxOneWired[i]->XboxOneConnected) {
+									XboxOneWired[i]->enableInput();
+								}
 								XboxOG[i].commandTimer=millis();
 								commandToggle[i]++;
 								break;
@@ -323,6 +327,11 @@ int main(void)
 								commandToggle[i]++;
 								break;
 								case 252:
+								//Need for PDP Afterglow controllers to work.
+								if(XboxOneWired[i]->XboxOneConnected && XboxOneWired[i]->VID==0x0E6F) {
+									XboxOneWired[i]->pdpInit1();
+									XboxOneWired[i]->pdpInit2();
+								}
 								setLedOn((LEDEnum)(i+1),i); //If nothing else needed to be sent, just make sure the right LED quadrant is on.
 								XboxOG[i].commandTimer=millis();
 								commandToggle[i]=0;
@@ -372,9 +381,9 @@ int main(void)
 					Wire.endTransmission(true);
 				}
 			}
+			USB_USBTask();
 			if(USB_Device_GetFrameNumber()-Xbox_HID_Interface.State.PrevFrameNum>=4){
 				HID_Device_USBTask(&Xbox_HID_Interface); //Send OG Xbox HID Report
-				USB_USBTask();
 			}
 		} //End for loop
 		

@@ -49,7 +49,7 @@ uint8_t XBOXONE::Init(uint8_t parent, uint8_t port, bool lowspeed) {
         uint8_t rcode;
         UsbDevice *p = NULL;
         EpInfo *oldep_ptr = NULL;
-        uint16_t PID, VID;
+        //uint16_t PID, VID;
         uint8_t num_of_conf; // Number of configurations
 
         // get memory address of USB device address pool
@@ -97,7 +97,7 @@ uint8_t XBOXONE::Init(uint8_t parent, uint8_t port, bool lowspeed) {
 
         if(rcode)
                 goto FailGetDevDescr;
-
+		
         VID = udd->idVendor;
         PID = udd->idProduct;
 			
@@ -404,7 +404,7 @@ int16_t XBOXONE::getAnalogHat(AnalogHatEnum a) {
 
 /* Xbox Controller commands */
 uint8_t XBOXONE::XboxCommand(uint8_t* data, uint16_t nbytes) {
-        data[2] = cmdCounter++; // Increment the output command counter
+        data[2] = 0x00;//cmdCounter++; // Increment the output command counter
         uint8_t rcode = pUsb->outTransfer(bAddress, epInfo[ XBOX_ONE_OUTPUT_PIPE ].epAddr, nbytes, data);
 #ifdef DEBUG_USB_HOST
         Notify(PSTR("\r\nXboxCommand, Return: "), 0x80);
@@ -435,6 +435,16 @@ void XBOXONE::onInit() {
         writeBuf[11] = 0x00; // Off period
         writeBuf[12] = 0x00; // Repeat count
         XboxCommand(writeBuf, 13);*/
+		  if(VID==0x0E6F) { // Afterglow
+			  pdpInit1();
+			  pdpInit2();
+		  } else if(VID==0x24C6){ // PowerA
+			  powerAInit1();
+			  delay(4);
+			  powerAInit2();
+		  } else if(VID==0x0F0D){ // HORIPAD ONE
+			  horiInit();
+		  }
 
         if(pFuncOnInit)
                 pFuncOnInit(); // Call the user function
@@ -493,3 +503,51 @@ void XBOXONE::enableInput(){
 	 writeBuf[4] = 0x00;
 	 XboxCommand(writeBuf, 5);
 }
+
+void XBOXONE::pdpInit1(){
+	uint8_t writeBuf[7];
+	writeBuf[0] = 0x0a;
+	writeBuf[1] = 0x20;
+	writeBuf[2] = 0x00;
+	writeBuf[3] = 0x03;
+	writeBuf[4] = 0x00;
+	writeBuf[5] = 0x01;
+	writeBuf[6] = 0x14;
+	
+	XboxCommand(writeBuf, 7);
+}
+
+void XBOXONE::pdpInit2(){
+	uint8_t writeBuf[7];
+	writeBuf[0] = 0x06;
+	writeBuf[1] = 0x20;
+	writeBuf[2] = 0x00;
+	writeBuf[3] = 0x02;
+	writeBuf[4] = 0x01;
+	writeBuf[5] = 0x00;
+	writeBuf[6] = 0x00;
+	
+	XboxCommand(writeBuf, 7);
+}
+
+void XBOXONE::powerAInit1(){
+	uint8_t writeBuf[13]={
+	0x09, 0x00, 0x00, 0x09, 0x00, 0x0F, 0x00, 0x00,
+	0x1D, 0x1D, 0xFF, 0x00, 0x00};
+	XboxCommand(writeBuf, 13);
+}
+
+void XBOXONE::powerAInit2(){
+	uint8_t writeBuf[13]={
+	0x09, 0x00, 0x00, 0x09, 0x00, 0x0F, 0x00, 0x00,
+	0x00, 0x00, 0x00, 0x00, 0x00};
+	XboxCommand(writeBuf, 13);
+};
+
+void XBOXONE::horiInit(){
+	uint8_t writeBuf[13]={
+	0x01, 0x20, 0x00, 0x09, 0x00, 0x04, 0x20, 0x3a,
+	0x00, 0x00, 0x00, 0x80, 0x00};
+	XboxCommand(writeBuf, 13);
+};
+

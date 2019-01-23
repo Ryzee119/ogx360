@@ -37,7 +37,7 @@ HID reports to send to the OG Xbox via the controller port.
 
 */
 
-//#define HOST //Comment this line out to compile for Player 2, 3 and 4 slave boards.
+#define HOST //Comment this line out to compile for Player 2, 3 and 4 slave boards.
 
 #ifdef HOST
 #include <XBOXRECV.h>
@@ -284,10 +284,11 @@ int main(void)
 					Wire.endTransmission(true);
 				}
 			}
+			
 			//Check if Player 1 data should be sent during the loops to minimise input lag a bit for player 1.
+			USB_USBTask();
 			if(USB_Device_GetFrameNumber()-Xbox_HID_Interface.State.PrevFrameNum>=4){
 				HID_Device_USBTask(&Xbox_HID_Interface); //Send OG Xbox HID Report
-				USB_USBTask();
 			}
 		}  //End for loop
 		
