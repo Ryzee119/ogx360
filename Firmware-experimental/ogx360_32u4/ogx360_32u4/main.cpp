@@ -37,7 +37,7 @@ HID reports to send to the OG Xbox via the controller port.
 
 */
 
-//#define HOST //Comment this line out to compile for Player 2, 3 and 4 slave boards.
+#define HOST //Comment this line out to compile for Player 2, 3 and 4 slave boards.
 
 #ifdef HOST
 #include <XBOXRECV.h>
@@ -259,8 +259,8 @@ int main(void)
 				getButtonPress(B, i)     ? XboxOG[i].B = 0xFF                : XboxOG[i].B = 0x00;
 				getButtonPress(X, i)     ? XboxOG[i].X = 0xFF                : XboxOG[i].X = 0x00;
 				getButtonPress(Y, i)     ? XboxOG[i].Y = 0xFF                : XboxOG[i].Y = 0x00;
-				getButtonPress(L1, i)    ? XboxOG[i].BLACK = 0xFF            : XboxOG[i].BLACK = 0x00;
-				getButtonPress(R1, i)    ? XboxOG[i].WHITE = 0xFF            : XboxOG[i].WHITE = 0x00;
+				getButtonPress(L1, i)    ? XboxOG[i].WHITE = 0xFF            : XboxOG[i].WHITE = 0x00;
+				getButtonPress(R1, i)    ? XboxOG[i].BLACK = 0xFF            : XboxOG[i].BLACK = 0x00;
 
 				//Read Analog triggers
 				XboxOG[i].L = getButtonPress(L2, i); //0x00 to 0xFF
