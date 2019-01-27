@@ -37,7 +37,7 @@ HID reports to send to the OG Xbox via the controller port.
 
 */
 
-#define HOST //Comment this line out to compile for Player 2, 3 and 4 slave boards.
+//#define HOST //Comment this line out to compile for Player 2, 3 and 4 slave boards.
 
 #ifdef HOST
 #include <XBOXRECV.h>
@@ -173,8 +173,8 @@ int main(void)
 				Xbox360.getButtonPress(B, i)     ? XboxOG[i].B = 0xFF              : XboxOG[i].B = 0x00;
 				Xbox360.getButtonPress(X, i)     ? XboxOG[i].X = 0xFF              : XboxOG[i].X = 0x00;
 				Xbox360.getButtonPress(Y, i)     ? XboxOG[i].Y = 0xFF              : XboxOG[i].Y = 0x00;
-				Xbox360.getButtonPress(L1, i)    ? XboxOG[i].BLACK = 0xFF          : XboxOG[i].BLACK = 0x00;
-				Xbox360.getButtonPress(R1, i)    ? XboxOG[i].WHITE = 0xFF          : XboxOG[i].WHITE = 0x00;
+				Xbox360.getButtonPress(L1, i)    ? XboxOG[i].WHITE = 0xFF          : XboxOG[i].WHITE = 0x00;
+				Xbox360.getButtonPress(R1, i)    ? XboxOG[i].BLACK = 0xFF          : XboxOG[i].BLACK = 0x00;
 
 				//Read Analog triggers
 				XboxOG[i].L = Xbox360.getButtonPress(L2, i); //0x00 to 0xFF
@@ -307,10 +307,11 @@ int main(void)
 		/***END USB HOST TASKS ***/
 		#endif
 		
+		USB_USBTask();
 		if(USB_Device_GetFrameNumber()-Xbox_HID_Interface.State.PrevFrameNum>=4){
 			HID_Device_USBTask(&Xbox_HID_Interface); //Send OG Xbox HID Report
 		}
-		USB_USBTask();
+		
 		
 	}
 }
