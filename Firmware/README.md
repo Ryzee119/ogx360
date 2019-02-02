@@ -23,7 +23,7 @@ The module will now appear as a keyboard/serial composite device in Windows. Not
 
 Open a serial monitoring program such as [Termite](https://www.compuphase.com/software_termite.htm), and set the following settings `Baud rate: 115200, 8 Data Bits, 1 Stop Bit, Parity None, Flowing Control RTS/CTS`. Once you connect to the commport, the self test should be performed. A healthy board with a Wireless Receiver connected should output the following:
 
-![self test](https://github.com/Ryzee119/ogx360/blob/master/Images/programming5.jpg?raw=true"ogx360-6")
+![self test](https://github.com/Ryzee119/ogx360/blob/master/Images/programming5.JPG?raw=true"ogx360-6")
 
 # Compiling
 * Download and install [Atmel Studio 7.0](https://www.microchip.com/mplab/avr-support/atmel-studio-7). Ensure you tick *'AVR 8-bit MCU'* support during the installation.
