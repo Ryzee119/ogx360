@@ -14,6 +14,17 @@ This may sound slow but all this happens every 4 milliseconds. The same rate tha
 
 ![Block Diagram](https://github.com/Ryzee119/ogx360/blob/master/Images/block_diagram.jpg?raw=true "ogx360-1")
 
+# Testing
+If you have made the board yourself and want to check everything is healthy, I have added a test program `ogx360_debug.hex`. Program this to the master module as per the programming instructions under **Programming**.
+
+The module will now appear as a keyboard/serial composite device in Windows. Note the COM port number. See below:
+
+![comm port](https://github.com/Ryzee119/ogx360/blob/master/Images/programming4.png?raw=true"ogx360-5")
+
+Open a serial monitoring program such as [Termite](https://www.compuphase.com/software_termite.htm), and set the following settings `Baud rate: 115200, 8 Data Bits, 1 Stop Bit, Parity None, Flowing Control RTS/CTS`. Once you connect to the commport, the self test should be performed. A healthy board with a Wireless Receiver connected should output the following:
+
+![self test](https://github.com/Ryzee119/ogx360/blob/master/Images/programming5.jpg?raw=true"ogx360-5")
+
 # Compiling
 * Download and install [Atmel Studio 7.0](https://www.microchip.com/mplab/avr-support/atmel-studio-7). Ensure you tick *'AVR 8-bit MCU'* support during the installation.
 * Download the source code files from this repository and open `ogx360_32u4.atsln` with Atmel Studio 7.0.
@@ -45,6 +56,7 @@ This may sound slow but all this happens every 4 milliseconds. The same rate tha
 
 * Repeat the process for any other modules you need to update.
 * If you're having issues with avrdude, you can try installing the latest version of the Arduino IDE which contains all the relevant drivers and try running avrdude again after installation.
+* 
 
 # Original Xbox Controller USB Protocol
 The Original Xbox Controllers actually have a inbuilt 3 port USB hub. One channel is connected to the controller and the other two connect to the expansion ports on top of the controller.

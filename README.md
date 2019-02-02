@@ -31,6 +31,11 @@ See the respective folder for open source licensing.
 | [`Firmware`](https://github.com/Ryzee119/ogx360/tree/master/Firmware) | This folder contains the source code. The source code is based on the [USB Host Shield Library](https://github.com/felis/USB_Host_Shield_2.0) for Arduino, and [LUFA USB AVR Framework](http://www.fourwalledcubicle.com/LUFA.php). The code was integrated and compiled using [Atmel Studio 7.0](https://www.microchip.com/mplab/avr-support/atmel-studio-7).| 
 | [`Images`](https://github.com/Ryzee119/ogx360/tree/master/Images) | Just the images used throughout this repository.| 
 
+#### I Want to Add More Modules
+You can support up to 4 players with the addition of low cost Arduino Modules such this [this](https://www.aliexpress.com/item/New-Pro-Micro-for-arduino-ATmega32U4-5V-16MHz-Module-with-2-row-pin-header-For-Leonardo/32768308647.html).
+This requires some basic soldering to solder the module into the respective port on the ogx360. Once the module is in place, you must program the correct firmware onto the device as per the instructions in [`Firmware`](https://github.com/Ryzee119/ogx360/tree/master/Firmware).
+For Player 2, 3 and 4 modules you will want to use the slave hex file. Finally, connect a corresponding cable between the Arduino Module and the OG Xbox Controller Port! The device activates when the 2nd, 3rd or 4th wireless controller is synced to the wireless receiver respectively.
+
 #### Further Info
 The USB Host Controller is a MAX3421 and uses the [USB Host Shield Library](https://github.com/felis/USB_Host_Shield_2.0). This enumerates and gathers data from the Xbox 360 Wireless Receiver.
 This data is then converted into the correct format for the Original Xbox and sent to the USB device controllers. The USB device controllers use Atmega32U4 chips based on the [Arduino Pro Micro](https://www.sparkfun.com/products/12640). Up to four Arduino Pro Micro's can be installed either directly soldered in or installed on female sockets to support up to four players. The USB device controllers have been configured to appear as Original Xbox Controllers and trick the console into thinking a real controller is connected.
