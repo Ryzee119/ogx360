@@ -20,7 +20,7 @@ You can buy pre-assembled boards from my etsy page: https://www.etsy.com/au/list
 * Basically instant boot up time so you can use controllers straight away from power on.
 * To connect to the OG Xbox you will need an Xbox to USB adaptor, and a short microUSB cable.
 * I can't claim 100% compatibility; however, I haven't found a game that doesn't work. If you find one, let me know and I'll see if I can work it out.
-* Supports Genuine Microsoft Xbox 360 Wireless Receivers (USB_VID 0x045E, USB_PID 0x0719) , Mad Catz Receivers (USB_VID 0x1BAD, USB_PID 0x0719) and Generic Third Party Wireless Receivers (USB_VID 0x045E, USB_PID 0x0291). **Wired controllers are not supported.**
+* Supports Genuine Microsoft Xbox 360 Wireless Receivers (USB_VID 0x045E, USB_PID 0x0719) , Mad Catz Receivers (USB_VID 0x1BAD, USB_PID 0x0719) and Generic Third Party Wireless Receivers (USB_VID 0x045E, USB_PID 0x0291). **Wired controllers are not supported by default. See the Experimental Firmware for Xbox One Wired and Xbox 360 Wired Controllers**
 
 #### Folder Structure
 See the respective folder for open source licensing.
