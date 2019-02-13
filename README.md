@@ -7,7 +7,7 @@ A another video attempting to show the input lag is here: https://youtu.be/V7Pnb
 
 Any questions please email me at n360-usb@outlook.com.
 
-You can buy pre-assembled boards from my etsy page: https://www.etsy.com/au/listing/672315615/ogx360-add-wireless-xbox-360-controller. *Currently sold out. I will place another order after Chinese New Year when the PCB fabricator reopens.This will be the 11th Feb plus allow about 4 to 6 weeks for them to make them and ship them to me.*
+You can buy pre-assembled boards from my etsy page: https://www.etsy.com/au/listing/672315615/ogx360-add-wireless-xbox-360-controller. *Currently sold out, but order placed! This is could be 4-6 weeks away (From the 11th Feb). I generally post updates on my twitter page https://twitter.com/Ryzee119
 
 ![alt text](https://github.com/Ryzee119/ogx360/blob/master/Images/image1.jpg?raw=true "ogx360-1")
 
