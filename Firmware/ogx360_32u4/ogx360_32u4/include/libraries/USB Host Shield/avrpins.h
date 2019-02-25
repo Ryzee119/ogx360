@@ -11,8 +11,8 @@ Contact information
 -------------------
 
 Circuits At Home, LTD
-Web      :  http://www.circuitsathome.com
-e-mail   :  support@circuitsathome.com
+Web   : http://www.circuitsathome.com
+e-mail  : support@circuitsathome.com
  */
 
 /* derived from Konstantin Chizhov's AVR port templates */
@@ -87,40 +87,40 @@ e-mail   :  support@circuitsathome.com
 //Port definitions for AtTiny, AtMega families.
 
 #define MAKE_PORT(portName, ddrName, pinName, className, ID) \
-    class className{\
-    public:\
-      typedef uint8_t DataT;\
-    public:\
-      static void Write(DataT value){portName = value;}\
-      static void ClearAndSet(DataT clearMask, DataT value){portName = (portName & ~clearMask) | value;}\
-      static DataT Read(){return portName;}\
-      static void DirWrite(DataT value){ddrName = value;}\
-      static DataT DirRead(){return ddrName;}\
-      static void Set(DataT value){portName |= value;}\
-      static void Clear(DataT value){portName &= ~value;}\
-      static void Toggle(DataT value){portName ^= value;}\
-      static void DirSet(DataT value){ddrName |= value;}\
-      static void DirClear(DataT value){ddrName &= ~value;}\
-      static void DirToggle(DataT value){ddrName ^= value;}\
-      static DataT PinRead(){return pinName;}\
-      enum{Id = ID};\
-      enum{Width=sizeof(DataT)*8};\
-    };
+  class className{\
+  public:\
+   typedef uint8_t DataT;\
+  public:\
+   static void Write(DataT value){portName = value;}\
+   static void ClearAndSet(DataT clearMask, DataT value){portName = (portName & ~clearMask) | value;}\
+   static DataT Read(){return portName;}\
+   static void DirWrite(DataT value){ddrName = value;}\
+   static DataT DirRead(){return ddrName;}\
+   static void Set(DataT value){portName |= value;}\
+   static void Clear(DataT value){portName &= ~value;}\
+   static void Toggle(DataT value){portName ^= value;}\
+   static void DirSet(DataT value){ddrName |= value;}\
+   static void DirClear(DataT value){ddrName &= ~value;}\
+   static void DirToggle(DataT value){ddrName ^= value;}\
+   static DataT PinRead(){return pinName;}\
+   enum{Id = ID};\
+   enum{Width=sizeof(DataT)*8};\
+  };
 
 // TCCR registers to set/clear Arduino PWM
 #define MAKE_TCCR(TccrName, className) \
-    class className{\
-    public:\
-      typedef uint8_t DataT;\
-    public:\
-      static void Write(DataT value){TccrName = value;}\
-      static void ClearAndSet(DataT clearMask, DataT value){TccrName = (TccrName & ~clearMask) | value;}\
-      static DataT Read(){return TccrName;}\
-      static void Set(DataT value){TccrName |= value;}\
-      static void Clear(DataT value){TccrName &= ~value;}\
-      static void Toggle(DataT value){TccrName ^= value;}\
-      enum{Width=sizeof(DataT)*8};\
-    };
+  class className{\
+  public:\
+   typedef uint8_t DataT;\
+  public:\
+   static void Write(DataT value){TccrName = value;}\
+   static void ClearAndSet(DataT clearMask, DataT value){TccrName = (TccrName & ~clearMask) | value;}\
+   static DataT Read(){return TccrName;}\
+   static void Set(DataT value){TccrName |= value;}\
+   static void Clear(DataT value){TccrName &= ~value;}\
+   static void Toggle(DataT value){TccrName ^= value;}\
+   enum{Width=sizeof(DataT)*8};\
+  };
 
 #ifdef USE_PORTA
 
@@ -177,59 +177,59 @@ MAKE_TCCR(TCCR2A, Tccr2a)
 // It is fully static.
 template<typename PORT, uint8_t PIN>
 class TPin {
-        //    BOOST_STATIC_ASSERT(PIN < PORT::Width);
+    //  BOOST_STATIC_ASSERT(PIN < PORT::Width);
 public:
-        typedef PORT Port;
+    typedef PORT Port;
 
-        enum {
-                Number = PIN
-        };
+    enum {
+        Number = PIN
+    };
 
-        static void Set() {
-                PORT::Set(1 << PIN);
+    static void Set() {
+        PORT::Set(1 << PIN);
+    }
+
+    static void Set(uint8_t val) {
+        if(val)
+            Set();
+        else Clear();
+    }
+
+    static void SetDir(uint8_t val) {
+        if(val)
+            SetDirWrite();
+        else SetDirRead();
+    }
+
+    static void Clear() {
+        PORT::Clear(1 << PIN);
+    }
+
+    static void Toggle() {
+        PORT::Toggle(1 << PIN);
+    }
+
+    static void SetDirRead() {
+        PORT::DirClear(1 << PIN);
+    }
+
+    static void SetDirWrite() {
+        PORT::DirSet(1 << PIN);
+    }
+
+    static uint8_t IsSet() {
+        return PORT::PinRead() & (uint8_t)(1 << PIN);
+    }
+
+    static void WaiteForSet() {
+        while(IsSet() == 0) {
         }
+    }
 
-        static void Set(uint8_t val) {
-                if(val)
-                        Set();
-                else Clear();
+    static void WaiteForClear() {
+        while(IsSet()) {
         }
-
-        static void SetDir(uint8_t val) {
-                if(val)
-                        SetDirWrite();
-                else SetDirRead();
-        }
-
-        static void Clear() {
-                PORT::Clear(1 << PIN);
-        }
-
-        static void Toggle() {
-                PORT::Toggle(1 << PIN);
-        }
-
-        static void SetDirRead() {
-                PORT::DirClear(1 << PIN);
-        }
-
-        static void SetDirWrite() {
-                PORT::DirSet(1 << PIN);
-        }
-
-        static uint8_t IsSet() {
-                return PORT::PinRead() & (uint8_t)(1 << PIN);
-        }
-
-        static void WaiteForSet() {
-                while(IsSet() == 0) {
-                }
-        }
-
-        static void WaiteForClear() {
-                while(IsSet()) {
-                }
-        }
+    }
 }; //class TPin...
 
 // this class represents one bit in TCCR port.
@@ -238,25 +238,25 @@ public:
 
 template<typename TCCR, uint8_t COM>
 class TCom {
-        //    BOOST_STATIC_ASSERT(PIN < PORT::Width);
+    //  BOOST_STATIC_ASSERT(PIN < PORT::Width);
 public:
-        typedef TCCR Tccr;
+    typedef TCCR Tccr;
 
-        enum {
-                Com = COM
-        };
+    enum {
+        Com = COM
+    };
 
-        static void Set() {
-                TCCR::Set(1 << COM);
-        }
+    static void Set() {
+        TCCR::Set(1 << COM);
+    }
 
-        static void Clear() {
-                TCCR::Clear(1 << COM);
-        }
+    static void Clear() {
+        TCCR::Clear(1 << COM);
+    }
 
-        static void Toggle() {
-                TCCR::Toggle(1 << COM);
-        }
+    static void Toggle() {
+        TCCR::Toggle(1 << COM);
+    }
 }; //class TCom...
 
 //Short pin definitions
@@ -422,60 +422,60 @@ template<typename Tp_pin, typename Tc_bit>
 class Tp_Tc {
 public:
 
-        static void SetDir(uint8_t val) {
-                if(val)
-                        SetDirWrite();
-                else SetDirRead();
-        }
+    static void SetDir(uint8_t val) {
+        if(val)
+            SetDirWrite();
+        else SetDirRead();
+    }
 
-        static void SetDirRead() {
-                Tp_pin::SetDirRead(); //set pin direction
-                Tc_bit::Clear(); //disconnect pin from PWM
-        }
+    static void SetDirRead() {
+        Tp_pin::SetDirRead(); //set pin direction
+        Tc_bit::Clear(); //disconnect pin from PWM
+    }
 
-        static void SetDirWrite() {
-                Tp_pin::SetDirWrite();
-                Tc_bit::Clear();
-        }
+    static void SetDirWrite() {
+        Tp_pin::SetDirWrite();
+        Tc_bit::Clear();
+    }
 };
 
 /* pin definitions for cases where it's necessary to clear compare output mode bits */
 
-//typedef Tp_Tc<Pd3, Tc2b> P3;  //Arduino pin 3
-//typedef Tp_Tc<Pd5, Tc0b> P5;  //Arduino pin 5
-//typedef Tp_Tc<Pd6, Tc0a> P6;  //Arduino pin 6
-//typedef Tp_Tc<Pb1, Tc1a> P9;  //Arduino pin 9
-//typedef Tp_Tc<Pb2, Tc1b> P10;  //Arduino pin 10
-//typedef Tp_Tc<Pb3, Tc2a> P11;  //Arduino pin 11
+//typedef Tp_Tc<Pd3, Tc2b> P3; //Arduino pin 3
+//typedef Tp_Tc<Pd5, Tc0b> P5; //Arduino pin 5
+//typedef Tp_Tc<Pd6, Tc0a> P6; //Arduino pin 6
+//typedef Tp_Tc<Pb1, Tc1a> P9; //Arduino pin 9
+//typedef Tp_Tc<Pb2, Tc1b> P10; //Arduino pin 10
+//typedef Tp_Tc<Pb3, Tc2a> P11; //Arduino pin 11
 
-/* Arduino pin definitions  */
+/* Arduino pin definitions */
 #if defined(__AVR_ATmega1280__) || defined(__AVR_ATmega2560__)
 // "Mega" Arduino pin numbers
 
-#define P0  Pe0
-#define P1  Pe1
-#define P2  Pe4
-#define P3  Pe5
-#define P4  Pg5
-#define P5  Pe3
-#define P6  Ph3
-#define P7  Ph4
+#define P0 Pe0
+#define P1 Pe1
+#define P2 Pe4
+#define P3 Pe5
+#define P4 Pg5
+#define P5 Pe3
+#define P6 Ph3
+#define P7 Ph4
 
-#define P8  Ph5
-#define P9  Ph6
-#define P10  Pb4
-#define P11  Pb5
-#define P12  Pb6
-#define P13  Pb7
+#define P8 Ph5
+#define P9 Ph6
+#define P10 Pb4
+#define P11 Pb5
+#define P12 Pb6
+#define P13 Pb7
 
-#define P14  Pj1
-#define P15  Pj0
-#define P16  Ph1
-#define P17  Ph0
-#define P18  Pd3
-#define P19  Pd2
-#define P20  Pd1
-#define P21  Pd0
+#define P14 Pj1
+#define P15 Pj0
+#define P16 Ph1
+#define P17 Ph0
+#define P18 Pd3
+#define P19 Pd2
+#define P20 Pd1
+#define P21 Pd0
 
 #define P22 Pa0
 #define P23 Pa1
@@ -521,44 +521,44 @@ public:
 #elif defined(__AVR_ATmega168__) || defined(__AVR_ATmega328P__)
 // "Classic" Arduino pin numbers
 
-#define P0  Pd0
-#define P1  Pd1
-#define P2  Pd2
-#define P3  Pd3
-#define P4  Pd4
-#define P5  Pd5
-#define P6  Pd6
-#define P7  Pd7
+#define P0 Pd0
+#define P1 Pd1
+#define P2 Pd2
+#define P3 Pd3
+#define P4 Pd4
+#define P5 Pd5
+#define P6 Pd6
+#define P7 Pd7
 
-#define P8  Pb0
-#define P9  Pb1
-#define P10  Pb2
-#define P11  Pb3
-#define P12  Pb4
-#define P13  Pb5
+#define P8 Pb0
+#define P9 Pb1
+#define P10 Pb2
+#define P11 Pb3
+#define P12 Pb4
+#define P13 Pb5
 
-#define P14  Pc0
-#define P15  Pc1
-#define P16  Pc2
-#define P17  Pc3
-#define P18  Pc4
-#define P19  Pc5
+#define P14 Pc0
+#define P15 Pc1
+#define P16 Pc2
+#define P17 Pc3
+#define P18 Pc4
+#define P19 Pc5
 
 // "Classic" Arduino pin numbers
 
 #elif defined(CORE_TEENSY) && defined(__AVR_ATmega32U4__)
 // Teensy 2.0 pin numbers
 // http://www.pjrc.com/teensy/pinout.html
-#define P0  Pb0
-#define P1  Pb1
-#define P2  Pb2
-#define P3  Pb3
-#define P4  Pb7
-#define P5  Pd0
-#define P6  Pd1
-#define P7  Pd2
-#define P8  Pd3
-#define P9  Pc6
+#define P0 Pb0
+#define P1 Pb1
+#define P2 Pb2
+#define P3 Pb3
+#define P4 Pb7
+#define P5 Pd0
+#define P6 Pd1
+#define P7 Pd2
+#define P8 Pd3
+#define P9 Pc6
 #define P10 Pc7
 #define P11 Pd6
 #define P12 Pd7
@@ -579,17 +579,17 @@ public:
 #elif defined(__AVR_ATmega32U4__)
 // Arduino Leonardo pin numbers
 
-#define P0  Pd2 // D0 - PD2
-#define P1  Pd3 // D1 - PD3
-#define P2  Pd1 // D2 - PD1
-#define P3  Pd0 // D3 - PD0
-#define P4  Pd4 // D4 - PD4
-#define P5  Pc6 // D5 - PC6
-#define P6  Pd7 // D6 - PD7
-#define P7  Pe6 // D7 - PE6
+#define P0 Pd2 // D0 - PD2
+#define P1 Pd3 // D1 - PD3
+#define P2 Pd1 // D2 - PD1
+#define P3 Pd0 // D3 - PD0
+#define P4 Pd4 // D4 - PD4
+#define P5 Pc6 // D5 - PC6
+#define P6 Pd7 // D6 - PD7
+#define P7 Pe6 // D7 - PE6
 
-#define P8  Pb4 // D8 - PB4
-#define P9  Pb5 // D9 - PB5
+#define P8 Pb4 // D8 - PB4
+#define P9 Pb5 // D9 - PB5
 #define P10 Pb6 // D10 - PB6
 #define P11 Pb7 // D11 - PB7
 #define P12 Pd6 // D12 - PD6
@@ -619,16 +619,16 @@ public:
 #elif defined(CORE_TEENSY) && (defined(__AVR_AT90USB646__) || defined(__AVR_AT90USB1286__))
 // Teensy++ 1.0 and 2.0 pin numbers
 // http://www.pjrc.com/teensy/pinout.html
-#define P0  Pd0
-#define P1  Pd1
-#define P2  Pd2
-#define P3  Pd3
-#define P4  Pd4
-#define P5  Pd5
-#define P6  Pd6
-#define P7  Pd7
-#define P8  Pe0
-#define P9  Pe1
+#define P0 Pd0
+#define P1 Pd1
+#define P2 Pd2
+#define P3 Pd3
+#define P4 Pd4
+#define P5 Pd5
+#define P6 Pd6
+#define P7 Pd7
+#define P8 Pe0
+#define P9 Pe1
 #define P10 Pc0
 #define P11 Pc1
 #define P12 Pc2
@@ -670,25 +670,25 @@ public:
 #elif defined(ARDUINO_AVR_BALANDUINO) && (defined(__AVR_ATmega644__) || defined(__AVR_ATmega1284P__))
 // Balanduino pin numbers
 // http://balanduino.net/
-#define P0  Pd0 /* 0  - PD0 */
-#define P1  Pd1 /* 1  - PD1 */
+#define P0 Pd0 /* 0 - PD0 */
+#define P1 Pd1 /* 1 - PD1 */
 
 #if BALANDUINO_REVISION < 13
-  #define P2  Pb2 /* 2  - PB2 */
-  #define P3  Pd6 /* 3  - PD6 */
-  #define P4  Pd7 /* 4  - PD7 */
-  #define P5  Pb3 /* 5  - PB3 */
+ #define P2 Pb2 /* 2 - PB2 */
+ #define P3 Pd6 /* 3 - PD6 */
+ #define P4 Pd7 /* 4 - PD7 */
+ #define P5 Pb3 /* 5 - PB3 */
 #else
-  #define P2  Pd2 /* 2  - PD2 */
-  #define P3  Pd3 /* 3  - PD3 */
-  #define P4  Pd6 /* 4  - PD6 */
-  #define P5  Pd7 /* 5  - PD7 */
+ #define P2 Pd2 /* 2 - PD2 */
+ #define P3 Pd3 /* 3 - PD3 */
+ #define P4 Pd6 /* 4 - PD6 */
+ #define P5 Pd7 /* 5 - PD7 */
 #endif
 
-#define P6  Pb4 /* 6  - PB4 */
-#define P7  Pa0 /* 7  - PA0 */
-#define P8  Pa1 /* 8  - PA1 */
-#define P9  Pa2 /* 9  - PA2 */
+#define P6 Pb4 /* 6 - PB4 */
+#define P7 Pa0 /* 7 - PA0 */
+#define P8 Pa1 /* 8 - PA1 */
+#define P9 Pa2 /* 9 - PA2 */
 #define P10 Pa3 /* 10 - PA3 */
 #define P11 Pa4 /* 11 - PA4 */
 #define P12 Pa5 /* 12 - PA5 */
@@ -696,11 +696,11 @@ public:
 #define P14 Pc0 /* 14 - PC0 */
 
 #if BALANDUINO_REVISION < 13
-  #define P15 Pd2 /* 15 - PD2 */
-  #define P16 Pd3 /* 16 - PD3 */
+ #define P15 Pd2 /* 15 - PD2 */
+ #define P16 Pd3 /* 16 - PD3 */
 #else
-  #define P15 Pb2 /* 15 - PB2 */
-  #define P16 Pb3 /* 16 - PB2 */
+ #define P15 Pb2 /* 15 - PB2 */
+ #define P16 Pb3 /* 16 - PB2 */
 #endif
 
 #define P17 Pd4 /* 17 - PD4 */
@@ -724,16 +724,16 @@ public:
 // UNO*Pro pin numbers
 // Homepage: http://www.hobbytronics.co.uk/arduino-uno-pro
 // Pin Reference: http://www.hobbytronics.co.uk/download/uno_pro/pins_arduino.h
-#define P0  Pd0
-#define P1  Pd1
-#define P2  Pb2
-#define P3  Pb3
-#define P4  Pb0
-#define P5  Pb1
-#define P6  Pd2
-#define P7  Pd3
-#define P8  Pd5
-#define P9  Pd6
+#define P0 Pd0
+#define P1 Pd1
+#define P2 Pb2
+#define P3 Pb3
+#define P4 Pb0
+#define P5 Pb1
+#define P6 Pd2
+#define P7 Pd3
+#define P8 Pd5
+#define P9 Pd6
 #define P10 Pb4
 #define P11 Pb5
 #define P12 Pb6
@@ -762,16 +762,16 @@ public:
 // Sanguino pin numbers
 // Homepage: http://sanguino.cc/hardware
 // Hardware add-on: https://github.com/Lauszus/Sanguino
-#define P0  Pb0
-#define P1  Pb1
-#define P2  Pb2
-#define P3  Pb3
-#define P4  Pb4
-#define P5  Pb5
-#define P6  Pb6
-#define P7  Pb7
-#define P8  Pd0
-#define P9  Pd1
+#define P0 Pb0
+#define P1 Pb1
+#define P2 Pb2
+#define P3 Pb3
+#define P4 Pb4
+#define P5 Pb5
+#define P6 Pb6
+#define P7 Pb7
+#define P8 Pd0
+#define P9 Pd1
 #define P10 Pd2
 #define P11 Pd3
 #define P12 Pd4
@@ -817,23 +817,23 @@ public:
 #define MAKE_PIN(className, baseReg, pinNum, configReg) \
 class className { \
 public: \
-  static void Set() { \
-    *GPIO_BITBAND_PTR(baseReg, pinNum) = 1; \
-  } \
-  static void Clear() { \
-    *GPIO_BITBAND_PTR(baseReg, pinNum) = 0; \
-  } \
-  static void SetDirRead() { \
-    configReg = PORT_PCR_SRE | PORT_PCR_DSE | PORT_PCR_MUX(1); \
-    *(GPIO_BITBAND_PTR(baseReg, pinNum) + 640) = 0; \
-  } \
-  static void SetDirWrite() { \
-    configReg = PORT_PCR_SRE | PORT_PCR_DSE | PORT_PCR_MUX(1); \
-    *(GPIO_BITBAND_PTR(baseReg, pinNum) + 640) = 1; \
-  } \
-  static uint8_t IsSet() { \
-    return *(GPIO_BITBAND_PTR(baseReg, pinNum) + 512); \
-  } \
+ static void Set() { \
+  *GPIO_BITBAND_PTR(baseReg, pinNum) = 1; \
+ } \
+ static void Clear() { \
+  *GPIO_BITBAND_PTR(baseReg, pinNum) = 0; \
+ } \
+ static void SetDirRead() { \
+  configReg = PORT_PCR_SRE | PORT_PCR_DSE | PORT_PCR_MUX(1); \
+  *(GPIO_BITBAND_PTR(baseReg, pinNum) + 640) = 0; \
+ } \
+ static void SetDirWrite() { \
+  configReg = PORT_PCR_SRE | PORT_PCR_DSE | PORT_PCR_MUX(1); \
+  *(GPIO_BITBAND_PTR(baseReg, pinNum) + 640) = 1; \
+ } \
+ static uint8_t IsSet() { \
+  return *(GPIO_BITBAND_PTR(baseReg, pinNum) + 512); \
+ } \
 };
 
 MAKE_PIN(P0, CORE_PIN0_PORTREG, CORE_PIN0_BIT, CORE_PIN0_CONFIG);
@@ -920,23 +920,23 @@ MAKE_PIN(P63, CORE_PIN63_PORTREG, CORE_PIN63_BIT, CORE_PIN63_CONFIG);
 #define MAKE_PIN(className, baseReg, pinNum, configReg) \
 class className { \
 public: \
-  static void Set() { \
-    *portSetRegister(pinNum) = digitalPinToBitMask(pinNum); \
-  } \
-  static void Clear() { \
-    *portClearRegister(pinNum) = digitalPinToBitMask(pinNum); \
-  } \
-  static void SetDirRead() { \
-    configReg = PORT_PCR_SRE | PORT_PCR_DSE | PORT_PCR_MUX(1); \
-    *portModeRegister(pinNum) &= ~digitalPinToBitMask(pinNum); \
-  } \
-  static void SetDirWrite() { \
-    configReg = PORT_PCR_SRE | PORT_PCR_DSE | PORT_PCR_MUX(1); \
-    *portModeRegister(pinNum) |= digitalPinToBitMask(pinNum); \
-  } \
-  static uint8_t IsSet() { \
-    return (*portInputRegister(pinNum) & digitalPinToBitMask(pinNum)) ? 1 : 0; \
-  } \
+ static void Set() { \
+  *portSetRegister(pinNum) = digitalPinToBitMask(pinNum); \
+ } \
+ static void Clear() { \
+  *portClearRegister(pinNum) = digitalPinToBitMask(pinNum); \
+ } \
+ static void SetDirRead() { \
+  configReg = PORT_PCR_SRE | PORT_PCR_DSE | PORT_PCR_MUX(1); \
+  *portModeRegister(pinNum) &= ~digitalPinToBitMask(pinNum); \
+ } \
+ static void SetDirWrite() { \
+  configReg = PORT_PCR_SRE | PORT_PCR_DSE | PORT_PCR_MUX(1); \
+  *portModeRegister(pinNum) |= digitalPinToBitMask(pinNum); \
+ } \
+ static uint8_t IsSet() { \
+  return (*portInputRegister(pinNum) & digitalPinToBitMask(pinNum)) ? 1 : 0; \
+ } \
 };
 
 MAKE_PIN(P0, CORE_PIN0_PORTREG, 0, CORE_PIN0_CONFIG);
@@ -972,41 +972,41 @@ MAKE_PIN(P26, CORE_PIN26_PORTREG, 26, CORE_PIN26_CONFIG);
 #elif defined(ARDUINO_SAM_DUE) && defined(__SAM3X8E__)
 
 // SetDirRead:
-//   Disable interrupts
-//   Disable the pull up resistor
-//   Set to INPUT
-//   Enable PIO
+//  Disable interrupts
+//  Disable the pull up resistor
+//  Set to INPUT
+//  Enable PIO
 
 // SetDirWrite:
-//   Disable interrupts
-//   Disable the pull up resistor
-//   Set to OUTPUT
-//   Enable PIO
+//  Disable interrupts
+//  Disable the pull up resistor
+//  Set to OUTPUT
+//  Enable PIO
 
 #define MAKE_PIN(className, pio, pinMask) \
 class className { \
 public: \
-  static void Set() { \
-    pio->PIO_SODR = pinMask; \
-  } \
-  static void Clear() { \
-    pio->PIO_CODR = pinMask; \
-  } \
-  static void SetDirRead() { \
-    pio->PIO_IDR = pinMask ; \
-    pio->PIO_PUDR = pinMask; \
-    pio->PIO_ODR = pinMask; \
-    pio->PIO_PER = pinMask; \
-  } \
-  static void SetDirWrite() { \
-    pio->PIO_IDR = pinMask ; \
-    pio->PIO_PUDR = pinMask; \
-    pio->PIO_OER = pinMask; \
-    pio->PIO_PER = pinMask; \
-  } \
-  static uint8_t IsSet() { \
-    return pio->PIO_PDSR & pinMask; \
-  } \
+ static void Set() { \
+  pio->PIO_SODR = pinMask; \
+ } \
+ static void Clear() { \
+  pio->PIO_CODR = pinMask; \
+ } \
+ static void SetDirRead() { \
+  pio->PIO_IDR = pinMask ; \
+  pio->PIO_PUDR = pinMask; \
+  pio->PIO_ODR = pinMask; \
+  pio->PIO_PER = pinMask; \
+ } \
+ static void SetDirWrite() { \
+  pio->PIO_IDR = pinMask ; \
+  pio->PIO_PUDR = pinMask; \
+  pio->PIO_OER = pinMask; \
+  pio->PIO_PER = pinMask; \
+ } \
+ static uint8_t IsSet() { \
+  return pio->PIO_PDSR & pinMask; \
+ } \
 };
 
 // See: http://arduino.cc/en/Hacking/PinMappingSAM3X and variant.cpp
@@ -1098,21 +1098,21 @@ MAKE_PIN(P78, PIOB, PIO_PB23); // Unconnected
 #define MAKE_PIN(className, pin) \
 class className { \
 public: \
-    static void Set() { \
-        nrf_gpio_pin_set(pin); \
-    } \
-    static void Clear() { \
-        nrf_gpio_pin_clear(pin); \
-    } \
-    static void SetDirRead() { \
-        nrf_gpio_cfg_input(pin, NRF_GPIO_PIN_NOPULL); \
-    } \
-    static void SetDirWrite() { \
-        nrf_gpio_cfg_output(pin); \
-    } \
-    static uint8_t IsSet() { \
-        return (uint8_t)nrf_gpio_pin_read(pin); \
-    } \
+  static void Set() { \
+    nrf_gpio_pin_set(pin); \
+  } \
+  static void Clear() { \
+    nrf_gpio_pin_clear(pin); \
+  } \
+  static void SetDirRead() { \
+    nrf_gpio_cfg_input(pin, NRF_GPIO_PIN_NOPULL); \
+  } \
+  static void SetDirWrite() { \
+    nrf_gpio_cfg_output(pin); \
+  } \
+  static uint8_t IsSet() { \
+    return (uint8_t)nrf_gpio_pin_read(pin); \
+  } \
 };
 
 // See: pin_transform.c in RBL nRF51822 SDK
@@ -1150,30 +1150,30 @@ MAKE_PIN(P24, Pin_nRF51822_to_Arduino(D24));
 #define MAKE_PIN(className, port, pin) \
 class className { \
 public: \
-  static void Set() { \
-    HAL_GPIO_WritePin(port, pin, GPIO_PIN_SET); \
-  } \
-  static void Clear() { \
-    HAL_GPIO_WritePin(port, pin, GPIO_PIN_RESET); \
-  } \
-  static void SetDirRead() { \
-    static GPIO_InitTypeDef GPIO_InitStruct; \
-    GPIO_InitStruct.Pin = pin; \
-    GPIO_InitStruct.Mode = GPIO_MODE_INPUT; \
-    GPIO_InitStruct.Pull = GPIO_NOPULL; \
-    HAL_GPIO_Init(port, &GPIO_InitStruct); \
-  } \
-  static void SetDirWrite() { \
-    static GPIO_InitTypeDef GPIO_InitStruct; \
-    GPIO_InitStruct.Pin = pin; \
-    GPIO_InitStruct.Mode = GPIO_MODE_OUTPUT_PP; \
-    GPIO_InitStruct.Pull = GPIO_NOPULL; \
-    GPIO_InitStruct.Speed = GPIO_SPEED_HIGH; \
-    HAL_GPIO_Init(port, &GPIO_InitStruct); \
-  } \
-  static GPIO_PinState IsSet() { \
-    return HAL_GPIO_ReadPin(port, pin); \
-  } \
+ static void Set() { \
+  HAL_GPIO_WritePin(port, pin, GPIO_PIN_SET); \
+ } \
+ static void Clear() { \
+  HAL_GPIO_WritePin(port, pin, GPIO_PIN_RESET); \
+ } \
+ static void SetDirRead() { \
+  static GPIO_InitTypeDef GPIO_InitStruct; \
+  GPIO_InitStruct.Pin = pin; \
+  GPIO_InitStruct.Mode = GPIO_MODE_INPUT; \
+  GPIO_InitStruct.Pull = GPIO_NOPULL; \
+  HAL_GPIO_Init(port, &GPIO_InitStruct); \
+ } \
+ static void SetDirWrite() { \
+  static GPIO_InitTypeDef GPIO_InitStruct; \
+  GPIO_InitStruct.Pin = pin; \
+  GPIO_InitStruct.Mode = GPIO_MODE_OUTPUT_PP; \
+  GPIO_InitStruct.Pull = GPIO_NOPULL; \
+  GPIO_InitStruct.Speed = GPIO_SPEED_HIGH; \
+  HAL_GPIO_Init(port, &GPIO_InitStruct); \
+ } \
+ static GPIO_PinState IsSet() { \
+  return HAL_GPIO_ReadPin(port, pin); \
+ } \
 };
 
 MAKE_PIN(P0, GPIOA, GPIO_PIN_3); // D0
@@ -1214,21 +1214,21 @@ MAKE_PIN(P19, GPIOC, GPIO_PIN_0); // A5
 #define MAKE_PIN(className, pin) \
 class className { \
 public: \
-  static void Set() { \
-    digitalWrite(pin, HIGH);\
-  } \
-  static void Clear() { \
-    digitalWrite(pin, LOW); \
-  } \
-  static void SetDirRead() { \
-    pinMode(pin, INPUT); \
-  } \
-  static void SetDirWrite() { \
-    pinMode(pin, OUTPUT); \
-  } \
-  static uint8_t IsSet() { \
-    return digitalRead(pin); \
-  } \
+ static void Set() { \
+  digitalWrite(pin, HIGH);\
+ } \
+ static void Clear() { \
+  digitalWrite(pin, LOW); \
+ } \
+ static void SetDirRead() { \
+  pinMode(pin, INPUT); \
+ } \
+ static void SetDirWrite() { \
+  pinMode(pin, OUTPUT); \
+ } \
+ static uint8_t IsSet() { \
+  return digitalRead(pin); \
+ } \
 };
 
 MAKE_PIN(P0, 0);
@@ -1274,27 +1274,27 @@ MAKE_PIN(P20, 20); // ATN
 #define MAKE_PIN(className, pin) \
 class className { \
 public: \
-  static void Set() { \
-    fastDigitalWrite(pin, HIGH); \
-  } \
-  static void Clear() { \
-    fastDigitalWrite(pin, LOW); \
-  } \
-  static void SetDirRead() { \
-    if (pinToFastPin(pin)) \
-      pinMode(pin, INPUT_FAST); \
-    else \
-      pinMode(pin, INPUT); \
-  } \
-  static void SetDirWrite() { \
-    if (pinToFastPin(pin)) \
-      pinMode(pin, OUTPUT_FAST); \
-    else \
-      pinMode(pin, OUTPUT); \
-  } \
-  static uint8_t IsSet() { \
-    return fastDigitalRead(pin); \
-  } \
+ static void Set() { \
+  fastDigitalWrite(pin, HIGH); \
+ } \
+ static void Clear() { \
+  fastDigitalWrite(pin, LOW); \
+ } \
+ static void SetDirRead() { \
+  if (pinToFastPin(pin)) \
+   pinMode(pin, INPUT_FAST); \
+  else \
+   pinMode(pin, INPUT); \
+ } \
+ static void SetDirWrite() { \
+  if (pinToFastPin(pin)) \
+   pinMode(pin, OUTPUT_FAST); \
+  else \
+   pinMode(pin, OUTPUT); \
+ } \
+ static uint8_t IsSet() { \
+  return fastDigitalRead(pin); \
+ } \
 };
 
 MAKE_PIN(P0, 0);
@@ -1329,21 +1329,21 @@ MAKE_PIN(P19, 19); // A5
 #define MAKE_PIN(className, pin) \
 class className { \
 public: \
-  static void Set() { \
-    digitalWrite(pin, HIGH);\
-  } \
-  static void Clear() { \
-    digitalWrite(pin, LOW); \
-  } \
-  static void SetDirRead() { \
-    pinMode(pin, INPUT); \
-  } \
-  static void SetDirWrite() { \
-    pinMode(pin, OUTPUT); \
-  } \
-  static uint8_t IsSet() { \
-    return digitalRead(pin); \
-  } \
+ static void Set() { \
+  digitalWrite(pin, HIGH);\
+ } \
+ static void Clear() { \
+  digitalWrite(pin, LOW); \
+ } \
+ static void SetDirRead() { \
+  pinMode(pin, INPUT); \
+ } \
+ static void SetDirWrite() { \
+  pinMode(pin, OUTPUT); \
+ } \
+ static uint8_t IsSet() { \
+  return digitalRead(pin); \
+ } \
 };
 
 // 0 .. 13 - Digital pins
@@ -1369,21 +1369,21 @@ MAKE_PIN(P13, 13); //
 #define MAKE_PIN(className, pin) \
 class className { \
 public: \
-  static void Set() { \
-    digitalWrite(pin, HIGH);\
-  } \
-  static void Clear() { \
-    digitalWrite(pin, LOW); \
-  } \
-  static void SetDirRead() { \
-    pinMode(pin, INPUT); \
-  } \
-  static void SetDirWrite() { \
-    pinMode(pin, OUTPUT); \
-  } \
-  static uint8_t IsSet() { \
-    return digitalRead(pin); \
-  } \
+ static void Set() { \
+  digitalWrite(pin, HIGH);\
+ } \
+ static void Clear() { \
+  digitalWrite(pin, LOW); \
+ } \
+ static void SetDirRead() { \
+  pinMode(pin, INPUT); \
+ } \
+ static void SetDirWrite() { \
+  pinMode(pin, OUTPUT); \
+ } \
+ static uint8_t IsSet() { \
+  return digitalRead(pin); \
+ } \
 };
 
 #if defined(ESP8266)
@@ -1412,28 +1412,28 @@ MAKE_PIN(P15, 15); // SS
 #ifdef pgm_read_dword
 #undef pgm_read_dword
 #endif
-#ifdef  pgm_read_float
+#ifdef pgm_read_float
 #undef pgm_read_float
 #endif
-#ifdef  pgm_read_ptr
+#ifdef pgm_read_ptr
 #undef pgm_read_ptr
 #endif
 
 #define pgm_read_word(addr) ({ \
-  typeof(addr) _addr = (addr); \
-  *(const unsigned short *)(_addr); \
+ typeof(addr) _addr = (addr); \
+ *(const unsigned short *)(_addr); \
 })
 #define pgm_read_dword(addr) ({ \
-  typeof(addr) _addr = (addr); \
-  *(const unsigned long *)(_addr); \
+ typeof(addr) _addr = (addr); \
+ *(const unsigned long *)(_addr); \
 })
 #define pgm_read_float(addr) ({ \
-  typeof(addr) _addr = (addr); \
-  *(const float *)(_addr); \
+ typeof(addr) _addr = (addr); \
+ *(const float *)(_addr); \
 })
 #define pgm_read_ptr(addr) ({ \
-  typeof(addr) _addr = (addr); \
-  *(void * const *)(_addr); \
+ typeof(addr) _addr = (addr); \
+ *(void * const *)(_addr); \
 })
 
 // Pinout for ESP32 dev module

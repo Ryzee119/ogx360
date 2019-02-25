@@ -1,22 +1,22 @@
 /*
-  WString.h - String library for Wiring & Arduino
-  ...mostly rewritten by Paul Stoffregen...
-  Copyright (c) 2009-10 Hernando Barragan.  All right reserved.
-  Copyright 2011, Paul Stoffregen, paul@pjrc.com
+ WString.h - String library for Wiring & Arduino
+ ...mostly rewritten by Paul Stoffregen...
+ Copyright (c) 2009-10 Hernando Barragan. All right reserved.
+ Copyright 2011, Paul Stoffregen, paul@pjrc.com
 
-  This library is free software; you can redistribute it and/or
-  modify it under the terms of the GNU Lesser General Public
-  License as published by the Free Software Foundation; either
-  version 2.1 of the License, or (at your option) any later version.
+ This library is free software; you can redistribute it and/or
+ modify it under the terms of the GNU Lesser General Public
+ License as published by the Free Software Foundation; either
+ version 2.1 of the License, or (at your option) any later version.
 
-  This library is distributed in the hope that it will be useful,
-  but WITHOUT ANY WARRANTY; without even the implied warranty of
-  MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU
-  Lesser General Public License for more details.
+ This library is distributed in the hope that it will be useful,
+ but WITHOUT ANY WARRANTY; without even the implied warranty of
+ MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the GNU
+ Lesser General Public License for more details.
 
-  You should have received a copy of the GNU Lesser General Public
-  License along with this library; if not, write to the Free Software
-  Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301  USA
+ You should have received a copy of the GNU Lesser General Public
+ License along with this library; if not, write to the Free Software
+ Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA 02110-1301 USA
 */
 
 #ifndef String_class_h
@@ -31,13 +31,13 @@
 // When compiling programs with this class, the following gcc parameters
 // dramatically increase performance and memory (RAM) efficiency, typically
 // with little or no increase in code size.
-//     -felide-constructors
-//     -std=c++0x
+//   -felide-constructors
+//   -std=c++0x
 
 class __FlashStringHelper;
 #define F(string_literal) (reinterpret_cast<const __FlashStringHelper *>(PSTR(string_literal)))
 
-// An inherited class for holding the result of a concatenation.  These
+// An inherited class for holding the result of a concatenation. These
 // result objects are assumed to be writable by subsequent concatenations.
 class StringSumHelper;
 
@@ -59,7 +59,7 @@ public:
 	String(const char *cstr = "");
 	String(const String &str);
 	String(const __FlashStringHelper *str);
-       #if __cplusplus >= 201103L || defined(__GXX_EXPERIMENTAL_CXX0X__)
+    #if __cplusplus >= 201103L || defined(__GXX_EXPERIMENTAL_CXX0X__)
 	String(String &&rval);
 	String(StringSumHelper &&rval);
 	#endif
@@ -75,18 +75,18 @@ public:
 
 	// memory management
 	// return true on success, false on failure (in which case, the string
-	// is left unchanged).  reserve(0), if successful, will validate an
+	// is left unchanged). reserve(0), if successful, will validate an
 	// invalid string (i.e., "if (s)" will be true afterwards)
 	unsigned char reserve(unsigned int size);
 	inline unsigned int length(void) const {return len;}
 
-	// creates a copy of the assigned value.  if the value is null or
+	// creates a copy of the assigned value. if the value is null or
 	// invalid, or if the memory allocation fails, the string will be
 	// marked as invalid ("if (s)" will be false).
 	String & operator = (const String &rhs);
 	String & operator = (const char *cstr);
 	String & operator = (const __FlashStringHelper *str);
-       #if __cplusplus >= 201103L || defined(__GXX_EXPERIMENTAL_CXX0X__)
+    #if __cplusplus >= 201103L || defined(__GXX_EXPERIMENTAL_CXX0X__)
 	String & operator = (String &&rval);
 	String & operator = (StringSumHelper &&rval);
 	#endif
@@ -94,7 +94,7 @@ public:
 	// concatenate (works w/ built-in types)
 
 	// returns true on success, false on failure (in which case, the string
-	// is left unchanged).  if the argument is null or invalid, the
+	// is left unchanged). if the argument is null or invalid, the
 	// concatenation is considered unsucessful.
 	unsigned char concat(const String &str);
 	unsigned char concat(const char *cstr);
@@ -143,8 +143,8 @@ public:
 	unsigned char operator == (const char *cstr) const {return equals(cstr);}
 	unsigned char operator != (const String &rhs) const {return !equals(rhs);}
 	unsigned char operator != (const char *cstr) const {return !equals(cstr);}
-	unsigned char operator <  (const String &rhs) const;
-	unsigned char operator >  (const String &rhs) const;
+	unsigned char operator < (const String &rhs) const;
+	unsigned char operator > (const String &rhs) const;
 	unsigned char operator <= (const String &rhs) const;
 	unsigned char operator >= (const String &rhs) const;
 	unsigned char equalsIgnoreCase(const String &s) const;
@@ -193,9 +193,9 @@ public:
 	double toDouble(void) const;
 
 protected:
-	char *buffer;	        // the actual char array
-	unsigned int capacity;  // the array length minus one (for the '\0')
-	unsigned int len;       // the String length (not counting the '\0')
+	char *buffer;	    // the actual char array
+	unsigned int capacity; // the array length minus one (for the '\0')
+	unsigned int len;    // the String length (not counting the '\0')
 protected:
 	void init(void);
 	void invalidate(void);
@@ -205,7 +205,7 @@ protected:
 	// copy and move
 	String & copy(const char *cstr, unsigned int length);
 	String & copy(const __FlashStringHelper *pstr, unsigned int length);
-       #if __cplusplus >= 201103L || defined(__GXX_EXPERIMENTAL_CXX0X__)
+    #if __cplusplus >= 201103L || defined(__GXX_EXPERIMENTAL_CXX0X__)
 	void move(String &rhs);
 	#endif
 };
@@ -225,5 +225,5 @@ public:
 	StringSumHelper(double num) : String(num) {}
 };
 
-#endif  // __cplusplus
-#endif  // String_class_h
+#endif // __cplusplus
+#endif // String_class_h

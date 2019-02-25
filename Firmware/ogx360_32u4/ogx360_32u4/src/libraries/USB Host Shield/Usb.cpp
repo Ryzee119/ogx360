@@ -207,14 +207,14 @@ uint8_t USB::inTransfer(uint8_t addr, uint8_t ep, uint16_t *nbytesptr, uint8_t* 
         EpInfo *pep = NULL;
         uint16_t nak_limit = 0;
 
-        uint8_t rcode = SetAddress(addr, ep, &pep, &nak_limit);
-
+        /*uint8_t rcode = */SetAddress(addr, ep, &pep, &nak_limit);
+			/*
         if(rcode) {
                 USBTRACE3("(USB::InTransfer) SetAddress Failed ", rcode, 0x81);
                 USBTRACE3("(USB::InTransfer) addr requested ", addr, 0x81);
                 USBTRACE3("(USB::InTransfer) ep requested ", ep, 0x81);
                 return rcode;
-        }
+        }*/
         return InTransfer(pep, nak_limit, nbytesptr, data, bInterval);
 }
 

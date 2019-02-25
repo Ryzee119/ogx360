@@ -1,24 +1,25 @@
+
 # ogx360 - Hardware
 
 This folder contains the schematic and PCB layout files and the PCB Gerber files. These were created using [Autodesk Eagle 9.2.2.](https://www.autodesk.com/products/eagle/overview)
 
-I will preface by saying that the design contains *very* small and fine pitch surface mount components so if you attempt to make one yourself you should be quite proficient in soldering and have a good set of tools and equipment available.
+I will preface by saying that the design contains *very* small and fine pitch surface mount components. The pictures below are misleading, they are really small. So if you attempt to make one yourself you should be quite proficient in soldering and have a good set of tools and equipment available. 
 
 ![alt text](https://github.com/Ryzee119/ogx360/blob/master/Images/pcb2.jpg?raw=true "ogx360-1")
 
 # PCB
-The unpopulated PCB can be manufactured from dozens of cheap Chinese fabricators around online. I have used www.elecrow.com. Just download the PCB [Gerber](https://github.com/Ryzee119/ogx360/tree/master/Hardware/Gerbers) files from this repository, zip them up and upload to their online ordering service. It's like $5 for 5 boards plus extra for shipping.
+The unpopulated PCB can be manufactured from dozens of cheap Chinese fabricators around online. I have used www.elecrow.com, if you use these guys you can optionally use my [referral link](http://www.elecrow.com/referral-program/MTEzNjlqMnQ=/). Just download the [PCB Gerber](https://github.com/Ryzee119/ogx360/tree/master/Hardware/Gerbers) files from this repository, zip them up and upload to their online ordering service. It's like $5 for 5 boards plus extra for shipping.
 Use the following PCB parameters:
 
-*2 layers, 98x37mm, 1.6mm thick, HASL, 1oz copper, no castellated holes.*
+*2 layers, 98x37mm, 1.6mm thick, HASL, 1oz copper, no castellated holes, any colour you want!*
 
-Alternatively, you can buy the unpopulated PCB directly from OSHPark here: https://oshpark.com/shared_projects/FR7744mc
+Alternatively, you can buy the unpopulated PCB directly from OSHPark here, but they're quite expensive: https://oshpark.com/shared_projects/FR7744mc
 
 **These will be UNPOPULATED boards!** meaning they will be bare boards and not have any components on them and won't work. Don't email the PCB fab asking where the components are and don't email me asking where the components are. See the Bill of Materials below. They need to be purchased seperately and soldered on yourself. If you pay the PCB fabricator alot more money and provide them the materials list they may do it for you.
 
 # Bill of Materials
 Digikey Quick Cart: https://www.digikey.com.au/short/pctdjd (Does not include non-digikey items, see 'other items' below for the remainder)
-This also shows the bare minimum quantities, I would suggest you get a few spares in case you drop one of the tiny resistors etc. Use your best judgement.
+This also shows the bare minimum quantities, I would suggest you get a few spares in case you drop one of the tiny resistors etc. If some basic components are out of stock, find an alternate. Use your best judgement.
 
 | Qty | Value/Model | Description | Marking | URL |
 | --- | --- | --- | --- | --- |
@@ -40,9 +41,9 @@ This also shows the bare minimum quantities, I would suggest you get a few spare
 ### Other Items
 | Qty | Value/Model | Description | Marking | URL |
 | --- | --- | --- | --- | --- |
-| 4 | ARDUINO_LEONARDO_MICRO | Arduino Pro Micro Leonardo Board | U4,U5,U6,U7 | https://www.sparkfun.com/products/12640 or [any clones](https://www.aliexpress.com/item/New-Pro-Micro-for-arduino-ATmega32U4-5V-16MHz-Module-with-2-row-pin-header-For-Leonardo/32768308647.html). Only one is compulsory. 2,3 and 4 will add support for Player 2,3, 4 respectively. Make sure you get the 5V/16Mhz variant. |
-| 4 | Xbox to USB Adaptor | Original Xbox Controller to USB Female Adaptor | - | Wherever you can find them. You will also need a Micro USB cable to connect to the Arduino boards. Ideally a OG Xbox directly to Micro USB would be best. |
-| 8 | 12x1 F SOCKET 0.1" | CONN HEADER FEM 12POS .1" | - | https://www.sparkfun.com/products/115. Optional but recommended. |
+| 4 | ARDUINO_LEONARDO_MICRO | Arduino Pro Micro Leonardo Board | U4,U5,U6,U7 | [Any clones](https://www.aliexpress.com/item/New-Pro-Micro-for-arduino-ATmega32U4-5V-16MHz-Module-with-2-row-pin-header-For-Leonardo/32768308647.html). Only one is compulsory. 2,3 and 4 will add support for Player 2,3, 4 respectively. Make sure you get the 5V/16Mhz variant. |
+| 4 | Xbox to USB Adaptor | Original Xbox Controller to USB Female Adaptor | - | [Wherever you can find them](https://www.aliexpress.com/item/For-XBOX-USB-CABLE-Female-USB-to-Original-Xbox-Adapter-Cable-Convertion-Line/32952259456.html). You will also need a short Micro USB cable to connect to the Arduino boards. Ideally a OG Xbox directly to Micro USB would be best, but you'd have to make these yourself. |
+| 8 | 12x1 F SOCKET 0.1" | CONN HEADER FEM 12POS .1" | - | For example https://www.sparkfun.com/products/115. Optional but recommended. |
 
 
 ### Unpopulated PCB Preview

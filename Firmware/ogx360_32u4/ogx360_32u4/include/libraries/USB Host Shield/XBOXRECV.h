@@ -37,6 +37,8 @@
 #define XBOX_INPUT_PIPE_4   7
 #define XBOX_OUTPUT_PIPE_4  8
 
+#define XBOX_INPUT_PIPE_1_CHATPAD  9
+
 // PID and VID of the different devices
 #define XBOX_VID                                0x045E  // Microsoft Corporation
 #define MADCATZ_VID                             0x1BAD  // For unofficial Mad Catz receivers
@@ -45,7 +47,84 @@
 #define XBOX_WIRELESS_RECEIVER_PID              0x0719  // Microsoft Wireless Gaming Receiver
 #define XBOX_WIRELESS_RECEIVER_THIRD_PARTY_PID  0x0291  // Third party Wireless Gaming Receiver
 
-#define XBOX_MAX_ENDPOINTS   9
+#define XBOX_MAX_ENDPOINTS   17
+
+
+enum ChatPadButton {
+	//Offset byte 26 or 27. You can get 2 buttons are once on the chatpad,
+	CHATPAD_1=23,
+	CHATPAD_2=22,
+	CHATPAD_3=21,
+	CHATPAD_4=20,
+	CHATPAD_5=19,
+	CHATPAD_6=18,
+	CHATPAD_7=17,
+	CHATPAD_8=103,
+	CHATPAD_9=102,
+	CHATPAD_0=101,
+
+	CHATPAD_Q=39,
+	CHATPAD_W=38,
+	CHATPAD_E=37,
+	CHATPAD_R=36,
+	CHATPAD_T=35,
+	CHATPAD_Y=34,
+	CHATPAD_U=33,
+	CHATPAD_I=118,
+	CHATPAD_O=117,
+	CHATPAD_P=100,
+
+	CHATPAD_A=55,
+	CHATPAD_S=54,
+	CHATPAD_D=53,
+	CHATPAD_F=52,
+	CHATPAD_G=51,
+	CHATPAD_H=50,
+	CHATPAD_J=49,
+	CHATPAD_K=119,
+	CHATPAD_L=114,
+	CHATPAD_COMMA=98,
+
+	CHATPAD_Z=70,
+	CHATPAD_X=69,
+	CHATPAD_C=68,
+	CHATPAD_V=67,
+	CHATPAD_B=66,
+	CHATPAD_N=65,
+	CHATPAD_M=82,
+	CHATPAD_PERIOD=83,
+	CHATPAD_ENTER=99,
+
+	CHATPAD_LEFT=85,
+	CHATPAD_SPACE=84,
+	CHATPAD_RIGHT=81,
+	CHATPAD_BACK=113,
+
+	//Offset byte 25,
+	CHATPAD_SHIFT=1,
+	CHATPAD_GREEN=2,
+	CHATPAD_ORANGE=4,
+	CHATPAD_MESSENGER=8,
+};
+
+#define CHATPAD_LED_CAPSLOCK_OFF 0x00
+#define CHATPAD_LED_GREEN_OFF 0x01
+#define CHATPAD_LED_ORANGE_OFF 0x02
+#define CHATPAD_LED_MESSENGER_OFF 0x03
+#define CHATPAD_LED_CAPSLOCK_ON 0x08
+#define CHATPAD_LED_GREEN_ON 0x09
+#define CHATPAD_LED_ORANGE_ON 0x0A
+#define CHATPAD_LED_MESSENGER_ON 0x0B
+
+typedef struct
+{
+	uint8_t nextLed1;
+	uint8_t nextLed2;
+	uint8_t nextLed3;
+	uint8_t nextLed4;
+	
+} chatPadLedFIFO;
+
 
 /**
  * This class implements support for a Xbox Wireless receiver.
@@ -224,8 +303,19 @@ public:
                 pFuncOnInit = funcOnInit;
         };
 		
-		void checkStatus1(uint8_t controller = 0); //Ryzee - moved function to public and split into two functions.
-		void checkStatus2(uint8_t controller = 0); //Ryzee - moved function to public and split into two functions.
+		void checkControllerPresence(uint8_t controller = 0); //Ryzee - moved function to public and split into two functions.
+		void checkControllerBattery(uint8_t controller = 0); //Ryzee - moved function to public and split into two functions.
+		
+		void enableChatPad(uint8_t controller);
+		void chatPadKeepAlive1(uint8_t controller); //Ryzee
+		void chatPadKeepAlive2(uint8_t controller); //Ryzee
+		uint8_t getChatPadPress(ChatPadButton b, uint8_t controller); //Ryzee
+		uint8_t getChatPadClick(ChatPadButton b, uint8_t controller); //Ryzee
+		bool chatPadChanged(uint8_t controller); //Ryzee
+		void chatPadSetLed(uint8_t led, uint8_t controller); //Ryzee
+		chatPadLedFIFO chatPadLedQueue[4]; //You can queue up 4 LED commands
+		uint8_t chatPadInitNeeded[4];
+		
 		
         /**@}*/
 
@@ -241,6 +331,7 @@ protected:
         uint8_t bAddress;
         /** Endpoint info structure. */
         EpInfo epInfo[XBOX_MAX_ENDPOINTS];
+		  uint8_t chatpadEnabled;
 
 private:
         /**
@@ -258,9 +349,18 @@ private:
         uint32_t ButtonState[4];
         uint32_t OldButtonState[4];
         uint16_t ButtonClickState[4];
+		  bool buttonStateChanged[4]; // True if a button has changed
+		 
+		  
+		  /* Variables to store the chatpad buttons */
+		  uint32_t ChatPadState[4];
+		  uint32_t OldChatPadState[4];
+		  uint32_t ChatPadClickState[4];
+		  bool ChatPadStateChanged[4]; // True if a chatpad button has changed
+		  
         int16_t hatValue[4][4];
         uint16_t controllerStatus[4];
-        bool buttonStateChanged[4]; // True if a button has changed
+        
 
         bool L2Clicked[4]; // These buttons are analog, so we use we use these bools to check if they where clicked or not
         bool R2Clicked[4];

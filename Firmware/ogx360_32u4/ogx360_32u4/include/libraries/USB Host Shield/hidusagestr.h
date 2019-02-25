@@ -11,11 +11,11 @@ Contact information
 -------------------
 
 Circuits At Home, LTD
-Web      :  http://www.circuitsathome.com
-e-mail   :  support@circuitsathome.com
+Web   : http://www.circuitsathome.com
+e-mail  : support@circuitsathome.com
  */
 #if !defined( __HIDUSAGESTR_H__)
-#define  __HIDUSAGESTR_H__
+#define __HIDUSAGESTR_H__
 
 #include "Usb.h"
 

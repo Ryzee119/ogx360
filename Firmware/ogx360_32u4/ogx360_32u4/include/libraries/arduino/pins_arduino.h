@@ -1,23 +1,23 @@
 /*
-  pins_arduino.h - Pin definition functions for Arduino
-  Part of Arduino - http://www.arduino.cc/
+ pins_arduino.h - Pin definition functions for Arduino
+ Part of Arduino - http://www.arduino.cc/
 
-  Copyright (c) 2007 David A. Mellis
+ Copyright (c) 2007 David A. Mellis
 
-  This library is free software; you can redistribute it and/or
-  modify it under the terms of the GNU Lesser General Public
-  License as published by the Free Software Foundation; either
-  version 2.1 of the License, or (at your option) any later version.
+ This library is free software; you can redistribute it and/or
+ modify it under the terms of the GNU Lesser General Public
+ License as published by the Free Software Foundation; either
+ version 2.1 of the License, or (at your option) any later version.
 
-  This library is distributed in the hope that it will be useful,
-  but WITHOUT ANY WARRANTY; without even the implied warranty of
-  MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU
-  Lesser General Public License for more details.
+ This library is distributed in the hope that it will be useful,
+ but WITHOUT ANY WARRANTY; without even the implied warranty of
+ MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the GNU
+ Lesser General Public License for more details.
 
-  You should have received a copy of the GNU Lesser General
-  Public License along with this library; if not, write to the
-  Free Software Foundation, Inc., 59 Temple Place, Suite 330,
-  Boston, MA  02111-1307  USA
+ You should have received a copy of the GNU Lesser General
+ Public License along with this library; if not, write to the
+ Free Software Foundation, Inc., 59 Temple Place, Suite 330,
+ Boston, MA 02111-1307 USA
 */
 
 #ifndef Pins_Arduino_h
@@ -88,7 +88,7 @@
 #undef OCR2_6
 #undef OCR2_7
 
-#define NUM_DIGITAL_PINS  31
+#define NUM_DIGITAL_PINS 31
 #define NUM_ANALOG_INPUTS 12
 
 #define TX_RX_LED_INIT	DDRD |= (1<<5), DDRB |= (1<<0)
@@ -97,8 +97,8 @@
 #define RXLED0			PORTB |= (1<<0)
 #define RXLED1			PORTB &= ~(1<<0)
 
-#define PIN_WIRE_SDA         (2)
-#define PIN_WIRE_SCL         (3)
+#define PIN_WIRE_SDA     (2)
+#define PIN_WIRE_SCL     (3)
 
 static const uint8_t SDA = PIN_WIRE_SDA;
 static const uint8_t SCL = PIN_WIRE_SCL;
@@ -108,30 +108,30 @@ static const uint8_t SCL = PIN_WIRE_SCL;
 #define LED_BUILTIN_TX 30
 
 // Map SPI port to 'new' pins D14..D17
-#define PIN_SPI_SS    (17)
-#define PIN_SPI_MOSI  (16)
-#define PIN_SPI_MISO  (14)
-#define PIN_SPI_SCK   (15)
+#define PIN_SPI_SS  (17)
+#define PIN_SPI_MOSI (16)
+#define PIN_SPI_MISO (14)
+#define PIN_SPI_SCK  (15)
 
-static const uint8_t SS   = PIN_SPI_SS;
+static const uint8_t SS  = PIN_SPI_SS;
 static const uint8_t MOSI = PIN_SPI_MOSI;
 static const uint8_t MISO = PIN_SPI_MISO;
-static const uint8_t SCK  = PIN_SPI_SCK;
+static const uint8_t SCK = PIN_SPI_SCK;
 
 // Mapping of analog pins as digital I/O
 // A6-A11 share with digital pins
-#define PIN_A0   (18)
-#define PIN_A1   (19)
-#define PIN_A2   (20)
-#define PIN_A3   (21)
-#define PIN_A4   (22)
-#define PIN_A5   (23)
-#define PIN_A6   (24)
-#define PIN_A7   (25)
-#define PIN_A8   (26)
-#define PIN_A9   (27)
-#define PIN_A10  (28)
-#define PIN_A11  (29)
+#define PIN_A0  (18)
+#define PIN_A1  (19)
+#define PIN_A2  (20)
+#define PIN_A3  (21)
+#define PIN_A4  (22)
+#define PIN_A5  (23)
+#define PIN_A6  (24)
+#define PIN_A7  (25)
+#define PIN_A8  (26)
+#define PIN_A9  (27)
+#define PIN_A10 (28)
+#define PIN_A11 (29)
 
 static const uint8_t A0 = PIN_A0;
 static const uint8_t A1 = PIN_A1;
@@ -146,23 +146,23 @@ static const uint8_t A9 = PIN_A9;	// D9
 static const uint8_t A10 = PIN_A10;	// D10
 static const uint8_t A11 = PIN_A11;	// D12
 
-#define digitalPinToPCICR(p)    ((((p) >= 8 && (p) <= 11) || ((p) >= 14 && (p) <= 17) || ((p) >= A8 && (p) <= A10)) ? (&PCICR) : ((uint8_t *)0))
+#define digitalPinToPCICR(p)  ((((p) >= 8 && (p) <= 11) || ((p) >= 14 && (p) <= 17) || ((p) >= A8 && (p) <= A10)) ? (&PCICR) : ((uint8_t *)0))
 #define digitalPinToPCICRbit(p) 0
-#define digitalPinToPCMSK(p)    ((((p) >= 8 && (p) <= 11) || ((p) >= 14 && (p) <= 17) || ((p) >= A8 && (p) <= A10)) ? (&PCMSK0) : ((uint8_t *)0))
+#define digitalPinToPCMSK(p)  ((((p) >= 8 && (p) <= 11) || ((p) >= 14 && (p) <= 17) || ((p) >= A8 && (p) <= A10)) ? (&PCMSK0) : ((uint8_t *)0))
 #define digitalPinToPCMSKbit(p) ( ((p) >= 8 && (p) <= 11) ? (p) - 4 : ((p) == 14 ? 3 : ((p) == 15 ? 1 : ((p) == 16 ? 2 : ((p) == 17 ? 0 : (p - A8 + 4))))))
 
 //	__AVR_ATmega32U4__ has an unusual mapping of pins to channels
 extern const uint8_t PROGMEM analog_pin_to_channel_PGM[];
-#define analogPinToChannel(P)  ( pgm_read_byte( analog_pin_to_channel_PGM + (P) ) )
+#define analogPinToChannel(P) ( pgm_read_byte( analog_pin_to_channel_PGM + (P) ) )
 
-#define digitalPinHasPWM(p)         ((p) == 3 || (p) == 5 || (p) == 6 || (p) == 9 || (p) == 10 || (p) == 11 || (p) == 13)
+#define digitalPinHasPWM(p)     ((p) == 3 || (p) == 5 || (p) == 6 || (p) == 9 || (p) == 10 || (p) == 11 || (p) == 13)
 
 #define digitalPinToInterrupt(p) ((p) == 0 ? 2 : ((p) == 1 ? 3 : ((p) == 2 ? 1 : ((p) == 3 ? 0 : ((p) == 7 ? 4 : NOT_AN_INTERRUPT)))))
 
 #ifdef ARDUINO_MAIN
 
 // On the Arduino board, digital pins are also used
-// for the analog output (software PWM).  Analog input
+// for the analog output (software PWM). Analog input
 // pins are a separate set.
 
 // ATMEL ATMEGA32U4 / ARDUINO LEONARDO
@@ -198,7 +198,7 @@ extern const uint8_t PROGMEM analog_pin_to_channel_PGM[];
 // SS		D17		PB0					RXLED,SS/PCINT0
 //
 // TXLED	D30		PD5					XCK1
-// RXLED	D17	    PB0
+// RXLED	D17	  PB0
 // HWB				PE2					HWB
 
 // these arrays map port names (e.g. port B) to the
@@ -367,23 +367,23 @@ const uint8_t PROGMEM analog_pin_to_channel_PGM[] = {
 
 // These serial port names are intended to allow libraries and architecture-neutral
 // sketches to automatically default to the correct port name for a particular type
-// of use.  For example, a GPS module would normally connect to SERIAL_PORT_HARDWARE_OPEN,
+// of use. For example, a GPS module would normally connect to SERIAL_PORT_HARDWARE_OPEN,
 // the first hardware serial port whose RX/TX pins are not dedicated to another use.
 //
-// SERIAL_PORT_MONITOR        Port which normally prints to the Arduino Serial Monitor
+// SERIAL_PORT_MONITOR    Port which normally prints to the Arduino Serial Monitor
 //
-// SERIAL_PORT_USBVIRTUAL     Port which is USB virtual serial
+// SERIAL_PORT_USBVIRTUAL   Port which is USB virtual serial
 //
-// SERIAL_PORT_LINUXBRIDGE    Port which connects to a Linux system via Bridge library
+// SERIAL_PORT_LINUXBRIDGE  Port which connects to a Linux system via Bridge library
 //
-// SERIAL_PORT_HARDWARE       Hardware serial port, physical RX & TX pins.
+// SERIAL_PORT_HARDWARE    Hardware serial port, physical RX & TX pins.
 //
-// SERIAL_PORT_HARDWARE_OPEN  Hardware serial ports which are open for use.  Their RX & TX
-//                            pins are NOT connected to anything by default.
-#define SERIAL_PORT_MONITOR        Serial
-#define SERIAL_PORT_USBVIRTUAL     Serial
-#define SERIAL_PORT_HARDWARE       Serial1
-#define SERIAL_PORT_HARDWARE_OPEN  Serial1
+// SERIAL_PORT_HARDWARE_OPEN Hardware serial ports which are open for use. Their RX & TX
+//              pins are NOT connected to anything by default.
+#define SERIAL_PORT_MONITOR    Serial
+#define SERIAL_PORT_USBVIRTUAL   Serial
+#define SERIAL_PORT_HARDWARE    Serial1
+#define SERIAL_PORT_HARDWARE_OPEN Serial1
 
 // Alias SerialUSB to Serial
 #define SerialUSB SERIAL_PORT_USBVIRTUAL
