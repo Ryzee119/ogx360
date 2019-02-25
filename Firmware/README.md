@@ -2,7 +2,7 @@
 
 # ogx360 - Firmware
 
-This folder contains the source code and precompiled fimeware files. The source code is based on the [USB Host Shield Library](https://github.com/felis/USB_Host_Shield_2.0) for Arduino, and [LUFA USB AVR Framework](http://www.fourwalledcubicle.com/LUFA.php). The code was integrated and compiled using [Atmel Studio 7.0](https://www.microchip.com/mplab/avr-support/atmel-studio-7). It also relies on some Arduino libraries to allow the USB Host Shield Library to compile.
+This folder contains the source code and precompiled firmware files. The source code is based on the [USB Host Shield Library](https://github.com/felis/USB_Host_Shield_2.0) for Arduino, and [LUFA USB AVR Framework](http://www.fourwalledcubicle.com/LUFA.php). The code was integrated and compiled using [Atmel Studio 7.0](https://www.microchip.com/mplab/avr-support/atmel-studio-7). It also relies on some Arduino libraries to allow the USB Host Shield Library to compile.
  
 This software is released under GNU General Public License v3 (GPL-3). This following tables describes the different firmware options that are available (if unsure, just get the top two files)
 
