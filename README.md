@@ -39,7 +39,7 @@ You can change what the controller appears to the console at anytime, so you can
 
 Button mapping is below. (Hi Res image available [here](https://i.imgur.com/VISHRNY.png)). If you have an earlier revision of the ogx360 firmware (Before March 2019), you will need to update to the latest firmware from this repository
 
-alt text](https://github.com/Ryzee119/ogx360/blob/master/Images/steelbattalion.png?raw=true "sbmapping")
+[alt text](https://github.com/Ryzee119/ogx360/blob/master/Images/steelbattalion.png?raw=true "sbmapping")
 
 
 ## Folder structure
