@@ -4,11 +4,11 @@ Copyright (C) Dean Camera, 2013.
 
 dean [at] fourwalledcubicle [dot] com
 www.lufa-lib.org
+
+Modified to XID device emulation by Ryzee119
 */
 
 /*
-Copyright 2013  Dean Camera (dean [at] fourwalledcubicle [dot] com)
-
 Permission to use, copy, modify, distribute, and sell this
 software and its documentation for any purpose is hereby granted
 without fee, provided that the above copyright notice appear in
@@ -107,6 +107,7 @@ void EVENT_USB_Device_ConfigurationChanged(void){
 		#ifdef SUPPORTBATTALION
 		case STEELBATTALION:
 		ConfigSuccess &= HID_Device_ConfigureEndpoints(&SteelBattalion_HID_Interface);
+		ConfigSuccess &= Endpoint_ConfigureEndpoint(0x01, EP_TYPE_INTERRUPT, 32, 1); //Host Out endpoint opened manually for SB.
 		break;
 		#endif
 	}
@@ -147,7 +148,7 @@ void EVENT_USB_Device_ControlRequest(void){
 					break;
 					#ifdef SUPPORTBATTALION
 					case STEELBATTALION:
-					Endpoint_Write_Control_Stream_LE(&BATTALION_HID_CAPABILITIES_IN, 26);
+					Endpoint_Write_Control_Stream_LE(&BATTALION_HID_CAPABILITIES_IN, 21);
 					break;
 					#endif
 				}
@@ -163,7 +164,7 @@ void EVENT_USB_Device_ControlRequest(void){
 					break;
 					#ifdef SUPPORTBATTALION
 					case STEELBATTALION:
-					Endpoint_Write_Control_Stream_LE(&BATTALION_HID_CAPABILITIES_OUT, 34);
+					Endpoint_Write_Control_Stream_LE(&BATTALION_HID_CAPABILITIES_OUT, 22);
 					break;
 					#endif
 				}
@@ -260,28 +261,20 @@ bool CALLBACK_HID_Device_CreateHIDReport(USB_ClassInfo_HID_Device_t* const HIDIn
 }
 
 
-//HID class driver callback function for the processing of HID reports from the device.
+/* HID class driver callback for the user processing of a received HID OUT report. This callback may fire in response to
+*  either HID class control requests from the host, or by the normal HID endpoint polling procedure. Inside this callback
+*  the user is responsible for the processing of the received HID output report from the host.*/
 void CALLBACK_HID_Device_ProcessHIDReport(
 	USB_ClassInfo_HID_Device_t* const HIDInterfaceInfo,
 	const uint8_t ReportID,	const uint8_t ReportType,
 	const void* ReportData,	const uint16_t ReportSize){
-		
 	//Only expect one HID report from the host and this is the actuator levels. The command is always 6 bytes long.
 	//bit 3 is the left actuator value, bit 5 is the right actuator level.
 	//See http://euc.jp/periphs/xbox-controller.en.html - Output Report
-	switch (ConnectedXID){
-		case DUKE_CONTROLLER:
-		if (ReportSize == 0x06) {
-			XboxOGDuke[0].left_actuator = ((uint8_t *)ReportData)[3];
-			XboxOGDuke[0].right_actuator = ((uint8_t *)ReportData)[5];
-			XboxOGDuke[0].rumbleUpdate = 1;
-		}
-		break;
-		#ifdef SUPPORTBATTALION
-		case STEELBATTALION:
-		
-		break;
-		#endif
+	if (ConnectedXID == DUKE_CONTROLLER && ReportSize == 0x06) {
+		XboxOGDuke[0].left_actuator = ((uint8_t *)ReportData)[3];
+		XboxOGDuke[0].right_actuator = ((uint8_t *)ReportData)[5];
+		XboxOGDuke[0].rumbleUpdate = 1;
 	}
 	
 }

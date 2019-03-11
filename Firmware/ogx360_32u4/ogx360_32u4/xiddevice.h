@@ -82,6 +82,7 @@ extern "C" {
 	extern USB_XboxGamepad_Data_t XboxOGDuke[4];
 	#ifdef SUPPORTBATTALION
 	extern USB_XboxSteelBattalion_Data_t XboxOGSteelBattalion;
+	extern USB_XboxSteelBattalion_Feedback_t XboxOGSteelBattalionFeedback;
 	#endif
 	extern bool enumerationComplete;
 	extern uint8_t playerID;

@@ -1,4 +1,5 @@
 
+
 # ogx360 - Overview
 
 The ogx360 is a small circuit board which allows you to use Wireless Xbox 360 Controllers via an Xbox 360 Wireless Receiver on the Original Xbox Console.
@@ -30,13 +31,13 @@ You can buy pre-assembled boards from my etsy page: https://www.etsy.com/au/list
 ## Steel Battalion controller emulation
 Traditionally, to play Steel Battalion you must have the unique Steel Battalion Controller. These are quite expensive, hard to come by and take up alot of space so I imagine alot of us have never been able to play the game. It is not possible to play using a standard controller as the game won't accept any inputs.
 
-I have gone to a lot of effort to write my own Xbox 360 chatpad driver and emulate the Steel Battalion Controller myself. Shout out to the guys over at www.ogxbox.com forums for some further info and pointers! Also the Cxbx reloaded guys as their source code helped alot!
+I have gone to a lot of effort to write my own Xbox 360 chatpad driver and emulate the Steel Battalion Controller myself. Shout out to the guys over at www.ogxbox.com forums, and shoutout to @Kekule who provided a USB descriptor dump and logic analyser data. Also the Cxbx reloaded guys as their source code helped alot!
 
 Now this obviously is not going to have the same immersion and intuitive gameplay as the real controller, but it is atleast an option for those who don't own the Steel Battalion controller. With a bit of practice it is very playable!
 
 You can change what the controller appears to the console at anytime, so you can use the 'Duke Controller' to boot into the game, then change to the 'Steel Battalion' controller whilst in game. 
 
-Button mapping is below. (Hi Res image available [here](https://i.imgur.com/ujqLL3A.png)). If you have an earlier revision of the ogx360 firmware (Before March 2019), you will need to update to the latest firmware from this repository
+Button mapping is below. (Hi Res image available [here](https://i.imgur.com/VISHRNY.png)). If you have an earlier revision of the ogx360 firmware (Before March 2019), you will need to update to the latest firmware from this repository
 
 ![alt text](https://i.imgur.com/2U83ScA.png "sb_layout")
 

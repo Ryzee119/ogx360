@@ -75,6 +75,33 @@ typedef struct
 } USB_XboxSteelBattalion_Data_t;
 
 
+typedef struct
+{
+	uint8_t startByte;
+	uint8_t bLength;
+	uint8_t CockpitHatch_EmergencyEject;
+	uint8_t Start_Ignition;
+	uint8_t MapZoomInOut_OpenClose;
+	uint8_t SubMonitorModeSelect_ModeSelect;
+	uint8_t MainMonitorZoomOut_MainMonitorZoomIn;
+	uint8_t Manipulator_ForecastShootingSystem;
+	uint8_t Washing_LineColorChange;
+	uint8_t Chaff_Extinguisher;
+	uint8_t Override_TankDetach;
+	uint8_t F1_NightScope;
+	uint8_t F3_F2;
+	uint8_t SubWeaponControl_MainWeaponControl;
+	uint8_t Comm1_MagazineChange;
+	uint8_t Comm3_Comm2;
+	uint8_t Comm5_Comm4;
+	uint8_t GearR_;
+	uint8_t Gear1_GearN;
+	uint8_t Gear3_Gear2;
+	uint8_t Gear5_Gear4;
+	uint8_t dummy;
+} USB_XboxSteelBattalion_Feedback_t;
+
+
 //Obtained from USB dump of original controller
 //USB Device descriptor
 const uint8_t PROGMEM BATTALION_USB_DESCRIPTOR_DEVICE[] = {
@@ -121,15 +148,15 @@ const uint8_t PROGMEM BATTALION_USB_DESCRIPTOR_CONFIGURATION[] = {
 	0x05, //bDescriptorType, 5=Endpoint Descriptor
 	0x82, //bEndpointAddress, Address=2, Direction IN
 	0x03, //bmAttributes, 3=Interrupt Endpoint
-	0x20, 0x00, //wMaxPacketSize
+	0x20, 0x00, //wMaxPacketSize 32 bytes
 	0x04, //bInterval, Interval for polling the interrupt endpoint. 4ms
 	
 	//Endpoint Descriptor (OUT)//
 	0x07, //bLength of endpoint descriptor
 	0x05, //bDescriptorType, 5=Endpoint Descriptor
-	0x03, //bEndpointAddress, Address=2, Direction OUT
+	0x01, //bEndpointAddress, Address=1, Direction OUT
 	0x03, //bmAttributes, 3=Interrupt Endpoint
-	0x22, 0x00, //wMaxPacketSize //34 bytes
+	0x20, 0x00, //wMaxPacketSize 32 bytes
 	0x04 //bInterval, Interval for polling the interrupt endpoint. 4ms
 };
 
@@ -140,9 +167,9 @@ const uint8_t BATTALION_HID_DESCRIPTOR_XID[] = {
 	0x42, //bDescriptorType - always 0x42
 	0x00, 0x01, //bcdXid
 	0x80, //bType - 1=Xbox Gamecontroller, 0x80 = STEELBATTALION
-	0x02, //bSubType, 0x01 = Gamepad (Duke), 0x02 = Gamepad S/Steel Battalion, 0x10, Wheel, 0x20, Arcade Stick etc.
-	26, //bMaxInputReportSize //HID Report from steel battalion controller - 26 bytes
-	34, //bMaxOutputReportSize - feedback commands report from host - 34 bytes
+	0x01, //bSubType, 0x01 = Gamepad (Duke), 0x02 = Gamepad S/Steel Battalion, 0x10, Wheel, 0x20, Arcade Stick etc.
+	0x1A, //bMaxInputReportSize //HID Report from steel battalion controller - 26 bytes
+	0x16, //bMaxOutputReportSize - feedback commands report from host - 22bytes
 	0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF //wAlternateProductIds
 };
 
@@ -172,7 +199,7 @@ const uint8_t BATTALION_HID_CAPABILITIES_IN[] = {
 //Ive just guessed what it should be.
 const uint8_t BATTALION_HID_CAPABILITIES_OUT[] = {
 	0x00, //Always 0x00
-	34, //bLength - length of packet in bytes
+	22, //bLength - length of packet in bytes
 	0xFF, 0xFF,0xFF, 0xFF,
 	0xFF, 0xFF,0xFF, 0xFF,
 	0xFF, 0xFF,0xFF, 0xFF,
