@@ -106,6 +106,7 @@ Index  LANGID  String\
 ## Feedback Data (The data that is sent from the host to the Steel Battalion Controller. These are used to light up the LEDs)
 Feedback data is 0-F to which controls the brightness of the LED. Each byte feedbacks two variables. The upper and lower nibble are used.\
 This is send to the OUT endpoint. Normally endpoint address 0x01.
+
 | byte | Data |
 | --- | --- |
 | 00 | 0x00 - Always 0x00 |
