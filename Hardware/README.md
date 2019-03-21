@@ -42,7 +42,7 @@ This also shows the bare minimum quantities, I would suggest you get a few spare
 | Qty | Value/Model | Description | Marking | URL |
 | --- | --- | --- | --- | --- |
 | 4 | ARDUINO_LEONARDO_MICRO | Arduino Pro Micro Leonardo Board | U4,U5,U6,U7 | [Any clones](https://www.aliexpress.com/item/New-Pro-Micro-for-arduino-ATmega32U4-5V-16MHz-Module-with-2-row-pin-header-For-Leonardo/32768308647.html). Only one is compulsory. 2,3 and 4 will add support for Player 2,3, 4 respectively. Make sure you get the 5V/16Mhz variant. |
-| 4 | Xbox to USB Adaptor | Original Xbox Controller to USB Female Adaptor | - | [Wherever you can find them](https://www.aliexpress.com/item/For-XBOX-USB-CABLE-Female-USB-to-Original-Xbox-Adapter-Cable-Convertion-Line/32952259456.html). You will also need a short Micro USB cable to connect to the Arduino boards. Ideally a OG Xbox directly to Micro USB would be best, but you'd have to make these yourself. |
+| 4 | Xbox to USB Adaptor | Original Xbox Controller to USB Female Adaptor | - | [Wherever you can find them](https://www.aliexpress.com/item/For-XBOX-USB-CABLE-Female-USB-to-Original-Xbox-Adapter-Cable-Convertion-Line/32952259456.html). You will also need a [short Micro USB cable or adaptor ](https://www.aliexpress.com/item/Newest-USB-to-Micro-5p-USB-Adapter-Converter-USB-2-0-A-Male-to-Micro/32848917453.html) to connect to the Arduino boards.  |
 | 8 | 12x1 F SOCKET 0.1" | CONN HEADER FEM 12POS .1" | - | For example https://www.sparkfun.com/products/115. Optional but recommended. |
 
 
