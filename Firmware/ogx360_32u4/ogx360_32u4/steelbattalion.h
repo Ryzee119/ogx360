@@ -69,8 +69,8 @@ typedef struct
 	uint16_t leftPedal;
 	uint16_t middlePedal;
 	uint16_t rightPedal;
-	uint8_t tunerDial;
-	uint8_t gearLever;
+	int8_t tunerDial;
+	int8_t gearLever;
 
 } USB_XboxSteelBattalion_Data_t;
 

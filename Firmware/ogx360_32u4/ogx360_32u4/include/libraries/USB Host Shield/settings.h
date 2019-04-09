@@ -69,14 +69,14 @@ e-mail   :  support@circuitsathome.com
 // Set this to 1 to support single LUN devices, and save RAM. -- I.E. thumb drives.
 // Each LUN needs ~13 bytes to be able to track the state of each unit.
 #ifndef MASS_MAX_SUPPORTED_LUN
-#define MASS_MAX_SUPPORTED_LUN 8
+#define MASS_MAX_SUPPORTED_LUN 1
 #endif
 
 ////////////////////////////////////////////////////////////////////////////////
 // Set to 1 to use the faster spi4teensy3 driver.
 ////////////////////////////////////////////////////////////////////////////////
 #ifndef USE_SPI4TEENSY3
-#define USE_SPI4TEENSY3 1
+#define USE_SPI4TEENSY3 0
 #endif
 
 // Disabled on the Teensy LC, as it is incompatible for now

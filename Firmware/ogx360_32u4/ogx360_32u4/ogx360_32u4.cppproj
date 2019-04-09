@@ -415,6 +415,9 @@
     <Compile Include="include\libraries\arduino\binary.h">
       <SubType>compile</SubType>
     </Compile>
+    <Compile Include="include\libraries\arduino\EEPROM.h">
+      <SubType>compile</SubType>
+    </Compile>
     <Compile Include="include\libraries\arduino\HardwareSerial.h">
       <SubType>compile</SubType>
     </Compile>

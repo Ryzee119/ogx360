@@ -283,7 +283,7 @@ uint8_t XBOXONE::Release() {
         qNextPollTime = 0; // Reset next poll time
         pollInterval = 0;
         bPollEnable = false;
-		  //pUsb->busprobe();
+		  pUsb->busprobe();
 #ifdef DEBUG_USB_HOST
         Notify(PSTR("\r\nXbox One Controller Disconnected\r\n"), 0x80);
 #endif

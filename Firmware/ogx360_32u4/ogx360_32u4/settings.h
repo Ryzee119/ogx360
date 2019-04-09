@@ -23,11 +23,13 @@
 #define MASTER
 
 /* Define this to apply extra deadzone correction. Generally not required, but if needed will increase latency slightly and code size.
- * Heavily used, third-party and knock off controllers may need this. */
+ * Heavily used, third-party/knock off controllers may need this. */
 //#define APPLYDEADZONECORRECTION
-#define DEADZONE_INNER 0.1f //These are like decimal percentages of the total range. i.e. 0.1=10%
+#ifdef APPLYDEADZONECORRECTION
+#define DEADZONE_INNER 0.1f //These are decimal percentages of the total range. i.e. 0.1=10%
 #define DEADZONE_OUTER 0.05f
 void applyDeadzone(float* pOutX, float* pOutY, float x, float y, const float deadZoneLow, const float deadZoneHigh);
+#endif
 
 #ifdef MASTER
 /* Define this to add support for Steel Battalion Controller emulation with an Xbox 360 Wireless Controller Chatpad. (It wont work with any wired controllers) */
@@ -37,7 +39,7 @@ void applyDeadzone(float* pOutX, float* pOutY, float x, float y, const float dea
 //#define SUPPORTWIREDXBOXONE
 
 /* Define this to add support for Wired Xbox 360 Controllers. */
-//#define SUPPORTWIREDXBOX360
+#define SUPPORTWIREDXBOX360
 
 #endif
 
