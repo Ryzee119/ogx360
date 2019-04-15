@@ -13,7 +13,7 @@ Another video showing the Steel Battalion Controller support is here: https://yo
 
 Any questions please email me at n360-usb@outlook.com.
 
-You can buy pre-assembled boards from my etsy page: https://www.etsy.com/au/listing/672315615/ogx360-add-wireless-xbox-360-controller 
+You can buy pre-assembled boards from my etsy page: etsy.com/au/listing/682458413
 
 If sold out, I generally post updates on my twitter page https://twitter.com/Ryzee119
 
