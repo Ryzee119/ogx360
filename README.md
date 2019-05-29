@@ -13,7 +13,7 @@ Another video showing the Steel Battalion Controller support is here: https://yo
 
 Any questions please email me at n360-usb@outlook.com.
 
-You can buy pre-assembled boards from my etsy page: https://etsy.com/au/listing/682458413
+You can buy pre-assembled boards from my etsy page: https://www.etsy.com/au/listing/672315615/ogx360-add-wireless-xbox-360-controller 
 
 If sold out, I generally post updates on my twitter page https://twitter.com/Ryzee119
 
@@ -21,7 +21,7 @@ If sold out, I generally post updates on my twitter page https://twitter.com/Ryz
 
 ## Features include:
 * Support up to 4 Xbox Wireless Controllers using a modular design with readily available [Arduino Pro Micro](https://www.sparkfun.com/products/12640) boards. I have linked Sparkfun but any cheaper clone will work the same.
-* Full Rumble Pak support on all controllers when using Xbox 360 wireless controllers
+* Full rumble support on all controllers when using Xbox 360 wireless controllers
 * Steel Battalion controller support on Player 1 with an Xbox 360 Chatpad using Xbox 360 Wireless Controllers.
 * Basically instant boot up time so you can use controllers straight away from power on.
 * Low level programming with minimal input lag. Less than 4ms over an original controller. (See https://youtu.be/V7Pnba7Y12Y)

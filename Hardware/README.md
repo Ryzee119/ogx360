@@ -1,5 +1,6 @@
 
 
+
 # ogx360 - Hardware
 
 This folder contains the schematic and PCB layout files and the PCB Gerber files. These were created using [Autodesk Eagle 9.2.2.](https://www.autodesk.com/products/eagle/overview)
@@ -49,5 +50,9 @@ This also shows the bare minimum quantities, I would suggest you get a few spare
 
 ### Unpopulated PCB Preview
 ![alt text](https://github.com/Ryzee119/ogx360/blob/master/Images/pcb.jpg?raw=true "ogx360-2")
+
+# Community
+Any community mods and cool stuff you have done with the ogx360 and you want me to add here I will!
+1. Anarchy42085 over at www.ogxbox.com has put together a detailed possible wiring diagram for an internal ogx360 installation. It includes fully switchable USB data lines to allow full use of the standard controller ports and even XERC2 integration. All this and other stuff is [available here.](https://drive.google.com/drive/folders/1RyqyB42XzIUHupb7ZMqJmVH6tJKyBwMU) 
 
 By Ryzee119

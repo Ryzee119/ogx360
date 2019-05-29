@@ -152,7 +152,7 @@ int main(void)
 	/* MASTER DEVICE USB HOST CONTROLLER INIT */
 	#ifdef MASTER
 	//Init Usb Host Controller
-	delay(100); //Let everything settle.
+	delay(400); //Let everything settle.
 	digitalWrite(USB_HOST_RESET_PIN, LOW);
 	delay(20);//wait 20ms to reset the IC. Reseting at startup improves reliability in my experience.
 	digitalWrite(USB_HOST_RESET_PIN, HIGH);
@@ -568,7 +568,7 @@ int main(void)
 				static uint32_t commandTimer[4]		={0,0,0,0};
 				static uint32_t chatPadLedTimer[4]	={0,0,0,0};
 				static uint32_t xboxHoldTimer[4]		={0,0,0,0};
-				if(millis()-commandTimer[i]>8){
+				if(millis()-commandTimer[i]>16){
 					//If you hold the XBOX button for more than ~1second, turn off controller
 					if (getButtonPress(XBOX, i)) {
 						if(xboxHoldTimer[i]==0){
