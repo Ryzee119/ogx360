@@ -33,10 +33,10 @@ void applyDeadzone(float* pOutX, float* pOutY, float x, float y, const float dea
 
 #ifdef MASTER
 /* Define this to add support for Steel Battalion Controller emulation with an Xbox 360 Wireless Controller Chatpad. (It wont work with any wired controllers) */
-//#define SUPPORTBATTALION
+#define SUPPORTBATTALION
 
 /* Define this to add support for Wired Xbox One Controllers. */
-#define SUPPORTWIREDXBOXONE
+//#define SUPPORTWIREDXBOXONE
 
 /* Define this to add support for Wired Xbox 360 Controllers. */
 #define SUPPORTWIREDXBOX360

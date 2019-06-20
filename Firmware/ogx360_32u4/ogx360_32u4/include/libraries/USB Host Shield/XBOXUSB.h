@@ -41,6 +41,7 @@
 #define XBOX_WIRELESS_RECEIVER_PID              0x0719 // Microsoft Wireless Gaming Receiver
 #define XBOX_WIRELESS_RECEIVER_THIRD_PARTY_PID  0x0291 // Third party Wireless Gaming Receiver
 #define MADCATZ_WIRED_PID                       0xF016 // Mad Catz wired controller
+#define MADCATZ_FIGHTSTICK_PID                  0xF03A // MadCatz FightStick Neo
 #define JOYTECH_WIRED_PID                       0xBEEF // For Joytech wired controller
 #define GAMESTOP_WIRED_PID                      0x0401 // Gamestop wired controller
 #define AFTERGLOW_WIRED_PID                     0x0213 // Afterglow wired controller - it uses the same VID as a Gamestop controller
