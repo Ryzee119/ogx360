@@ -11,11 +11,7 @@ Another video attempting to show the input lag is here: https://youtu.be/V7Pnba7
 
 Another video showing the Steel Battalion Controller support is here: https://youtu.be/g_eQlOcccg8
 
-Any questions please email me at n360-usb@outlook.com.
-
-You can buy pre-assembled boards from my etsy page: https://www.etsy.com/au/listing/672315615/ogx360-add-wireless-xbox-360-controller 
-
-If sold out, I generally post updates on my twitter page https://twitter.com/Ryzee119
+I generally post updates regarding new batch runs or updates on my twitter page https://twitter.com/Ryzee119
 
 ![alt text](https://github.com/Ryzee119/ogx360/blob/master/Images/image1.jpg?raw=true "ogx360-1")
 
@@ -32,7 +28,7 @@ If sold out, I generally post updates on my twitter page https://twitter.com/Ryz
 
 
 ## Supported Controllers
-* Supports 4 players with Genuine and Third Party Microsoft Xbox 360 Wireless Receivers (USB_VID 0x045E, USB_PID 0x0719),(USB_VID 0x1BAD, USB_PID 0x0719) or (USB_VID 0x045E, USB_PID 0x0291).
+* Supports 4 players with Genuine and Third Party Microsoft Xbox 360 Wireless Receivers. If your wireless receiver doesn't work, raise an issue with a USB descriptor dump of your device.
 * The following devices work, but only support one player. They requires a USB 2.0 Hub to connect multiple controllers.
 * Wired Xbox 360 Controllers
 * 8bitdo Wireless Adaptor (See http://www.8bitdo.com/wireless-usb-adapter/ for supported controllers). One controller per adaptor.
@@ -71,11 +67,9 @@ You can support up to 4 players with the addition of low cost Arduino Modules su
 This requires some basic soldering to solder the module into the respective port on the ogx360. Once the module is in place, you must program the correct firmware onto the device as per the instructions in [`Firmware`](https://github.com/Ryzee119/ogx360/tree/master/Firmware).
 For Player 2, 3 and 4 modules you will want to use the slave hex file. Finally, connect a corresponding cable between the Arduino Module and the OG Xbox Controller Port!
 
-## Connection to Xbox
+## Connection to your Xbox
 ![connection](https://i.imgur.com/oz59WBT.jpg)
 ![connection1](https://github.com/Ryzee119/ogx360/blob/master/Images/image2.jpg?raw=true "ogx360-1")
 ![prototype](https://github.com/Ryzee119/ogx360/blob/master/Images/image3.jpg?raw=true "ogx360-1")
-
-Note that the pictures show a prototype version with two modules installed. There is some minor differences between this and the final version.
 
 By Ryzee119

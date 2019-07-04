@@ -1,6 +1,7 @@
 
 
 
+
 # ogx360 - Firmware
 
 This folder contains the source code and precompiled firmware files. The source code is based on the [USB Host Shield Library](https://github.com/felis/USB_Host_Shield_2.0) for Arduino, and [LUFA USB AVR Framework](http://www.fourwalledcubicle.com/LUFA.php). The code was integrated and compiled using [Atmel Studio 7.0](https://www.microchip.com/mplab/avr-support/atmel-studio-7). It also relies on some Arduino libraries to allow the USB Host Shield Library to compile.
@@ -14,7 +15,6 @@ This software is released under GNU General Public License v3 (GPL-3). This foll
 | `ogx360_32u4_slave.hex` | This is the default SLAVE device firmware. This must be programmed onto all the SLAVE modules (Player 2,3 and 4) if installed. |
 | `ogx360_32u4_master_wired360_one.hex` | Program this to the MASTER device only. This adds support for WIRED Xbox One controllers, but removes Steel Battalion Controller Emulation. To connect more than one controller you must use an externally powered USB 2.0 Hub and it probably only works reliably with Genuine controllers. This still supports Wireless Xbox 360 controllers but does NOT support Steel Battalion controller emulation at all. You should have a battery installed even if wired *This should be considered experimental software.* |
 | `ogx360_debug.hex` | This is purely a test/debug firmware. Program this on the MASTER device to test your PCB if you have built one yourself. See instructions under **Testing** below. |
-| `legacy` | This folder contains the original release version of the MASTER and SLAVE programs. Just basic old Wireless Xbox 360 Controller Support (No Steel Battalion) and must be used in conjunction with `ogx360_32u4_slave_legacy.hex` located in the same folder. |
 
 
 # Software Overview

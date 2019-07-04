@@ -315,8 +315,8 @@ int16_t XBOXUSB::getAnalogHat(AnalogHatEnum a) {
 
 /* Xbox Controller commands */
 void XBOXUSB::XboxCommand(uint8_t* data, uint16_t nbytes) {
-        //bmRequest = Host to device (0x00) | Class (0x20) | Interface (0x01) = 0x21, bRequest = Set Report (0x09), Report ID (0x00), Report Type (Output 0x02), interface (0x00), datalength, datalength, data)
-        pUsb->ctrlReq(bAddress, epInfo[XBOX_CONTROL_PIPE].epAddr, bmREQ_HID_OUT, HID_REQUEST_SET_REPORT, 0x00, 0x02, 0x00, nbytes, nbytes, data, NULL);
+        //pUsb->ctrlReq(bAddress, epInfo[XBOX_CONTROL_PIPE].epAddr, bmREQ_HID_OUT, HID_REQUEST_SET_REPORT, 0x00, 0x02, 0x00, nbytes, nbytes, data, NULL);
+        pUsb->outTransfer(bAddress,epInfo[XBOX_OUTPUT_PIPE].epAddr,nbytes,data);
 }
 
 void XBOXUSB::setLedRaw(uint8_t value) {
@@ -357,35 +357,19 @@ void XBOXUSB::setRumbleOn(uint8_t lValue, uint8_t rValue) {
 
 void XBOXUSB::onInit() {
 	uint8_t stringDescriptor[10];
-	//8bit-do appears as a Wired Xbox 360 controller, but will quickly change to a switch controller if these packets are not sent:
+	//8bit-do appears as a Wired Xbox 360 controller, but will quickly change to a switch controller if you do not request a string descriptor
 	pUsb->ctrlReq(bAddress, epInfo[XBOX_CONTROL_PIPE].epAddr, 0x80, 0x06, 0x02, 0x03, 0x0409, 0x0002, 2, NULL, NULL); //Request string descriptor
 	delay(1);
 	pUsb->ctrlReq(bAddress, epInfo[XBOX_CONTROL_PIPE].epAddr, 0x80, 0x06, 0x02, 0x03, 0x0409, 0x0022, 10, stringDescriptor, NULL); //Request string descriptor
 	delay(1);
-	if(stringDescriptor[2]=='8'){
-		writeBuf[0] = 0x01; writeBuf[1] = 0x03; writeBuf[2] = 0x02;
-		pUsb->outTransfer(bAddress, epInfo[XBOX_OUTPUT_PIPE].epAddr, 3, writeBuf); //Send 0x01 0x03 0x02 to endpoint 0x02!!
-		delay(1);
-		pUsb->ctrlReq(bAddress, epInfo[XBOX_CONTROL_PIPE].epAddr, 0xC1, 0x01, 0x00, 0x01, 0x0000, 0x0014, 20, NULL, NULL);
-		delay(1);
-		pUsb->ctrlReq(bAddress, epInfo[XBOX_CONTROL_PIPE].epAddr, 0xC1, 0x01, 0x00, 0x00, 0x0000, 0x0008, 8, NULL, NULL);
-		delay(1);
-		writeBuf[0] = 0x02; writeBuf[1] = 0x08; writeBuf[2] = 0x03; //Send 0x02 0x08 0x03 to endpoint 0x02!~
-		pUsb->outTransfer(bAddress, epInfo[XBOX_OUTPUT_PIPE].epAddr, 3, writeBuf);
-		delay(1);
-		writeBuf[0] = 0x01; writeBuf[1] = 0x03; writeBuf[2] = 0x02; //Send 0x02 0x08 0x03 to endpoint 0x02!~
-		pUsb->outTransfer(bAddress, epInfo[XBOX_OUTPUT_PIPE].epAddr, 3, writeBuf);
-		delay(1);
-		pUsb->ctrlReq(bAddress, epInfo[XBOX_CONTROL_PIPE].epAddr, 0xC0, 0x01, 0x00, 0x00, 0x0000, 0x0004, 4, NULL, NULL);
-		delay(1);
-		writeBuf[0] = 0x01; writeBuf[1] = 0x03; writeBuf[2] = 0x06; //Send 0x01 0x03 0x06
-		pUsb->outTransfer(bAddress, epInfo[XBOX_OUTPUT_PIPE].epAddr, 3, writeBuf);
-		delay(1);
-		writeBuf[0] = 0x00; writeBuf[1] = 0x03; writeBuf[2] = 0x00; //Send 0x00 0x03 0x00
-		pUsb->outTransfer(bAddress, epInfo[XBOX_OUTPUT_PIPE].epAddr, 3, writeBuf);
-		delay(1);
-	}
-	
+	uint8_t outBuf0[3] = { 0x01, 0x03, 0x02 };
+	uint8_t outBuf1[3] = { 0x01, 0x03, 0x06 };
+	uint8_t outBuf2[3] = { 0x02, 0x08, 0x03 }; //Not sure what this. Seen in windows driver
+	uint8_t outBuf3[3] = { 0x00, 0x03, 0x00 }; //Turn off rumble?
+	XboxCommand(outBuf0,3);
+	XboxCommand(outBuf1,3);
+	XboxCommand(outBuf2,3);
+	XboxCommand(outBuf3,3);
 	
 	if(pFuncOnInit)
 	pFuncOnInit(); // Call the user function

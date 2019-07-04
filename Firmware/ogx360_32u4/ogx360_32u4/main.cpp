@@ -845,7 +845,7 @@ void setRumbleOn(uint8_t lValue, uint8_t rValue, uint8_t controller){
 	
 	#ifdef SUPPORTWIREDXBOX360
 	if (Xbox360Wired[controller]->Xbox360Connected){
-		//Xbox360Wired[controller]->setRumbleOn(lValue, rValue); //If you have an externally power USB 2.0 hub you can uncomment this to enable rumble
+		Xbox360Wired[controller]->setRumbleOn(lValue, rValue); //If you have an externally power USB 2.0 hub you can uncomment this to enable rumble
 	}
 	#endif
 	
