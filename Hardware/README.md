@@ -20,12 +20,12 @@ Alternatively, you can buy the unpopulated PCB directly from OSHPark here, but t
 **These will be UNPOPULATED boards!** meaning they will be bare boards and not have any components on them and won't work. Don't email the PCB fab asking where the components are and don't email me asking where the components are. See the Bill of Materials below. They need to be purchased seperately and soldered on yourself. If you pay the PCB fabricator alot more money and provide them the materials list they may do it for you.
 
 # Bill of Materials
-Digikey Quick Cart: https://www.digikey.com.au/short/pctdjd (Does not include non-digikey items, see 'other items' below for the remainder)
+Digikey Quick Cart: https://www.digikey.com.au/short/pbnnjz (Does not include non-digikey items, see 'other items' below for the remainder)
 This also shows the bare minimum quantities, I would suggest you get a few spares in case you drop one of the tiny resistors etc. If some basic components are out of stock, find an alternate. Use your best judgement.
 
 | Qty | Value/Model | Description | Marking | URL |
 | --- | --- | --- | --- | --- |
-| 1 | RED | LED RED 0805 | PWR | https://www.digikey.com.au/product-detail/en/SML-LXR85IC-TR/67-1556-1-ND |
+| 1 | RED | LED RED 0805 | PWR | https://www.digikey.com.au/product-detail/en/150080RS75000/732-4984-1-ND |
 | 5 | 100n | CAP CER 100NF 0402 | C1,C4,C5,C7,C8 | https://www.digikey.com.au/product-detail/en/885012205018/732-7513-1-ND |
 | 1 | 10u | CAP ALUM 10UF 35V SMD | C6 | https://www.digikey.com.au/product-detail/en/kemet/EDK106M035A9BAA/399-14794-1-ND |
 | 1 | 12MHz | CRYSTALSMD-5X3.2-4PAD | Q1 | https://www.digikey.com.au/product-detail/en/ECS-120-12-30B-AGM-TR/XC2676CT-ND |
