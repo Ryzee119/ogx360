@@ -47,7 +47,7 @@
 #define XBOX_WIRELESS_RECEIVER_PID              0x0719  // Microsoft Wireless Gaming Receiver
 #define XBOX_WIRELESS_RECEIVER_THIRD_PARTY_PID  0x0291  // Third party Wireless Gaming Receiver
 #define XBOX_WIRELESS_RECEIVER_THIRD_PARTY1_PID  0x02AA  // Another Third party Wireless Gaming Receiver
-	
+
 
 #define XBOX_MAX_ENDPOINTS   17
 
@@ -117,15 +117,6 @@ enum ChatPadButton {
 #define CHATPAD_LED_GREEN_ON 0x09
 #define CHATPAD_LED_ORANGE_ON 0x0A
 #define CHATPAD_LED_MESSENGER_ON 0x0B
-
-typedef struct
-{
-	uint8_t nextLed1;
-	uint8_t nextLed2;
-	uint8_t nextLed3;
-	uint8_t nextLed4;
-	
-} chatPadLedFIFO;
 
 
 /**
@@ -304,21 +295,20 @@ public:
         void attachOnInit(void (*funcOnInit)(void)) {
                 pFuncOnInit = funcOnInit;
         };
-		
+
 		void checkControllerPresence(uint8_t controller = 0); //Ryzee - moved function to public and split into two functions.
 		void checkControllerBattery(uint8_t controller = 0); //Ryzee - moved function to public and split into two functions.
-		
-		void enableChatPad(uint8_t controller);
+
+		void enableChatPad(uint8_t controller); //Ryzee
 		void chatPadKeepAlive1(uint8_t controller); //Ryzee
 		void chatPadKeepAlive2(uint8_t controller); //Ryzee
 		uint8_t getChatPadPress(ChatPadButton b, uint8_t controller); //Ryzee
 		uint8_t getChatPadClick(ChatPadButton b, uint8_t controller); //Ryzee
-		bool chatPadChanged(uint8_t controller); //Ryzee
-		void chatPadSetLed(uint8_t led, uint8_t controller); //Ryzee
-		chatPadLedFIFO chatPadLedQueue[4]; //You can queue up 4 LED commands
+		void chatPadQueueLed(uint8_t led, uint8_t controller); //Ryzee
+		uint8_t chatPadLedQueue[4][4]; //You can queue up 4 LED commands
 		uint8_t chatPadInitNeeded[4];
-		
-		
+
+
         /**@}*/
 
         /** True if a wireless receiver is connected. */
@@ -333,7 +323,7 @@ protected:
         uint8_t bAddress;
         /** Endpoint info structure. */
         EpInfo epInfo[XBOX_MAX_ENDPOINTS];
-		  uint8_t chatpadEnabled;
+        uint8_t chatpadEnabled;
 
 private:
         /**
@@ -351,32 +341,34 @@ private:
         uint32_t ButtonState[4];
         uint32_t OldButtonState[4];
         uint16_t ButtonClickState[4];
-		  bool buttonStateChanged[4]; // True if a button has changed
-		 
-		  
+        bool buttonStateChanged[4]; // True if a button has changed
+
+
 		  /* Variables to store the chatpad buttons */
 		  uint32_t ChatPadState[4];
 		  uint32_t OldChatPadState[4];
 		  uint32_t ChatPadClickState[4];
 		  bool ChatPadStateChanged[4]; // True if a chatpad button has changed
-		  
+
         int16_t hatValue[4][4];
         uint16_t controllerStatus[4];
-        
+
 
         bool L2Clicked[4]; // These buttons are analog, so we use we use these bools to check if they where clicked or not
         bool R2Clicked[4];
 
-        uint32_t checkStatusTimer; // Timing for checkStatus() signals
+        uint32_t checkStatusTimer; //Timing for checkStatus() signals
+				uint32_t chatPadLedTimer; //Timing for chat pad led updates
 
         uint8_t readBuf[EP_MAXPKTSIZE]; // General purpose buffer for input data
-        uint8_t writeBuf[7]; // General purpose buffer for output data
+        uint8_t writeBuf[12]; // General purpose buffer for output data
 
         void readReport(uint8_t controller); // read incoming data
         void printReport(uint8_t controller, uint8_t nBytes); // print incoming date - Uncomment for debugging
 
         /* Private commands */
         void XboxCommand(uint8_t controller, uint8_t* data, uint16_t nbytes);
+				void chatPadProcessLed(uint8_t controller);
        //void checkStatus(); moved to public function - Ryzee
 };
 #endif

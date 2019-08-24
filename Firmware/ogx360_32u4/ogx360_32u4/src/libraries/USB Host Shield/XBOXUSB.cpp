@@ -317,6 +317,7 @@ int16_t XBOXUSB::getAnalogHat(AnalogHatEnum a) {
 void XBOXUSB::XboxCommand(uint8_t* data, uint16_t nbytes) {
         //pUsb->ctrlReq(bAddress, epInfo[XBOX_CONTROL_PIPE].epAddr, bmREQ_HID_OUT, HID_REQUEST_SET_REPORT, 0x00, 0x02, 0x00, nbytes, nbytes, data, NULL);
         pUsb->outTransfer(bAddress,epInfo[XBOX_OUTPUT_PIPE].epAddr,nbytes,data);
+				delay(1);
 }
 
 void XBOXUSB::setLedRaw(uint8_t value) {
@@ -370,7 +371,7 @@ void XBOXUSB::onInit() {
 	XboxCommand(outBuf1,3);
 	XboxCommand(outBuf2,3);
 	XboxCommand(outBuf3,3);
-	
+
 	if(pFuncOnInit)
 	pFuncOnInit(); // Call the user function
 	else
