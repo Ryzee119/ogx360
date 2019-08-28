@@ -104,12 +104,12 @@ void getControllerData(int len){
 
 		//0xAA is a ping to see if the slave module is connected
 		//Flash the LED to confirm receipt.
-		} else if(inputBuffer[0]==0xAA){
+	} else if(inputBuffer[0]==0xAA){
 		digitalWrite(ARDUINO_LED_PIN, LOW);
 		delay(250);
 		digitalWrite(ARDUINO_LED_PIN, HIGH);
 
-		} else {
+	} else {
 		USB_Attach();
 		if(enumerationComplete)
 		digitalWrite(ARDUINO_LED_PIN, LOW);
@@ -136,6 +136,7 @@ int main(void)
 	//Init the LUFA USB Device Library
 	SetupHardware();
 	GlobalInterruptEnable();
+
 
 	//Initialise the Serial Port
 	//Serial1.begin(500000);
@@ -224,6 +225,7 @@ int main(void)
 			if (controllerConnected(i)) {
 				//Button Mapping for Duke Controller
 				if(ConnectedXID==DUKE_CONTROLLER || i!=0){
+
 					//Read Digital Buttons
 					XboxOGDuke[i].dButtons=0x0000;
 					if (getButtonPress(UP, i))			XboxOGDuke[i].dButtons |= DUP;
@@ -252,7 +254,6 @@ int main(void)
 					XboxOGDuke[i].leftStickY = getAnalogHat(LeftHatY, i);
 					XboxOGDuke[i].rightStickX = getAnalogHat(RightHatX, i);
 					XboxOGDuke[i].rightStickY = getAnalogHat(RightHatY, i);
-
 				}
 				#ifdef SUPPORTBATTALION
 				//Button Mapping for Steel Battalion Controller - only applicable for player 1 and Xbox 360 Wireless Controllers
@@ -642,15 +643,37 @@ int main(void)
 			if(enumerationComplete){
 				digitalWrite(ARDUINO_LED_PIN, LOW);
 			}
-			} else {
+		} else if(millis()>7000){
 			digitalWrite(ARDUINO_LED_PIN, HIGH);
 			USB_Detach(); //Disconnect from the OG Xbox port.
 			Xbox360Wireless.chatPadInitNeeded[0]=1;
+		} else {
+			USB_Attach();
+			sendControllerHIDReport();
 		}
 
 
 		/***END MASTER TASKS ***/
 		#endif
+
+
+		//THPS 2X is the only game I know that sends rumble commands to the USB OUT pipe
+		//instead of the control pipe. So unfortunately need to manually read the out pipe
+		//and update rumble values as needed!
+		uint8_t ep = Endpoint_GetCurrentEndpoint();
+		static uint8_t report[6];
+		Endpoint_SelectEndpoint(0x02); //0x02 is the out endpoint address for the Duke Controller
+		if (Endpoint_IsOUTReceived()){
+			Endpoint_Read_Stream_LE(report, 6, NULL);
+			Endpoint_ClearOUT();
+			if(report[1]==0x06){
+				XboxOGDuke[0].left_actuator =  report[3];
+				XboxOGDuke[0].right_actuator = report[5];
+				XboxOGDuke[0].rumbleUpdate = 1;
+			}
+			report[1]=0x00;
+		}
+		Endpoint_SelectEndpoint(ep); //set back to the old endpoint.
 
 		#ifndef MASTER
 		if(inputBuffer[0]!=0xF0){

@@ -88,7 +88,7 @@ void SetupHardware(void){
 
 /** Event handler for the library USB Connection event. */
 void EVENT_USB_Device_Connect(void){
-	
+
 }
 
 /** Event handler for the library USB Disconnection event. */
@@ -103,6 +103,7 @@ void EVENT_USB_Device_ConfigurationChanged(void){
 	switch (ConnectedXID){
 		case DUKE_CONTROLLER:
 		ConfigSuccess &= HID_Device_ConfigureEndpoints(&DukeController_HID_Interface);
+		ConfigSuccess &= Endpoint_ConfigureEndpoint(0x02, EP_TYPE_INTERRUPT, 6, 1); //Host Out endpoint opened manually for Duke.
 		break;
 		#ifdef SUPPORTBATTALION
 		case STEELBATTALION:
@@ -123,7 +124,7 @@ void EVENT_USB_Device_ControlRequest(void){
 	//These are required for the controller to actually work on the console. Some games are more picky than others.
 	//See http://xboxdevwiki.net/Xbox_Input_Device under GET_DESCRIPTOR and GET_CAPABILITIES
 	//The actual responses were obtained from a USB analyser when communicating with an OG Xbox console.
-	
+
 	if (USB_ControlRequest.bmRequestType == 0xC1){
 			if (USB_ControlRequest.bRequest == 0x06 && USB_ControlRequest.wValue == 0x4200) {
 				Endpoint_ClearSETUP();
@@ -152,7 +153,7 @@ void EVENT_USB_Device_ControlRequest(void){
 					break;
 					#endif
 				}
-				
+
 				Endpoint_ClearOUT();
 				return;
 			}
@@ -184,7 +185,7 @@ void EVENT_USB_Device_ControlRequest(void){
 		break;
 		#endif
 	}
-	
+
 }
 
 
@@ -200,8 +201,8 @@ void EVENT_USB_Device_StartOfFrame(void){
 		break;
 		#endif
 	}
-	
-	
+
+
 }
 
 
@@ -209,12 +210,12 @@ void EVENT_USB_Device_StartOfFrame(void){
 bool CALLBACK_HID_Device_CreateHIDReport(USB_ClassInfo_HID_Device_t* const HIDInterfaceInfo,
 													uint8_t* const ReportID, const uint8_t ReportType,
 													void* ReportData,	uint16_t* const ReportSize){
-		
+
 	USB_XboxGamepad_Data_t* DukeReport = (USB_XboxGamepad_Data_t*)ReportData;
 	#ifdef SUPPORTBATTALION
 	USB_XboxSteelBattalion_Data_t* BattalionReport = (USB_XboxSteelBattalion_Data_t*)ReportData;
 	#endif
-	
+
 	switch (ConnectedXID){
 		case DUKE_CONTROLLER:
 		DukeReport->startByte = 0x00;
@@ -256,7 +257,7 @@ bool CALLBACK_HID_Device_CreateHIDReport(USB_ClassInfo_HID_Device_t* const HIDIn
 		break;
 		#endif
 	}
-	
+
 	return false;
 }
 
@@ -272,11 +273,11 @@ void CALLBACK_HID_Device_ProcessHIDReport(
 	//bit 3 is the left actuator value, bit 5 is the right actuator level.
 	//See http://euc.jp/periphs/xbox-controller.en.html - Output Report
 	if (ConnectedXID == DUKE_CONTROLLER && ReportSize == 0x06) {
-		XboxOGDuke[0].left_actuator = ((uint8_t *)ReportData)[3];
+		XboxOGDuke[0].left_actuator =  ((uint8_t *)ReportData)[3];
 		XboxOGDuke[0].right_actuator = ((uint8_t *)ReportData)[5];
 		XboxOGDuke[0].rumbleUpdate = 1;
 	}
-	
+
 }
 
 //USB callback function for the processing of the device descriptors from the device.
@@ -284,7 +285,7 @@ void CALLBACK_HID_Device_ProcessHIDReport(
 uint16_t CALLBACK_USB_GetDescriptor(
 	const uint16_t wValue, const uint16_t wIndex,
 	const void** const DescriptorAddress) {
-		
+
 	const uint8_t  DescriptorType   = (wValue >> 8);
 	uint8_t nullString[1] = {0};
 	const void* Address = NULL;
@@ -307,7 +308,7 @@ uint16_t CALLBACK_USB_GetDescriptor(
 		}
 		break;
 		case DTYPE_Configuration:
-		
+
 		switch (ConnectedXID){
 			case DUKE_CONTROLLER:
 			Address = &DUKE_USB_DESCRIPTOR_CONFIGURATION;

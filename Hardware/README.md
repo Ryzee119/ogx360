@@ -34,7 +34,7 @@ This also shows the bare minimum quantities, I would suggest you get a few spare
 | 2 | 33R | RES 33 OHM 1% 1/16W 0402 | R1,R2 | https://www.digikey.com.au/product-detail/en/yageo/RC0402FR-0733RL/311-33.0LRCT-ND |
 | 1 | 8V/0.5A | PTC RESET FUSE 8V 500MA 1206 | F1 | https://www.digikey.com.au/product-detail/en/0ZCJ0050FF2G/507-1802-1-ND |
 | 1 | 74HC4050 | IC BUFFER NON-INVERT 6V 16SOIC | U2 | https://www.digikey.com.au/product-detail/en/74HC4050D/74HC4050DCT-ND |
-| 1 | MAX3421 | IC USB PERIPH/HOST CNTRL 32TQFP | U1 | https://www.digikey.com.au/product-detail/en/maxim-integrated/MAX3421EEHJ-T/MAX3421EEHJ-TCT-ND |
+| 1 | MAX3421 | IC USB PERIPH/HOST CNTRL 32TQFP | U1 | https://www.digikey.com.au/product-detail/en/maxim-integrated/MAX3421EEHJ-T/MAX3421EEHJ-TCT-ND/4895460 |
 | 1 | MIC5219 3.3V | IC REG LINEAR 3.3V 500MA SOT23-5 | U3 | https://www.digikey.com.au/product-detail/en/MIC5219-3.3YM5-TR/576-1281-1-ND |
 | 3 | 1N4148 | DIODE GEN PURP 75V 150MA SOD523 | D1, D2, D3 | https://www.digikey.com.au/product-detail/en/1N4148X-TP/1N4148XTPMSCT-ND |
 | 1 | AE11182-ND | CONN USB RTANG FMALE TYPE A SMD | J1 | https://www.digikey.com.au/product-detail/en/AU-Y1006/AE11182-ND |
