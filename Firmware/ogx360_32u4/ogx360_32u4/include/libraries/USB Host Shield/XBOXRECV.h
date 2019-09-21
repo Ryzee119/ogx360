@@ -47,7 +47,7 @@
 #define XBOX_WIRELESS_RECEIVER_PID              0x0719  // Microsoft Wireless Gaming Receiver
 #define XBOX_WIRELESS_RECEIVER_THIRD_PARTY_PID  0x0291  // Third party Wireless Gaming Receiver
 #define XBOX_WIRELESS_RECEIVER_THIRD_PARTY1_PID  0x02AA  // Another Third party Wireless Gaming Receiver
-
+#define XBOX_WIRELESS_RECEIVER_THIRD_PARTY2_PID  0x02A9  // Another Third party Wireless Gaming Receiver
 
 #define XBOX_MAX_ENDPOINTS   17
 

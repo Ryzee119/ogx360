@@ -295,6 +295,11 @@ uint8_t XBOXONE::Poll() {
 	if(!bPollEnable)
 	return 0;
 
+	if(millis()-enableInputTimer>100){
+		enableInput();
+		enableInputTimer=millis();
+	}
+
 	if((int32_t)((uint32_t)millis() - qNextPollTime) >= 0L) { // Do not poll if shorter than polling interval
 		qNextPollTime = (uint32_t)millis() + pollInterval; // Set new poll time
 		uint16_t length =  (uint16_t)epInfo[ XBOX_ONE_INPUT_PIPE ].maxPktSize; // Read the maximum packet size from the endpoint
@@ -404,18 +409,20 @@ int16_t XBOXONE::getAnalogHat(AnalogHatEnum a) {
 
 /* Xbox Controller commands */
 uint8_t XBOXONE::XboxCommand(uint8_t* data, uint16_t nbytes) {
+	static uint32_t outputCommandTimer=0;
 	data[2] = cmdCounter++; // Increment the output command counter
+	while(millis()-outputCommandTimer<1);
 	uint8_t rcode = pUsb->outTransfer(bAddress, epInfo[ XBOX_ONE_OUTPUT_PIPE ].epAddr, nbytes, data);
-	#ifdef DEBUG_USB_HOST
-	Notify(PSTR("\r\nXboxCommand, Return: "), 0x80);
-	D_PrintHex<uint8_t > (rcode, 0x80);
-	#endif
+	outputCommandTimer=millis();
 	return rcode;
 }
 
 // The Xbox One packets are described at: https://github.com/quantus/xbox-one-controller-protocol
 void XBOXONE::onInit() {
 	enableInput();
+	enableInput();
+	enableInput();
+
 	if(pFuncOnInit)
 	pFuncOnInit(); // Call the user function
 }
@@ -468,7 +475,7 @@ void XBOXONE::enableInput(){
 	uint8_t writeBuf[5];
 	writeBuf[0] = 0x05;
 	writeBuf[1] = 0x20;
-	// Byte 2 is set in "XboxCommand"
+	writeBuf[2] = 0x00;
 	writeBuf[3] = 0x01;
 	writeBuf[4] = 0x00;
 	XboxCommand(writeBuf, 5);

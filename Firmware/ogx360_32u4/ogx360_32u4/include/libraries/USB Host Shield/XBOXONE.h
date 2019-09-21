@@ -175,9 +175,9 @@ public:
         /** True if a Xbox ONE controller is connected. */
         bool XboxOneConnected;
 		  uint16_t PID, VID;
-		  
+
 		  void enableInput();
-		  
+
 
 protected:
         /** Pointer to USB class instance. */
@@ -230,6 +230,7 @@ private:
         int16_t hatValue[4];
         uint16_t triggerValue[2];
         uint16_t triggerValueOld[2];
+				uint32_t enableInputTimer; //Timing for checkStatus() signals
 
         bool L2Clicked; // These buttons are analog, so we use we use these bools to check if they where clicked or not
         bool R2Clicked;
