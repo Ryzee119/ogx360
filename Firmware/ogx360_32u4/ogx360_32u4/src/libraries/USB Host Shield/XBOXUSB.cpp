@@ -94,20 +94,10 @@ uint8_t XBOXUSB::Init(uint8_t parent, uint8_t port, bool lowspeed) {
         VID = udd->idVendor;
         PID = udd->idProduct;
 
-        if(VID != XBOX_VID && VID != MADCATZ_VID && VID != JOYTECH_VID && VID != GAMESTOP_VID) // Check VID
+        if(VID != XBOX_VID && VID != MADCATZ_VID && VID != JOYTECH_VID && VID != GAMESTOP_VID && VID != MADCATZ_VID1)
                 goto FailUnknownDevice;
-        if(PID == XBOX_WIRELESS_PID) {
-#ifdef DEBUG_USB_HOST
-                Notify(PSTR("\r\nYou have plugged in a wireless Xbox 360 controller - it doesn't support USB communication"), 0x80);
-#endif
-                goto FailUnknownDevice;
-        } else if(PID == XBOX_WIRELESS_RECEIVER_PID || PID == XBOX_WIRELESS_RECEIVER_THIRD_PARTY_PID) {
-#ifdef DEBUG_USB_HOST
-                Notify(PSTR("\r\nThis library only supports Xbox 360 controllers via USB"), 0x80);
-#endif
-                goto FailUnknownDevice;
-        } else if(PID != XBOX_WIRED_PID && PID != MADCATZ_WIRED_PID && PID != GAMESTOP_WIRED_PID && PID != AFTERGLOW_WIRED_PID && PID != JOYTECH_WIRED_PID
-                  && PID!= MADCATZ_FIGHTSTICK_PID) // Check PID
+        if(PID != XBOX_WIRED_PID && PID != MADCATZ_WIRED_PID && PID != GAMESTOP_WIRED_PID &&
+				   PID != AFTERGLOW_WIRED_PID && PID != JOYTECH_WIRED_PID && PID!= MADCATZ_FIGHTSTICK_PID && PID!= MADCATZ_PID1)
                 goto FailUnknownDevice;
 
         // Allocate new address according to device class

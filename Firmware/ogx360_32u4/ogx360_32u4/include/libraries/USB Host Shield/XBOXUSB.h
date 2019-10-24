@@ -35,6 +35,7 @@
 #define MADCATZ_VID                             0x1BAD // For unofficial Mad Catz controllers
 #define JOYTECH_VID                             0x162E // For unofficial Joytech controllers
 #define GAMESTOP_VID                            0x0E6F // Gamestop controller
+#define MADCATZ_VID1                            0x0738 // Gamestop controller
 
 #define XBOX_WIRED_PID                          0x028E // Microsoft 360 Wired controller
 #define XBOX_WIRELESS_PID                       0x028F // Wireless controller only support charging
@@ -45,6 +46,7 @@
 #define JOYTECH_WIRED_PID                       0xBEEF // For Joytech wired controller
 #define GAMESTOP_WIRED_PID                      0x0401 // Gamestop wired controller
 #define AFTERGLOW_WIRED_PID                     0x0213 // Afterglow wired controller - it uses the same VID as a Gamestop controller
+#define MADCATZ_PID1                            0x4738 // Street Fighter IV FightStick TE
 
 #define XBOX_REPORT_BUFFER_SIZE 14 // Size of the input report buffer
 
