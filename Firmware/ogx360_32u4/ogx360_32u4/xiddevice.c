@@ -122,7 +122,7 @@ void EVENT_USB_Device_ControlRequest(void){
 	//The Xbox Controller is a HID device, however it has some custom vendor requests
 	//These are caught and processed here before going into the standard HID driver.
 	//These are required for the controller to actually work on the console. Some games are more picky than others.
-	//See http://xboxdevwiki.net/Xbox_Input_Device under GET_DESCRIPTOR and GET_CAPABILITIES
+	//See http://xboxdevwiki.net/Xbox_Input_Devices under GET_DESCRIPTOR and GET_CAPABILITIES
 	//The actual responses were obtained from a USB analyser when communicating with an OG Xbox console.
 
 	if (USB_ControlRequest.bmRequestType == 0xC1){
