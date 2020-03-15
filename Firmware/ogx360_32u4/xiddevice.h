@@ -40,7 +40,7 @@ this software.
 #include <avr/wdt.h>
 #include <avr/power.h>
 #include <LUFAConfig.h>
-#include <LUFA/LUFA/Drivers/USB/USB.h>
+#include <LUFA/Drivers/USB/USB.h>
 #include "dukecontroller.h"
 #include "steelbattalion.h"
 

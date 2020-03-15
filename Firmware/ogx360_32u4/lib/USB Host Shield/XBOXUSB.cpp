@@ -97,7 +97,8 @@ uint8_t XBOXUSB::Init(uint8_t parent, uint8_t port, bool lowspeed) {
         if(VID != XBOX_VID && VID != MADCATZ_VID && VID != JOYTECH_VID && VID != GAMESTOP_VID && VID != MADCATZ_VID1)
                 goto FailUnknownDevice;
         if(PID != XBOX_WIRED_PID && PID != MADCATZ_WIRED_PID && PID != GAMESTOP_WIRED_PID &&
-				   PID != AFTERGLOW_WIRED_PID && PID != JOYTECH_WIRED_PID && PID!= MADCATZ_FIGHTSTICK_PID && PID!= MADCATZ_PID1)
+				   PID != AFTERGLOW_WIRED_PID && PID != JOYTECH_WIRED_PID &&
+				   PID!= MADCATZ_FIGHTSTICK_PID && PID!= MADCATZ_PID1 && PID!= MADCATZ_PID2)
                 goto FailUnknownDevice;
 
         // Allocate new address according to device class

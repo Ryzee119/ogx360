@@ -11,40 +11,30 @@ Another video attempting to show the input lag is here: https://youtu.be/V7Pnba7
 
 Another video showing the Steel Battalion Controller support is here: https://youtu.be/g_eQlOcccg8
 
-I generally post updates regarding new batch runs or updates on my twitter page https://twitter.com/Ryzee119
-
 ![alt text](https://github.com/Ryzee119/ogx360/blob/master/Images/image1.jpg?raw=true "ogx360-1")
 
 ## Features include:
-* Support up to 4 Xbox Wireless Controllers using a modular design with readily available [Arduino Pro Micro](https://www.sparkfun.com/products/12640) boards. I have linked Sparkfun but any cheaper clone will work the same.
-* Full rumble support on all controllers when using Xbox 360 wireless controllers
+* Support up to 4 Xbox Wireless Controllers with readily available [Arduino Pro Micro](https://www.sparkfun.com/products/12640) boards. I have linked Sparkfun but any cheaper clone will work the same.
+* Full rumble support on all controllers when using Xbox 360 wireless controllers.
 * Steel Battalion controller support on Player 1 with an Xbox 360 Chatpad using Xbox 360 Wireless Controllers.
 * Basically instant boot up time so you can use controllers straight away from power on.
 * Low level programming with minimal input lag. Less than 4ms over an original controller. (See https://youtu.be/V7Pnba7Y12Y)
 * Firmware can be updated over USB. No programming hardware is required. See [Firmware](https://github.com/Ryzee119/ogx360/tree/master/Firmware) for programming instructions.
 * 100% USB Bus powered from the Original Xbox controller ports. No requirement for external power supplies.
-* I can't claim 100% compatibility; however, I haven't found a game that doesn't work. If you find one, let me know and I'll see if I can work it out.
+* 100% compatibility?
 * One ogx360 mutliple Xboxes. For a side by side system link setup, just plug the 2nd module into the 2nd Xbox and you can use one ogx360 to control two (up to 4) Xboxes wirelessly.
 
 
 ## Supported Controllers
-* Supports 4 players with Genuine and Third Party Microsoft Xbox 360 Wireless Receivers. If your wireless receiver doesn't work, raise an issue with a USB descriptor dump of your device.
-* The following devices work, but only support one player. They requires a USB 2.0 Hub to connect multiple controllers.
-* Wired Xbox 360 Controllers
+* Supports 4 players with Genuine and Third Party Microsoft Xbox 360 Wireless Receivers.
+* Wired Xbox 360 Controllers.
 * 8bitdo Wireless Adaptor (See http://www.8bitdo.com/wireless-usb-adapter/ for supported controllers). One controller per adaptor.
 * ChronusMAX (See https://cronusmax.com/ for supported devices). Ensure it is configured to appear as an Xbox 360 Controller. One controller per adaptor.
-* Can support Genuine Wired Xbox One Controllers with alternative firmware. See [`Firmware`](https://github.com/Ryzee119/ogx360/tree/master/Firmware).
-* Does it support ....? If it's not listed it's not supported. 8bitdo/ChronusMAX should cover 99% of cases.
+* Genuine Wired Xbox One Controllers.
 
 
 ## Steel Battalion controller emulation
-Traditionally, to play Steel Battalion you must have the unique Steel Battalion Controller. These are quite expensive, hard to come by and take up alot of space so I imagine alot of us have never been able to play the game. It is not possible to play using a standard controller as the game won't accept any inputs.
-
-I have gone to a lot of effort to write my own Xbox 360 chatpad driver and emulate the Steel Battalion Controller myself. Shout out to the guys over at www.ogxbox.com forums, and shoutout to @Kekule who provided a USB descriptor dump and logic analyser data. Also the Cxbx reloaded guys as their source code helped alot!
-
-Now this obviously is not going to have the same immersion and intuitive gameplay as the real controller, but it is atleast an option for those who don't own the Steel Battalion controller. With a bit of practice it is very playable!
-
-You can change what the controller appears to the console at anytime, so you can use the 'Duke Controller' to boot into the game, then change to the 'Steel Battalion controller' whilst in game. 
+You need a wireless Xbox 360 controller with a chatpad connection. You can change what the controller appears to the console at anytime, so you can use the 'Duke Controller' to boot into the game, then change to the 'Steel Battalion controller' whilst in game. 
 
 Button mapping is below. (High Res image available [here](https://i.imgur.com/12SawzC.png)).
 

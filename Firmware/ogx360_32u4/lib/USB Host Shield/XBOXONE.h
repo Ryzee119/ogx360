@@ -27,7 +27,7 @@
 #include "xboxEnums.h"
 
 /* Xbox One data taken from descriptors */
-#define XBOX_ONE_EP_MAXPKTSIZE                  32 // Max size for data via USB
+#define XBOX_ONE_EP_MAXPKTSIZE                  64 // Max size for data via USB
 
 /* Names we give to the 3 XboxONE pipes */
 #define XBOX_ONE_CONTROL_PIPE                   0
@@ -52,6 +52,7 @@
 #define XBOX_VID4                               0x0F0D // HORIPAD ONE
 #define XBOX_VID5                               0x1532 // Razer
 #define XBOX_VID6                               0x24C6 // PowerA
+#define XBOX_VID7                               0x2E24 // Hyperkin
 
 #define XBOX_ONE_PID5                           0x4A01 // Mad Catz FightStick TE 2 - might have different mapping for triggers?
 #define XBOX_ONE_PID6                           0x0139 // Afterglow Prismatic Wired Controller
@@ -61,7 +62,8 @@
 #define XBOX_ONE_PID10                          0x541A // PowerA Xbox One Mini Wired Controller
 #define XBOX_ONE_PID11                          0x542A // Xbox ONE spectra
 #define XBOX_ONE_PID12                          0x543A // PowerA Xbox One wired controller
-#define XBOX_ONE_PID14                          0x02A7 // PowerA Xbox One wired controller
+#define XBOX_ONE_PID14                          0x0652 // Hyperkin Duke X-Box One pad
+#define XBOX_ONE_PID15                          0x1688 // Hyperkin X91
 
 /** This class implements support for a Xbox ONE controller connected via USB. */
 class XBOXONE : public USBDeviceConfig, public UsbConfigXtracter {
@@ -123,10 +125,11 @@ public:
          * @return     Returns true if the device's VID and PID matches this driver.
          */
         virtual bool VIDPIDOK(uint16_t vid, uint16_t pid) {
-                return ((vid == XBOX_VID1 || vid == XBOX_VID2 || vid == XBOX_VID3 || vid == XBOX_VID4 || vid == XBOX_VID5 || vid == XBOX_VID6) &&
+                return ((vid == XBOX_VID1 || vid == XBOX_VID2 || vid == XBOX_VID3 || vid == XBOX_VID4 || vid == XBOX_VID5 || vid == XBOX_VID6  || vid == XBOX_VID7) &&
                     (pid == XBOX_ONE_PID1 || pid == XBOX_ONE_PID2 || pid == XBOX_ONE_PID3 || pid == XBOX_ONE_PID4 ||
                         pid == XBOX_ONE_PID5 || pid == XBOX_ONE_PID6 || pid == XBOX_ONE_PID7 || pid == XBOX_ONE_PID8 ||
-                        pid == XBOX_ONE_PID9 || pid == XBOX_ONE_PID10 || pid == XBOX_ONE_PID11 || pid == XBOX_ONE_PID12 || pid == XBOX_ONE_PID13  || pid == XBOX_ONE_PID14));
+                        pid == XBOX_ONE_PID9 || pid == XBOX_ONE_PID10 || pid == XBOX_ONE_PID11 || pid == XBOX_ONE_PID12 ||
+						pid == XBOX_ONE_PID13 || pid == XBOX_ONE_PID14 || pid == XBOX_ONE_PID15));
         };
         /**@}*/
 
@@ -174,11 +177,7 @@ public:
 
         /** True if a Xbox ONE controller is connected. */
         bool XboxOneConnected;
-		  uint16_t PID, VID;
-
-		  void enableInput();
-
-
+		
 protected:
         /** Pointer to USB class instance. */
         USB *pUsb;
@@ -230,7 +229,6 @@ private:
         int16_t hatValue[4];
         uint16_t triggerValue[2];
         uint16_t triggerValueOld[2];
-				uint32_t enableInputTimer; //Timing for checkStatus() signals
 
         bool L2Clicked; // These buttons are analog, so we use we use these bools to check if they where clicked or not
         bool R2Clicked;

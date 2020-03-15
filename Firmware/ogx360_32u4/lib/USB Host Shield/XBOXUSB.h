@@ -47,6 +47,7 @@
 #define GAMESTOP_WIRED_PID                      0x0401 // Gamestop wired controller
 #define AFTERGLOW_WIRED_PID                     0x0213 // Afterglow wired controller - it uses the same VID as a Gamestop controller
 #define MADCATZ_PID1                            0x4738 // Street Fighter IV FightStick TE
+#define MADCATZ_PID2                            0xF018  //Mad Catz Street Fighter IV SE
 
 #define XBOX_REPORT_BUFFER_SIZE 14 // Size of the input report buffer
 
