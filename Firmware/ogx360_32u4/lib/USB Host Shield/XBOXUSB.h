@@ -35,6 +35,7 @@
 #define MADCATZ_VID                             0x1BAD // For unofficial Mad Catz controllers
 #define JOYTECH_VID                             0x162E // For unofficial Joytech controllers
 #define GAMESTOP_VID                            0x0E6F // Gamestop controller
+#define AFTERGLOW_VID                           0x12AB // Afterglow controller
 #define MADCATZ_VID1                            0x0738 // Gamestop controller
 
 #define XBOX_WIRED_PID                          0x028E // Microsoft 360 Wired controller
@@ -44,8 +45,8 @@
 #define MADCATZ_WIRED_PID                       0xF016 // Mad Catz wired controller
 #define MADCATZ_FIGHTSTICK_PID                  0xF03A // MadCatz FightStick Neo
 #define JOYTECH_WIRED_PID                       0xBEEF // For Joytech wired controller
-#define GAMESTOP_WIRED_PID                      0x0401 // Gamestop wired controller
-#define AFTERGLOW_WIRED_PID                     0x0213 // Afterglow wired controller - it uses the same VID as a Gamestop controller
+#define GAMESTOP_WIRED_PID                      0x0413 // Gamestop wired controller
+#define AFTERGLOW_WIRED_PID                     0x0302 // Afterglow wired controller - it uses the same VID as a Gamestop controller
 #define MADCATZ_PID1                            0x4738 // Street Fighter IV FightStick TE
 #define MADCATZ_PID2                            0xF018  //Mad Catz Street Fighter IV SE
 
@@ -105,7 +106,7 @@ public:
          * @return     Returns true if the device's VID and PID matches this driver.
          */
         virtual bool VIDPIDOK(uint16_t vid, uint16_t pid) {
-                return ((vid == XBOX_VID || vid == MADCATZ_VID || vid == JOYTECH_VID || vid == GAMESTOP_VID) && (pid == XBOX_WIRED_PID || pid == MADCATZ_WIRED_PID || pid == GAMESTOP_WIRED_PID || pid == AFTERGLOW_WIRED_PID || pid == JOYTECH_WIRED_PID));
+                return ((vid == XBOX_VID || vid == MADCATZ_VID || vid == JOYTECH_VID || vid == GAMESTOP_VID || vid == AFTERGLOW_VID) && (pid == XBOX_WIRED_PID || pid == MADCATZ_WIRED_PID || pid == GAMESTOP_WIRED_PID || pid == AFTERGLOW_WIRED_PID || pid == JOYTECH_WIRED_PID));
         };
         /**@}*/
 
