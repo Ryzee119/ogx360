@@ -37,6 +37,8 @@
 #define GAMESTOP_VID                            0x0E6F // Gamestop controller
 #define AFTERGLOW_VID                           0x12AB // Afterglow controller
 #define MADCATZ_VID1                            0x0738 // Gamestop controller
+#define ROCKCANDY_VID							0x24C6 // Rock Candy controller
+#define THRUSTMASTER_GPX_VID					0x24C6 // Thrustmaster gpx controller
 
 #define XBOX_WIRED_PID                          0x028E // Microsoft 360 Wired controller
 #define XBOX_WIRELESS_PID                       0x028F // Wireless controller only support charging
@@ -51,6 +53,9 @@
 #define AFTERGLOW_WIRED_PID2                    0x0302 // Afterglow wired controller - it uses the same VID as a Gamestop controller
 #define MADCATZ_PID1                            0x4738 // Street Fighter IV FightStick TE
 #define MADCATZ_PID2                            0xF018  //Mad Catz Street Fighter IV SE
+#define ROCKCANDY_WIRED_PID						0xFAFE // Rock candy wired controller
+#define THRUSTMASTER_GPX_WIRED_PID				0x5B02 // Thrustmaster gpx controller
+#define THRUSTMASTER_WHEEL_PID					0x5B00 // Thrustmaster wheel controller
 
 #define XBOX_REPORT_BUFFER_SIZE 14 // Size of the input report buffer
 
@@ -108,7 +113,9 @@ public:
          * @return     Returns true if the device's VID and PID matches this driver.
          */
         virtual bool VIDPIDOK(uint16_t vid, uint16_t pid) {
-                return ((vid == XBOX_VID || vid == MADCATZ_VID || vid == JOYTECH_VID || vid == GAMESTOP_VID || vid == AFTERGLOW_VID) && (pid == XBOX_WIRED_PID || pid == MADCATZ_WIRED_PID || pid == GAMESTOP_WIRED_PID1 || pid == GAMESTOP_WIRED_PID2 || pid == AFTERGLOW_WIRED_PID1 || pid == AFTERGLOW_WIRED_PID2 || pid == JOYTECH_WIRED_PID));
+                return ((vid == XBOX_VID || vid == MADCATZ_VID || vid == JOYTECH_VID || vid == GAMESTOP_VID || vid == AFTERGLOW_VID || vid == ROCKCANDY_VID || vid == THRUSTMASTER_GPX_VID) && 
+				(pid == XBOX_WIRED_PID || pid == MADCATZ_WIRED_PID || pid == GAMESTOP_WIRED_PID1 || pid == GAMESTOP_WIRED_PID2 || pid == AFTERGLOW_WIRED_PID1 || pid == AFTERGLOW_WIRED_PID2 || pid == JOYTECH_WIRED_PID || 
+				pid == ROCKCANDY_WIRED_PID || pid == THRUSTMASTER_GPX_WIRED_PID || pid == THRUSTMASTER_WHEEL_PID));
         };
         /**@}*/
 
