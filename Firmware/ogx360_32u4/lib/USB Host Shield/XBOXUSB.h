@@ -34,12 +34,12 @@
 #define XBOX_VID                                0x045E // Microsoft Corporation
 #define MADCATZ_VID                             0x1BAD // For unofficial Mad Catz controllers and Hori Rap VX-SA
 #define JOYTECH_VID                             0x162E // For unofficial Joytech controllers
-#define GAMESTOP_VID							0x0E6F // Gamestop controller
-#define AFTERGLOW_VID							0x12AB // Afterglow controller
-#define MADCATZ_VID1							0x0738 // Gamestop controller
-#define ROCKCANDY_VID							0x24C6 // Rock Candy controller
-#define THRUSTMASTER_GPX_VID					0x24C6 // Thrustmaster gpx controller
-#define SF4_FIGHTPAD_VID						0x0738 // Street fighter 4 fight pad controller
+#define GAMESTOP_VID                            0x0E6F // Gamestop controller
+#define AFTERGLOW_VID                           0x12AB // Afterglow controller
+#define MADCATZ_VID1                            0x0738 // Gamestop controller
+#define ROCKCANDY_VID                           0x24C6 // Rock Candy controller
+#define THRUSTMASTER_GPX_VID                    0x24C6 // Thrustmaster gpx controller
+#define SF4_FIGHTPAD_VID                        0x0738 // Street fighter 4 fight pad controller
 
 #define XBOX_WIRED_PID                          0x028E // Microsoft 360 Wired controller
 #define XBOX_WIRELESS_PID                       0x028F // Wireless controller only support charging
@@ -48,17 +48,19 @@
 #define MADCATZ_WIRED_PID                       0xF016 // Mad Catz wired controller
 #define MADCATZ_FIGHTSTICK_PID                  0xF03A // MadCatz FightStick Neo
 #define JOYTECH_WIRED_PID                       0xBEEF // For Joytech wired controller
-#define GAMESTOP_WIRED_PID1						0x0401 // Gamestop wired controller
-#define GAMESTOP_WIRED_PID2						0x0413 // Gamestop wired controller
-#define AFTERGLOW_WIRED_PID1					0x0213 // Afterglow wired controller - it uses the same VID as a Gamestop controller
-#define AFTERGLOW_WIRED_PID2					0x0302 // Afterglow wired controller - it uses the same VID as a Gamestop controller
-#define MADCATZ_PID1							0x4738 // Street Fighter IV FightStick TE
-#define MADCATZ_PID2							0xF018  //Mad Catz Street Fighter IV SE
-#define ROCKCANDY_WIRED_PID						0xFAFE // Rock candy wired controller
-#define THRUSTMASTER_GPX_WIRED_PID				0x5B02 // Thrustmaster gpx controller
-#define THRUSTMASTER_WHEEL_PID					0x5B00 // Thrustmaster wheel controller
-#define SF4_FIGHTPAD_PID						0x4728 // Street fighter 4 fight pad stick controller
-#define HORI_RAP_VXSA_PID						0xF502 // Hori rap vx-sa stick controller
+#define GAMESTOP_WIRED_PID1                     0x0401 // Gamestop wired controller
+#define GAMESTOP_WIRED_PID2                     0x0413 // Gamestop wired controller
+#define AFTERGLOW_WIRED_PID1                    0x0213 // Afterglow wired controller - it uses the same VID as a Gamestop controller
+#define AFTERGLOW_WIRED_PID2                    0x0302 // Afterglow wired controller - it uses the same VID as a Gamestop controller
+#define MADCATZ_PID1                            0x4738 // Street Fighter IV FightStick TE
+#define MADCATZ_PID2                            0xF018 // Mad Catz Street Fighter IV SE
+#define ROCKCANDY_WIRED_PID                     0xFAFE // Rock candy wired controller
+#define THRUSTMASTER_GPX_WIRED_PID              0x5B02 // Thrustmaster gpx controller
+#define THRUSTMASTER_WHEEL_PID                  0x5B00 // Thrustmaster wheel controller
+#define SF4_FIGHTPAD_PID                        0x4728 // Street fighter 4 fight pad stick controller
+#define HORI_RAP_VXSA_PID                       0xF502 // Hori rap vx-sa stick controller
+#define MADCATZ_BEAT_PAD                        0x4740 // MadCatz Beat Pad
+#define KONAMI_DANCE_PAD                        0x0004 // Konami Dance Pad
 
 #define XBOX_REPORT_BUFFER_SIZE 14 // Size of the input report buffer
 
