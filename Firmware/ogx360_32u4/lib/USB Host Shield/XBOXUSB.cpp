@@ -94,19 +94,18 @@ uint8_t XBOXUSB::Init(uint8_t parent, uint8_t port, bool lowspeed) {
         VID = udd->idVendor;
         PID = udd->idProduct;
 
-        if(VID != XBOX_VID &&
-           VID != MADCATZ_VID &&
+        if(VID != MICROSOFT_VID &&
+           VID != HARMONIX_VID &&
            VID != JOYTECH_VID &&
-           VID != GAMESTOP_VID &&
-           VID != MADCATZ_VID1 &&
-           VID != AFTERGLOW_VID &&
-           VID != ROCKCANDY_VID &&
-           VID != THRUSTMASTER_GPX_VID &&
-           VID != SF4_FIGHTPAD_VID)
+           VID != PDP_VID &&
+           VID != HONEYBEE_VID &&
+           VID != THRUSTMASTER_VID &&
+           VID != MADCATZ_VID)
                goto FailUnknownDevice;
 
         if(PID != XBOX_WIRED_PID &&
            PID != MADCATZ_WIRED_PID &&
+					 PID != MADCATZ_FIGHTSTICK_PID &&
            PID != GAMESTOP_WIRED_PID1 &&
            PID != GAMESTOP_WIRED_PID2 &&
            PID != AFTERGLOW_WIRED_PID1 &&
