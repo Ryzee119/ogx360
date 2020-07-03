@@ -31,20 +31,18 @@
 #define XBOX_OUTPUT_PIPE     2
 
 // PID and VID of the different devices
-#define XBOX_VID                                0x045E // Microsoft Corporation
-#define MADCATZ_VID                             0x1BAD // For unofficial Mad Catz controllers and Hori Rap VX-SA
-#define JOYTECH_VID                             0x162E // For unofficial Joytech controllers
-#define GAMESTOP_VID                            0x0E6F // Gamestop controller
-#define AFTERGLOW_VID                           0x12AB // Afterglow controller
-#define MADCATZ_VID1                            0x0738 // Gamestop controller
-#define ROCKCANDY_VID                           0x24C6 // Rock Candy controller
-#define THRUSTMASTER_GPX_VID                    0x24C6 // Thrustmaster gpx controller
-#define SF4_FIGHTPAD_VID                        0x0738 // Street fighter 4 fight pad controller
+#define MICROSOFT_VID                           0x045E // Microsoft Corporation
+#define HARMONIX_VID                            0x1BAD // Harmonix Music Systems, Inc.
+#define JOYTECH_VID                             0x162E // Joytech Europe Ltd.
+#define PDP_VID                                 0x0E6F // Performance Designed Products (PDP), LLC
+#define HONEYBEE_VID                            0x12AB // Honey Bee (Hong Kong) Limited
+#define THRUSTMASTER_VID                        0x24C6 // ThrustMaster, Inc.
+#define MADCATZ_VID                             0x0738 // Mad Catz Global Limited
 
-#define XBOX_WIRED_PID                          0x028E // Microsoft 360 Wired controller
-#define XBOX_WIRELESS_PID                       0x028F // Wireless controller only support charging
-#define XBOX_WIRELESS_RECEIVER_PID              0x0719 // Microsoft Wireless Gaming Receiver
-#define XBOX_WIRELESS_RECEIVER_THIRD_PARTY_PID  0x0291 // Third party Wireless Gaming Receiver
+#define XBOX_WIRED_PID                          0x028E // Xbox 360 Wired controller
+#define XBOX_WIRELESS_PID                       0x028F // Xbox 360 Wireless Controller (Charging only)
+#define XBOX_WIRELESS_RECEIVER_PID              0x0719 // Xbox 360 Wireless Gaming Receiver
+#define XBOX_WIRELESS_RECEIVER_THIRD_PARTY_PID  0x0291 // Xbox 360 Wireless Gaming Receiver (Clone)
 #define MADCATZ_WIRED_PID                       0xF016 // Mad Catz wired controller
 #define MADCATZ_FIGHTSTICK_PID                  0xF03A // MadCatz FightStick Neo
 #define JOYTECH_WIRED_PID                       0xBEEF // For Joytech wired controller
