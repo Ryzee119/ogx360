@@ -94,14 +94,34 @@ uint8_t XBOXUSB::Init(uint8_t parent, uint8_t port, bool lowspeed) {
         VID = udd->idVendor;
         PID = udd->idProduct;
 
-        if(VID != XBOX_VID && VID != MADCATZ_VID && VID != JOYTECH_VID && VID != GAMESTOP_VID && VID != MADCATZ_VID1 && VID != AFTERGLOW_VID && VID != ROCKCANDY_VID && VID != THRUSTMASTER_GPX_VID &&
-		VID != SF4_FIGHTPAD_VID)
-                goto FailUnknownDevice;
-        if(PID != XBOX_WIRED_PID && PID != MADCATZ_WIRED_PID && PID != GAMESTOP_WIRED_PID1 && PID != GAMESTOP_WIRED_PID2 &&
-				   PID != AFTERGLOW_WIRED_PID1 && PID != AFTERGLOW_WIRED_PID2 && PID != JOYTECH_WIRED_PID &&
-				   PID!= MADCATZ_FIGHTSTICK_PID && PID!= MADCATZ_PID1 && PID!= MADCATZ_PID2 && PID != ROCKCANDY_WIRED_PID &&
-				   PID != THRUSTMASTER_GPX_WIRED_PID && PID != THRUSTMASTER_WHEEL_PID && PID != SF4_FIGHTPAD_PID && PID != HORI_RAP_VXSA_PID)
-                goto FailUnknownDevice;
+        if(VID != MICROSOFT_VID &&
+           VID != HARMONIX_VID &&
+           VID != JOYTECH_VID &&
+           VID != PDP_VID &&
+           VID != HONEYBEE_VID &&
+           VID != THRUSTMASTER_VID &&
+           VID != MADCATZ_VID)
+               goto FailUnknownDevice;
+
+        if(PID != XBOX_WIRED_PID &&
+           PID != MADCATZ_WIRED_PID &&
+					 PID != MADCATZ_FIGHTSTICK_PID &&
+           PID != GAMESTOP_WIRED_PID1 &&
+           PID != GAMESTOP_WIRED_PID2 &&
+           PID != AFTERGLOW_WIRED_PID1 &&
+           PID != AFTERGLOW_WIRED_PID2 &&
+           PID != JOYTECH_WIRED_PID &&
+           PID != MADCATZ_FIGHTSTICK_PID &&
+           PID != MADCATZ_PID1 &&
+           PID != MADCATZ_PID2 &&
+           PID != ROCKCANDY_WIRED_PID &&
+           PID != THRUSTMASTER_GPX_WIRED_PID &&
+           PID != THRUSTMASTER_WHEEL_PID &&
+           PID != SF4_FIGHTPAD_PID &&
+           PID != HORI_RAP_VXSA_PID &&
+           PID != MADCATZ_BEAT_PAD &&
+           PID != KONAMI_DANCE_PAD)
+               goto FailUnknownDevice;
 
         // Allocate new address according to device class
         bAddress = addrPool.AllocAddress(parent, false, port);
