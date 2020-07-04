@@ -116,10 +116,32 @@ public:
          * @return     Returns true if the device's VID and PID matches this driver.
          */
         virtual bool VIDPIDOK(uint16_t vid, uint16_t pid) {
-                return ((vid == XBOX_VID || vid == MADCATZ_VID || vid == JOYTECH_VID || vid == GAMESTOP_VID || vid == AFTERGLOW_VID || vid == ROCKCANDY_VID || vid == THRUSTMASTER_GPX_VID ||
-				vid == SF4_FIGHTPAD_VID) && 
-				(pid == XBOX_WIRED_PID || pid == MADCATZ_WIRED_PID || pid == GAMESTOP_WIRED_PID1 || pid == GAMESTOP_WIRED_PID2 || pid == AFTERGLOW_WIRED_PID1 || pid == AFTERGLOW_WIRED_PID2 || 
-				pid == JOYTECH_WIRED_PID || pid == ROCKCANDY_WIRED_PID || pid == THRUSTMASTER_GPX_WIRED_PID || pid == THRUSTMASTER_WHEEL_PID || pid == SF4_FIGHTPAD_PID || pid == HORI_RAP_VXSA_PID));
+                return ((vid == MICROSOFT_VID ||
+                         vid == HARMONIX_VID ||
+                         vid == JOYTECH_VID ||
+                         vid == JOYTECH_VID ||
+                         vid == PDP_VID ||
+                         vid == HONEYBEE_VID ||
+                         vid == THRUSTMASTER_VID ||
+                         vid == MADCATZ_VID) &&
+
+                        (pid == XBOX_WIRED_PID ||
+                         pid == MADCATZ_WIRED_PID ||
+                         pid == MADCATZ_FIGHTSTICK_PID ||
+                         pid == JOYTECH_WIRED_PID ||
+                         pid == GAMESTOP_WIRED_PID1 ||
+                         pid == GAMESTOP_WIRED_PID2 ||
+                         pid == AFTERGLOW_WIRED_PID1 ||
+                         pid == AFTERGLOW_WIRED_PID2 ||
+                         pid == MADCATZ_PID1 ||
+                         pid == MADCATZ_PID2 ||
+                         pid == ROCKCANDY_WIRED_PID ||
+                         pid == THRUSTMASTER_GPX_WIRED_PID ||
+                         pid == THRUSTMASTER_WHEEL_PID ||
+                         pid == SF4_FIGHTPAD_PID ||
+                         pid == HORI_RAP_VXSA_PID ||
+                         pid == MADCATZ_BEAT_PAD ||
+                         pid == KONAMI_DANCE_PAD));
         };
         /**@}*/
 
