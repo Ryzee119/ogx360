@@ -47,6 +47,7 @@ For Player 2, 3 and 4 modules you will want to use the slave hex file. Finally, 
 
 ## Connection to your Xbox
 ![connection](https://i.imgur.com/oz59WBT.jpg)  
-<img src="./Images/image2.jpg" alt="ogx360-2>  
+
+<img src="./Images/image2.jpg" alt="ogx360-2"/>  
 
 By Ryzee119
