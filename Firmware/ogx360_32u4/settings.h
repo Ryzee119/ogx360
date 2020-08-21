@@ -14,35 +14,43 @@
 #define PLAYER_ID1_PIN 19
 #define PLAYER_ID2_PIN 20
 
-
 //Settings - Note the Atmega 32U4 has only 32KB of flash!
 //The Arduino bootloader takes up about 15% of this.
 //if the Program Memory Usage is >85% or so it may fail
 //programming the device. You cannot enable all the below settings at once :(
 
+//Define these or pass to Makefile
+//#define COMPILE_SLAVE
+//#define DISABLE_WIREDXBOXONE
+//#define DISABLE_WIREDXBOX360
+//#define DISABLE_BATTALION
 
-/* Comment this line out to compile for Player 2, 3 and 4 slave boards. i.e '//#define MASTER' *///
+#ifndef COMPILE_SLAVE
 #define MASTER
-
+#endf
 
 #ifdef MASTER
 /* Define this to add support for Steel Battalion Controller
    emulation with an Xbox 360 Wireless Controller Chatpad.
    (It wont work with any wired controllers) */
-//#define SUPPORTBATTALION
+#ifndef DISABLE_BATTALION
+#define SUPPORTBATTALION
+#endif
 
 /* Define this to add support for Wired Xbox One Controllers. */
+#ifndef DISABLE_WIREDXBOXONE
 #define SUPPORTWIREDXBOXONE
+#endif
 
 /* Define this to add support for Wired Xbox 360 Controllers.
    This has to be enabled for 8bitdo controller support too */
+#ifndef DISABLE_WIREDXBOX360
 #define SUPPORTWIREDXBOX360
+#endif
 
 #endif
 
-
 /* prototypes */
 void sendControllerHIDReport();
-
 
 #endif /* MAIN_H_ */
