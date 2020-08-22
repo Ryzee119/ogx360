@@ -27,7 +27,7 @@
 
 #ifndef COMPILE_SLAVE
 #define MASTER
-#endf
+#endif
 
 #ifdef MASTER
 /* Define this to add support for Steel Battalion Controller

@@ -173,7 +173,7 @@ int main(void)
 	//Ping slave devices if present
 	//This will cause them to blink
 	for (uint8_t i=1; i<4; i++){
-		static const char ping[]={0xAA};
+		static const char ping[]={(char)0xAA};
 		Wire.beginTransmission(i);
 		Wire.write(ping,1);
 		Wire.endTransmission(true);

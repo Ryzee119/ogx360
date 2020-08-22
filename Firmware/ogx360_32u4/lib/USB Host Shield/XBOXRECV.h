@@ -40,12 +40,12 @@
 #define XBOX_INPUT_PIPE_1_CHATPAD  9
 
 // PID and VID of the different devices
-#define XBOX_VID                                0x045E  // Microsoft Corporation
-#define MADCATZ_VID                             0x1BAD  // For unofficial Mad Catz receivers
-#define JOYTECH_VID                             0x162E  // For unofficial Joytech controllers
+#define XBOX_VID                                 0x045E  // Microsoft Corporation
+#define MADCATZ_UNOFFICIAL_VID                   0x1BAD  // For unofficial Mad Catz receivers
+#define JOYTECH_UNOFFICIAL_VID                              0x162E  // For unofficial Joytech controllers
 
-#define XBOX_WIRELESS_RECEIVER_PID              0x0719  // Microsoft Wireless Gaming Receiver
-#define XBOX_WIRELESS_RECEIVER_THIRD_PARTY_PID  0x0291  // Third party Wireless Gaming Receiver
+#define XBOX_WIRELESS_RECEIVER_PID               0x0719  // Microsoft Wireless Gaming Receiver
+#define XBOX_WIRELESS_RECEIVER_THIRD_PARTY_PID   0x0291  // Third party Wireless Gaming Receiver
 #define XBOX_WIRELESS_RECEIVER_THIRD_PARTY1_PID  0x02AA  // Another Third party Wireless Gaming Receiver
 #define XBOX_WIRELESS_RECEIVER_THIRD_PARTY2_PID  0x02A9  // Another Third party Wireless Gaming Receiver
 
@@ -184,8 +184,8 @@ public:
          */
         virtual bool VIDPIDOK(uint16_t vid, uint16_t pid) {
                 return ((vid == XBOX_VID ||
-                         vid == MADCATZ_VID ||
-                         vid == JOYTECH_VID) &&
+                         vid == MADCATZ_UNOFFICIAL_VID ||
+                         vid == JOYTECH_UNOFFICIAL_VID) &&
 
                         (pid == XBOX_WIRELESS_RECEIVER_PID ||
                          pid == XBOX_WIRELESS_RECEIVER_THIRD_PARTY_PID ||
