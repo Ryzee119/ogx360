@@ -9,3 +9,9 @@ jobs:
     steps:
       - uses: actions/checkout@v2
       - run: .github/workflows/ci_build.sh
+      - name: Save build artifacts (master branch only)
+        if: ${{ github.ref == 'refs/heads/master' }}
+        uses: actions/upload-artifact@v2
+        with:
+          name: firmware_hex_all
+          path: Firmware/ogx360_32u4/build/*.hex
