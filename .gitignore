@@ -53,3 +53,10 @@ modules.order
 Module.symvers
 Mkfile.old
 dkms.conf
+
+# MacOS Files
+.DS_Store
+
+# CMake Files
+Firmware/ogx360_32u4/build
+
