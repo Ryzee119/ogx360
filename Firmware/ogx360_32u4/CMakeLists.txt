@@ -66,11 +66,6 @@ add_dependencies(USB_Host_Shield Arduino)
 
 # Add the main firmware files
 file(GLOB FIRMWARE_FILES
-    "${CMAKE_SOURCE_DIR}/lib/Arduino/*.cpp"
-    "${CMAKE_SOURCE_DIR}/lib/Arduino/*.c"
-    "${CMAKE_SOURCE_DIR}/lib/Arduino/*.h"
-    "${CMAKE_SOURCE_DIR}/lib/USB Host Shield/*.cpp"
-    "${CMAKE_SOURCE_DIR}/lib/USB Host Shield/*.h"
     "${CMAKE_SOURCE_DIR}/*.cpp"
     "${CMAKE_SOURCE_DIR}/*.c"
     "${CMAKE_SOURCE_DIR}/*.h"
