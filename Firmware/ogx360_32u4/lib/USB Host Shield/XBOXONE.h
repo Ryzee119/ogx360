@@ -64,6 +64,7 @@
 #define XBOX_ONE_PID12                          0x543A // PowerA Xbox One wired controller
 #define XBOX_ONE_PID14                          0x0652 // Hyperkin Duke X-Box One pad
 #define XBOX_ONE_PID15                          0x1688 // Hyperkin X91
+#define XBOX_ONE_PID16                          0x1618 // Hyperkin Duke X-Box One pad v1.01
 
 /** This class implements support for a Xbox ONE controller connected via USB. */
 class XBOXONE : public USBDeviceConfig, public UsbConfigXtracter {
