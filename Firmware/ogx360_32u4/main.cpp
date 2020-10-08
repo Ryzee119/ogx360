@@ -158,7 +158,7 @@ int main(void)
 
 	//Init Usb Host Controller
 	digitalWrite(USB_HOST_RESET_PIN, LOW);
-	delay(200);//wait 20ms to reset the IC. Reseting at startup improves reliability in my experience.
+	delay(200);//wait 200ms to reset the IC. Reseting at startup improves reliability in my experience.
 	digitalWrite(USB_HOST_RESET_PIN, HIGH);
 	delay(200); //Settle
 	while (UsbHost.Init() == -1) {
