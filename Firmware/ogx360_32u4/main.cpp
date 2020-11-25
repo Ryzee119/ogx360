@@ -227,7 +227,6 @@ int main(void)
 				if(ConnectedXID == DUKE_CONTROLLER || i != 0){
 
 					//Read Digital Buttons
-					XboxOGDuke[i].dButtons=0x0000;
 					if (getButtonPress(UP, i))      XboxOGDuke[i].dButtons |= DUP;
 					if (getButtonPress(DOWN, i))    XboxOGDuke[i].dButtons |= DDOWN;
 					if (getButtonPress(LEFT, i))    XboxOGDuke[i].dButtons |= DLEFT;
@@ -238,12 +237,12 @@ int main(void)
 					if (getButtonPress(R3, i))      XboxOGDuke[i].dButtons |= RS_BTN;
 
 					//Read Analog Buttons - have to be converted to digital because x360 controllers don't have analog buttons
-					getButtonPress(A, i)    ? XboxOGDuke[i].A = 0xFF      : XboxOGDuke[i].A = 0x00;
-					getButtonPress(B, i)    ? XboxOGDuke[i].B = 0xFF      : XboxOGDuke[i].B = 0x00;
-					getButtonPress(X, i)    ? XboxOGDuke[i].X = 0xFF      : XboxOGDuke[i].X = 0x00;
-					getButtonPress(Y, i)    ? XboxOGDuke[i].Y = 0xFF      : XboxOGDuke[i].Y = 0x00;
-					getButtonPress(L1, i)   ? XboxOGDuke[i].WHITE = 0xFF  : XboxOGDuke[i].WHITE = 0x00;
-					getButtonPress(R1, i)   ? XboxOGDuke[i].BLACK = 0xFF  : XboxOGDuke[i].BLACK = 0x00;
+					getButtonPress(A, i)    ? XboxOGDuke[i].A = 0xFF      : (0);
+					getButtonPress(B, i)    ? XboxOGDuke[i].B = 0xFF      : (0);
+					getButtonPress(X, i)    ? XboxOGDuke[i].X = 0xFF      : (0);
+					getButtonPress(Y, i)    ? XboxOGDuke[i].Y = 0xFF      : (0);
+					getButtonPress(L1, i)   ? XboxOGDuke[i].WHITE = 0xFF  : (0);
+					getButtonPress(R1, i)   ? XboxOGDuke[i].BLACK = 0xFF  : (0);
 
 					//Read Analog triggers
 					XboxOGDuke[i].L = getButtonPress(L2, i); //0x00 to 0xFF
@@ -619,6 +618,13 @@ int main(void)
 
 				/*Check/send the Player 1 HID report every loop to minimise lag even more on the master*/
 				sendControllerHIDReport();
+				XboxOGDuke[0].dButtons=0x0000;
+				XboxOGDuke[0].A = 0x00;
+				XboxOGDuke[0].B = 0x00;
+				XboxOGDuke[0].X = 0x00;
+				XboxOGDuke[0].Y = 0x00;
+				XboxOGDuke[0].WHITE = 0x00;
+				XboxOGDuke[0].BLACK = 0x00;
 
 			} else {
 				//If the respective controller isn't synced, we instead send a disablePacket over the i2c bus
@@ -646,6 +652,13 @@ int main(void)
 		} else {
 			USB_Attach();
 			sendControllerHIDReport();
+			XboxOGDuke[0].dButtons=0x0000;
+			XboxOGDuke[0].A = 0x00;
+			XboxOGDuke[0].B = 0x00;
+			XboxOGDuke[0].X = 0x00;
+			XboxOGDuke[0].Y = 0x00;
+			XboxOGDuke[0].WHITE = 0x00;
+			XboxOGDuke[0].BLACK = 0x00;
 		}
 
 		/***END MASTER TASKS ***/
@@ -675,6 +688,13 @@ int main(void)
 		}
 
 		sendControllerHIDReport();
+		XboxOGDuke[0].dButtons=0x0000;
+		XboxOGDuke[0].A = 0x00;
+		XboxOGDuke[0].B = 0x00;
+		XboxOGDuke[0].X = 0x00;
+		XboxOGDuke[0].Y = 0x00;
+		XboxOGDuke[0].WHITE = 0x00;
+		XboxOGDuke[0].BLACK = 0x00;
 
 		#endif
 	}
@@ -682,7 +702,6 @@ int main(void)
 
 /* Send the HID report to the OG Xbox */
 void sendControllerHIDReport(){
-	USB_USBTask();
 	switch (ConnectedXID){
 		case DUKE_CONTROLLER:
 		if(USB_Device_GetFrameNumber()-DukeController_HID_Interface.State.PrevFrameNum>=4){
@@ -697,6 +716,7 @@ void sendControllerHIDReport(){
 		break;
 		#endif
 	}
+	USB_USBTask();
 }
 
 
