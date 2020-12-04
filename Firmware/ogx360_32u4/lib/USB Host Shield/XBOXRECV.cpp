@@ -261,89 +261,58 @@ uint8_t XBOXRECV::Release() {
     return 0;
 }
 
-uint8_t XBOXRECV::Poll() {
-    if(!bPollEnable)
-    return 0;
+uint8_t XBOXRECV::Poll()
+{
+    if (!bPollEnable)
+        return 0;
 
-    //Chatpad LEDs are really finicky.
-    //I queue them up in a FIFO buffer then slowly process the queue.
-    if(millis()-chatPadLedTimer>250){
-        for(uint8_t i=0; i<4; i++){
-            chatPadProcessLed(i);
+    static uint8_t i = 0;
+    static uint32_t checkStatusTimer[4] = {0};
+    static uint32_t chatPadLedTimer[4] = {0};
+
+    for (uint8_t i = 0; i < 4; i++)
+    {
+        uint8_t rcode = hrSUCCESS;
+        uint8_t inputPipe;
+        switch (i)
+        {
+            case 0: inputPipe = XBOX_INPUT_PIPE_1; break;
+            case 1: inputPipe = XBOX_INPUT_PIPE_2; break;
+            case 2: inputPipe = XBOX_INPUT_PIPE_3; break;
+            case 3: inputPipe = XBOX_INPUT_PIPE_4; break;
         }
-        chatPadLedTimer=millis();
-
-        //Windows driver does this every 2.5 seconds. May aswell do the same
-        //Polls controller to check if present
-        //Requests the controllers battery status
-        //Set the LED to the correct quadrant
-        } else if(millis()-checkStatusTimer>2500){
-        static int8_t pollState=0;
-        for (uint8_t i=0;i<4;i++){
-            switch (pollState){
-                case 0:
-                checkControllerPresence(i);
-                break;
-
-                case 1:
-                if(Xbox360Connected[i]){
-                    checkControllerBattery(i);
-                    setLedRaw(0x06+i, i);
-                }
-                break;
-
-                case 2:
-                if(Xbox360Connected[i]){
-                    setLedRaw(0x06+i, i);
-                }
-                break;
-
-                case 3:
-                chatPadKeepAlive1(i);
-                break;
-
-                case 4:
-                chatPadKeepAlive2(i);
-                break;
-
-                case 5:
-                checkStatusTimer=millis();
-                pollState=-1;
-                break;
-            }
+        while (rcode !=hrNAK)
+        {
+            uint16_t bufferSize = EP_MAXPKTSIZE;
+            rcode = pUsb->inTransfer(bAddress, epInfo[inputPipe].epAddr, &bufferSize, readBuf);
+            if (bufferSize > 0)
+                readReport(i);
         }
-        pollState++;
-    }
 
-    uint8_t inputPipe;
-    uint16_t bufferSize;
-    for(uint8_t i = 0; i < 4; i++) {
-
-        //If there is a chatpad installed, we send init
-        //packets to it if required.
-        if(chatPadInitNeeded[i]){
+        if (chatPadInitNeeded[i])
+        {
             enableChatPad(i);
-            chatPadInitNeeded[i]=0;
+            chatPadInitNeeded[i] = 0;
         }
-
-        if(i == 0)
-        inputPipe = XBOX_INPUT_PIPE_1;
-        else if(i == 1)
-        inputPipe = XBOX_INPUT_PIPE_2;
-        else if(i == 2)
-        inputPipe = XBOX_INPUT_PIPE_3;
-        else
-        inputPipe = XBOX_INPUT_PIPE_4;
-
-
-        bufferSize = EP_MAXPKTSIZE; // This is the maximum number of bytes we want to receive
-        pUsb->inTransfer(bAddress, epInfo[ inputPipe ].epAddr, &bufferSize, readBuf);
-        if(bufferSize > 0) { // The number of received bytes
-            readReport(i);
+        else if (millis() - chatPadLedTimer[i] > 250)
+        {
+            chatPadProcessLed(i);
+            chatPadLedTimer[i] = millis();
+        }
+        else if (millis() - checkStatusTimer[i] > 2500)
+        {
+            static uint8_t state[4] = {0};
+            switch (state[i])
+            {
+                case 0: checkControllerPresence(i); break;
+                case 1: chatPadKeepAlive1(i);       break;
+                case 2: chatPadKeepAlive2(i);       break;
+            }
+            state[i] = ((state[i] + 1) % 3);
+            checkStatusTimer[i] = millis();
         }
     }
     return 0;
-
 }
 
 void XBOXRECV::readReport(uint8_t controller) {
@@ -373,39 +342,53 @@ void XBOXRECV::readReport(uint8_t controller) {
         return;
     }
 
+    if(readBuf[1] == 0x00 && readBuf[3] == 0xF0) {
+        //To tell the host there's no more events?
+        return;
+    }
+
+    //Some peripheral is connected to the controller and needs attention. (Should be chatpad)
+    if (readBuf[1] == 0xF8){
+        chatPadInitNeeded[controller] = 1;
+        return;
+    }
+
     //Standard controller event
-    if(readBuf[0] == 0x00 && readBuf[1] == 0x01){ // Check if it's the correct report - the receiver also sends different status reports
+    if((readBuf[1] == 0x01 || readBuf[1] == 0x03) && readBuf[3] == 0xF0){
         // A controller must be connected if it's sending data
         if(!Xbox360Connected[controller]){
             Xbox360Connected[controller] |= 0x80;
         }
 
+        //The packet contains controller button data
+        if (readBuf[5] == 0x13)
+        {
+            ButtonState[controller] = (uint32_t)(readBuf[9] | ((uint16_t)readBuf[8] << 8) | ((uint32_t)readBuf[7] << 16) | ((uint32_t)readBuf[6] << 24));
 
-        ButtonState[controller] = (uint32_t)(readBuf[9] | ((uint16_t)readBuf[8] << 8) | ((uint32_t)readBuf[7] << 16) | ((uint32_t)readBuf[6] << 24));
+            hatValue[controller][LeftHatX] = (int16_t)(((uint16_t)readBuf[11] << 8) | readBuf[10]);
+            hatValue[controller][LeftHatY] = (int16_t)(((uint16_t)readBuf[13] << 8) | readBuf[12]);
+            hatValue[controller][RightHatX] = (int16_t)(((uint16_t)readBuf[15] << 8) | readBuf[14]);
+            hatValue[controller][RightHatY] = (int16_t)(((uint16_t)readBuf[17] << 8) | readBuf[16]);
 
-        hatValue[controller][LeftHatX] = (int16_t)(((uint16_t)readBuf[11] << 8) | readBuf[10]);
-        hatValue[controller][LeftHatY] = (int16_t)(((uint16_t)readBuf[13] << 8) | readBuf[12]);
-        hatValue[controller][RightHatX] = (int16_t)(((uint16_t)readBuf[15] << 8) | readBuf[14]);
-        hatValue[controller][RightHatY] = (int16_t)(((uint16_t)readBuf[17] << 8) | readBuf[16]);
+            if(ButtonState[controller] != OldButtonState[controller]) {
+                buttonStateChanged[controller] = true;
+                ButtonClickState[controller] = (ButtonState[controller] >> 16) & ((~OldButtonState[controller]) >> 16); // Update click state variable, but don't include the two trigger buttons L2 and R2
+                if(((uint8_t)OldButtonState[controller]) == 0 && ((uint8_t)ButtonState[controller]) != 0) {
+                    R2Clicked[controller] = true;
+                }
 
-        if(ButtonState[controller] != OldButtonState[controller]) {
-            buttonStateChanged[controller] = true;
-            ButtonClickState[controller] = (ButtonState[controller] >> 16) & ((~OldButtonState[controller]) >> 16); // Update click state variable, but don't include the two trigger buttons L2 and R2
-            if(((uint8_t)OldButtonState[controller]) == 0 && ((uint8_t)ButtonState[controller]) != 0) {
-                R2Clicked[controller] = true;
+                if((uint8_t)(OldButtonState[controller] >> 8) == 0 && (uint8_t)(ButtonState[controller] >> 8) != 0){
+                    L2Clicked[controller] = true;
+                }
+                OldButtonState[controller] = ButtonState[controller];
             }
-
-            if((uint8_t)(OldButtonState[controller] >> 8) == 0 && (uint8_t)(ButtonState[controller] >> 8) != 0){
-                L2Clicked[controller] = true;
-            }
-
-            OldButtonState[controller] = ButtonState[controller];
         }
+    }
 
-        //Chatpad Events
-        } else if(readBuf[0] == 0x00 && readBuf[1] == 0x02){
+    //Chatpad Events
+    if((readBuf[1] == 0x02 || readBuf[1] == 0x03) && readBuf[3] == 0xF0){
 
-        //This s a key press event
+        //This is a key press event
         if(readBuf[24] == 0x00){
             ChatPadState[controller]=0;
             ChatPadState[controller]	|=((uint32_t)(readBuf[25])<<16) & 0xFF0000; //This contains modifiers like shift, green, orange and messenger buttons They are OR'd together in one byte
@@ -417,14 +400,17 @@ void XBOXRECV::readReport(uint8_t controller) {
                 ChatPadClickState[controller] = ChatPadState[controller] & ~OldChatPadState[controller];
                 OldChatPadState[controller] = ChatPadState[controller];
             }
-            //This is a handshake request
-            } else if (readBuf[24] == 0xF0 && readBuf[25] == 0x03){
-            chatPadInitNeeded[controller]=1;
+
+        //This is a handshake request
+        } else if (readBuf[24] == 0xF0 && readBuf[25] == 0x03){
+            chatPadInitNeeded[controller] = 1;
+
+        //This is a Chatpad LED status packet
+        } else if (readBuf[24] == 0xF0 && readBuf[25] == 0x04){
+            //uint8_t leds = readBuf[26];
         }
-
-
     }
-    memset(readBuf,0x00,32);
+    memset(readBuf, 0x00, 32);
 }
 
 uint8_t XBOXRECV::getButtonPress(ButtonEnum b, uint8_t controller) {
@@ -526,25 +512,29 @@ uint8_t XBOXRECV::getBatteryLevel(uint8_t controller) {
 }
 
 void XBOXRECV::XboxCommand(uint8_t controller, uint8_t* data, uint16_t nbytes) {
-    static uint32_t outputCommandTimer=0;
     uint8_t outputPipe;
     switch(controller) {
-        case 0: outputPipe = XBOX_OUTPUT_PIPE_1;
-        break;
-        case 1: outputPipe = XBOX_OUTPUT_PIPE_2;
-        break;
-        case 2: outputPipe = XBOX_OUTPUT_PIPE_3;
-        break;
-        case 3: outputPipe = XBOX_OUTPUT_PIPE_4;
-        break;
-        default:
-        return;
+        case 0: outputPipe = XBOX_OUTPUT_PIPE_1; break;
+        case 1: outputPipe = XBOX_OUTPUT_PIPE_2; break;
+        case 2: outputPipe = XBOX_OUTPUT_PIPE_3; break;
+        case 3: outputPipe = XBOX_OUTPUT_PIPE_4; break;
+        default: return;
     }
 
-    while(millis()-outputCommandTimer<1);
-    pUsb->outTransfer(bAddress, epInfo[ outputPipe ].epAddr, nbytes, data);
-    outputCommandTimer=millis();
+    //Send report
+    uint8_t rcode = hrNAK;
+    while (rcode != hrSUCCESS)
+        rcode = pUsb->outTransfer(bAddress, epInfo[outputPipe].epAddr, nbytes, data);
 
+    //Readback any response
+    rcode = hrSUCCESS;
+    while (rcode != hrNAK)
+    {
+        uint16_t bufferSize = EP_MAXPKTSIZE;
+        rcode = pUsb->inTransfer(bAddress, epInfo[outputPipe - 1].epAddr, &bufferSize, readBuf);
+        if (bufferSize > 0)
+            readReport(controller);
+    }
 }
 
 void XBOXRECV::disconnect(uint8_t controller) {
@@ -651,7 +641,6 @@ void XBOXRECV::setRumbleOn(uint8_t lValue, uint8_t rValue, uint8_t controller) {
 void XBOXRECV::onInit(uint8_t controller) {
     memset(writeBuf,0x00,12);
     setLedRaw(0x00, controller); //Set LED OFF
-    delay(8);
     setLedRaw(0x02+controller, controller); //Set LED quadrant blinking
 
     //Not sure what this is, but windows driver does it
@@ -663,23 +652,6 @@ void XBOXRECV::onInit(uint8_t controller) {
 
     //Request battery level
     checkControllerBattery(controller);
-
-    uint8_t inputPipe;
-    uint16_t bufferSize;
-    if(controller == 0)
-    inputPipe = XBOX_INPUT_PIPE_1;
-    else if(controller == 1)
-    inputPipe = XBOX_INPUT_PIPE_2;
-    else if(controller == 2)
-    inputPipe = XBOX_INPUT_PIPE_3;
-    else
-    inputPipe = XBOX_INPUT_PIPE_4;
-
-
-    bufferSize = EP_MAXPKTSIZE; // This is the maximum number of bytes we want to receive
-    pUsb->inTransfer(bAddress, epInfo[ inputPipe ].epAddr, &bufferSize, readBuf);
-    pUsb->inTransfer(bAddress, epInfo[ inputPipe ].epAddr, &bufferSize, readBuf);
-    delay(2);
 
     setLedRaw(0x06+controller, controller); //Set LED quadrant on (solid);
 
