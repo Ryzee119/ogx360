@@ -22,11 +22,12 @@ getBatteryLevel and checkStatus functions made by timstamp.co.uk found using Bus
 //#define EXTRADEBUG // Uncomment to get even more debugging data
 //#define PRINTREPORT // Uncomment to print the report send by the Xbox 360 Controller
 
-XBOXRECV::XBOXRECV(USB *p) :
-pUsb(p), // pointer to USB class instance - mandatory
-bAddress(0), // device address - mandatory
-bPollEnable(false) { // don't start polling before dongle is connected
-    for(uint8_t i = 0; i < XBOX_MAX_ENDPOINTS; i++) {
+XBOXRECV::XBOXRECV(USB *p) : pUsb(p),
+                             bAddress(0),
+                             bPollEnable(false)
+{
+    for (uint8_t i = 0; i < XBOX_MAX_ENDPOINTS; i++)
+    {
         epInfo[i].epAddr = 0;
         epInfo[i].maxPktSize = (i) ? 0 : 8;
         epInfo[i].bmSndToggle = 0;
@@ -34,226 +35,230 @@ bPollEnable(false) { // don't start polling before dongle is connected
         epInfo[i].bmNakPower = (i) ? USB_NAK_NOWAIT : USB_NAK_MAX_POWER;
     }
 
-    if(pUsb) // register in USB subsystem
-        pUsb->RegisterDeviceClass(this); //set devConfig[] entry
+    if (pUsb)
+        pUsb->RegisterDeviceClass(this);
 }
 
-uint8_t XBOXRECV::ConfigureDevice(uint8_t parent, uint8_t port, bool lowspeed) {
-    const uint8_t constBufSize = sizeof (USB_DEVICE_DESCRIPTOR);
+uint8_t XBOXRECV::ConfigureDevice(uint8_t parent, uint8_t port, bool lowspeed)
+{
+    const uint8_t constBufSize = sizeof(USB_DEVICE_DESCRIPTOR);
     uint8_t buf[constBufSize];
-    USB_DEVICE_DESCRIPTOR * udd = reinterpret_cast<USB_DEVICE_DESCRIPTOR*>(buf);
+    USB_DEVICE_DESCRIPTOR *udd = reinterpret_cast<USB_DEVICE_DESCRIPTOR *>(buf);
     uint8_t rcode;
     UsbDevice *p = NULL;
     EpInfo *oldep_ptr = NULL;
     uint16_t PID, VID;
 
-    AddressPool &addrPool = pUsb->GetAddressPool(); // Get memory address of USB device address pool
+    AddressPool &addrPool = pUsb->GetAddressPool();
 
-    if(bAddress) { // Check if address has already been assigned to an instance
+    if (bAddress)
+    {
         return USB_ERROR_CLASS_INSTANCE_ALREADY_IN_USE;
     }
 
-    p = addrPool.GetUsbDevicePtr(0); // Get pointer to pseudo device with address 0 assigned
+    p = addrPool.GetUsbDevicePtr(0);
 
-    if(!p) {
+    if (!p)
+    {
         return USB_ERROR_ADDRESS_NOT_FOUND_IN_POOL;
     }
 
-    if(!p->epinfo) {
+    if (!p->epinfo)
+    {
         return USB_ERROR_EPINFO_IS_NULL;
     }
 
-    oldep_ptr = p->epinfo; // Save old pointer to EP_RECORD of address 0
-    p->epinfo = epInfo; // Temporary assign new pointer to epInfo to p->epinfo in order to avoid toggle inconsistence
+    oldep_ptr = p->epinfo;
+    p->epinfo = epInfo;
     p->lowspeed = lowspeed;
 
-    rcode = pUsb->getDevDescr(0, 0, constBufSize, (uint8_t*)buf); // Get device descriptor - addr, ep, nbytes, data
-
-    p->epinfo = oldep_ptr; // Restore p->epinfo
-
-    if(rcode)
+    rcode = pUsb->getDevDescr(0, 0, constBufSize, (uint8_t *)buf);
+    p->epinfo = oldep_ptr;
+    if (rcode)
         goto FailGetDevDescr;
 
     VID = udd->idVendor;
     PID = udd->idProduct;
-
-    if(!VIDPIDOK(VID,PID))
+    if (!VIDPIDOK(VID, PID))
         goto FailUnknownDevice;
 
-    bAddress = addrPool.AllocAddress(parent, false, port); // Allocate new address according to device class
+    bAddress = addrPool.AllocAddress(parent, false, port);
 
-    if(!bAddress) {
+    if (!bAddress)
+    {
         return USB_ERROR_OUT_OF_ADDRESS_SPACE_IN_POOL;
     }
 
-    epInfo[0].maxPktSize = udd->bMaxPacketSize0; // Extract Max Packet Size from device descriptor
+    epInfo[0].maxPktSize = udd->bMaxPacketSize0;
 
-    delay(20); // Wait a little before resetting device
+    delay(20);
 
     return USB_ERROR_CONFIG_REQUIRES_ADDITIONAL_RESET;
 
-    /* Diagnostic messages */
-    FailGetDevDescr:
-    #ifdef DEBUG_USB_HOST
+/* Diagnostic messages */
+FailGetDevDescr:
+#ifdef DEBUG_USB_HOST
     NotifyFailGetDevDescr(rcode);
-    #endif
-    if(rcode != hrJERR)
+#endif
+    if (rcode != hrJERR)
         rcode = USB_ERROR_FailGetDevDescr;
     goto Fail;
 
-    FailUnknownDevice:
-    #ifdef DEBUG_USB_HOST
+FailUnknownDevice:
+#ifdef DEBUG_USB_HOST
     NotifyFailUnknownDevice(VID, PID);
-    #endif
+#endif
     rcode = USB_DEV_CONFIG_ERROR_DEVICE_NOT_SUPPORTED;
 
-    Fail:
-    #ifdef DEBUG_USB_HOST
+Fail:
+#ifdef DEBUG_USB_HOST
     Notify(PSTR("\r\nXbox 360 Init Failed, error code: "), 0x80);
     NotifyFail(rcode);
-    #endif
+#endif
     Release();
     return rcode;
 };
 
-uint8_t XBOXRECV::Init(uint8_t parent __attribute__((unused)), uint8_t port __attribute__((unused)), bool lowspeed) {
+uint8_t XBOXRECV::Init(uint8_t parent __attribute__((unused)), uint8_t port __attribute__((unused)), bool lowspeed)
+{
     uint8_t rcode;
-
     AddressPool &addrPool = pUsb->GetAddressPool();
-    #ifdef EXTRADEBUG
+#ifdef EXTRADEBUG
     Notify(PSTR("\r\nBTD Init"), 0x80);
-    #endif
-    UsbDevice *p = addrPool.GetUsbDevicePtr(bAddress); // Get pointer to assigned address record
+#endif
+    UsbDevice *p = addrPool.GetUsbDevicePtr(bAddress);
 
-    if(!p) {
-        #ifdef DEBUG_USB_HOST
+    if (!p)
+    {
+#ifdef DEBUG_USB_HOST
         Notify(PSTR("\r\nAddress not found"), 0x80);
-        #endif
+#endif
         return USB_ERROR_ADDRESS_NOT_FOUND_IN_POOL;
     }
 
-    delay(300); // Assign new address to the device
+    delay(300);
 
-    rcode = pUsb->setAddr(0, 0, bAddress); // Assign new address to the device
-    if(rcode) {
-        #ifdef DEBUG_USB_HOST
+    rcode = pUsb->setAddr(0, 0, bAddress);
+    if (rcode)
+    {
+#ifdef DEBUG_USB_HOST
         Notify(PSTR("\r\nsetAddr: "), 0x80);
-        D_PrintHex<uint8_t > (rcode, 0x80);
-        #endif
+        D_PrintHex<uint8_t>(rcode, 0x80);
+#endif
         p->lowspeed = false;
         goto Fail;
     }
-    #ifdef EXTRADEBUG
+#ifdef EXTRADEBUG
     Notify(PSTR("\r\nAddr: "), 0x80);
-    D_PrintHex<uint8_t > (bAddress, 0x80);
-    #endif
+    D_PrintHex<uint8_t>(bAddress, 0x80);
+#endif
 
     p->lowspeed = false;
 
     p = addrPool.GetUsbDevicePtr(bAddress); // Get pointer to assigned address record
-    if(!p) {
-        #ifdef DEBUG_USB_HOST
+    if (!p)
+    {
+#ifdef DEBUG_USB_HOST
         Notify(PSTR("\r\nAddress not found"), 0x80);
-        #endif
+#endif
         return USB_ERROR_ADDRESS_NOT_FOUND_IN_POOL;
     }
 
     p->lowspeed = lowspeed;
 
     rcode = pUsb->setEpInfoEntry(bAddress, 1, epInfo); // Assign epInfo to epinfo pointer - only EP0 is known
-    if(rcode)
-    goto FailSetDevTblEntry;
+    if (rcode)
+        goto FailSetDevTblEntry;
 
     /* The application will work in reduced host mode, so we can save program and data
     memory space. After verifying the VID we will use known values for the
     configuration values for device, interface, endpoints and HID for the XBOX360 Wireless receiver */
 
     /* Initialize data structures for endpoints of device */
-    epInfo[ XBOX_INPUT_PIPE_1 ].epAddr = 0x01; // XBOX 360 report endpoint - poll interval 1ms
-    epInfo[ XBOX_INPUT_PIPE_1 ].epAttribs = USB_TRANSFER_TYPE_INTERRUPT;
-    epInfo[ XBOX_INPUT_PIPE_1 ].bmNakPower = USB_NAK_NOWAIT; // Only poll once for interrupt endpoints
-    epInfo[ XBOX_INPUT_PIPE_1 ].maxPktSize = EP_MAXPKTSIZE;
-    epInfo[ XBOX_INPUT_PIPE_1 ].bmSndToggle = 0;
-    epInfo[ XBOX_INPUT_PIPE_1 ].bmRcvToggle = 0;
-    epInfo[ XBOX_OUTPUT_PIPE_1 ].epAddr = 0x01; // XBOX 360 output endpoint - poll interval 8ms
-    epInfo[ XBOX_OUTPUT_PIPE_1 ].epAttribs = USB_TRANSFER_TYPE_INTERRUPT;
-    epInfo[ XBOX_OUTPUT_PIPE_1 ].bmNakPower = USB_NAK_NOWAIT; // Only poll once for interrupt endpoints
-    epInfo[ XBOX_OUTPUT_PIPE_1 ].maxPktSize = EP_MAXPKTSIZE;
-    epInfo[ XBOX_OUTPUT_PIPE_1 ].bmSndToggle = 0;
-    epInfo[ XBOX_OUTPUT_PIPE_1 ].bmRcvToggle = 0;
+    epInfo[XBOX_INPUT_PIPE_1].epAddr = 0x01; // XBOX 360 report endpoint - poll interval 1ms
+    epInfo[XBOX_INPUT_PIPE_1].epAttribs = USB_TRANSFER_TYPE_INTERRUPT;
+    epInfo[XBOX_INPUT_PIPE_1].bmNakPower = USB_NAK_NOWAIT; // Only poll once for interrupt endpoints
+    epInfo[XBOX_INPUT_PIPE_1].maxPktSize = EP_MAXPKTSIZE;
+    epInfo[XBOX_INPUT_PIPE_1].bmSndToggle = 0;
+    epInfo[XBOX_INPUT_PIPE_1].bmRcvToggle = 0;
+    epInfo[XBOX_OUTPUT_PIPE_1].epAddr = 0x01; // XBOX 360 output endpoint - poll interval 8ms
+    epInfo[XBOX_OUTPUT_PIPE_1].epAttribs = USB_TRANSFER_TYPE_INTERRUPT;
+    epInfo[XBOX_OUTPUT_PIPE_1].bmNakPower = USB_NAK_NOWAIT; // Only poll once for interrupt endpoints
+    epInfo[XBOX_OUTPUT_PIPE_1].maxPktSize = EP_MAXPKTSIZE;
+    epInfo[XBOX_OUTPUT_PIPE_1].bmSndToggle = 0;
+    epInfo[XBOX_OUTPUT_PIPE_1].bmRcvToggle = 0;
 
-    epInfo[ XBOX_INPUT_PIPE_2 ].epAddr = 0x03; // XBOX 360 report endpoint - poll interval 1ms
-    epInfo[ XBOX_INPUT_PIPE_2 ].epAttribs = USB_TRANSFER_TYPE_INTERRUPT;
-    epInfo[ XBOX_INPUT_PIPE_2 ].bmNakPower = USB_NAK_NOWAIT; // Only poll once for interrupt endpoints
-    epInfo[ XBOX_INPUT_PIPE_2 ].maxPktSize = EP_MAXPKTSIZE;
-    epInfo[ XBOX_INPUT_PIPE_2 ].bmSndToggle = 0;
-    epInfo[ XBOX_INPUT_PIPE_2 ].bmRcvToggle = 0;
-    epInfo[ XBOX_OUTPUT_PIPE_2 ].epAddr = 0x03; // XBOX 360 output endpoint - poll interval 8ms
-    epInfo[ XBOX_OUTPUT_PIPE_2 ].epAttribs = USB_TRANSFER_TYPE_INTERRUPT;
-    epInfo[ XBOX_OUTPUT_PIPE_2 ].bmNakPower = USB_NAK_NOWAIT; // Only poll once for interrupt endpoints
-    epInfo[ XBOX_OUTPUT_PIPE_2 ].maxPktSize = EP_MAXPKTSIZE;
-    epInfo[ XBOX_OUTPUT_PIPE_2 ].bmSndToggle = 0;
-    epInfo[ XBOX_OUTPUT_PIPE_2 ].bmRcvToggle = 0;
+    epInfo[XBOX_INPUT_PIPE_2].epAddr = 0x03; // XBOX 360 report endpoint - poll interval 1ms
+    epInfo[XBOX_INPUT_PIPE_2].epAttribs = USB_TRANSFER_TYPE_INTERRUPT;
+    epInfo[XBOX_INPUT_PIPE_2].bmNakPower = USB_NAK_NOWAIT; // Only poll once for interrupt endpoints
+    epInfo[XBOX_INPUT_PIPE_2].maxPktSize = EP_MAXPKTSIZE;
+    epInfo[XBOX_INPUT_PIPE_2].bmSndToggle = 0;
+    epInfo[XBOX_INPUT_PIPE_2].bmRcvToggle = 0;
+    epInfo[XBOX_OUTPUT_PIPE_2].epAddr = 0x03; // XBOX 360 output endpoint - poll interval 8ms
+    epInfo[XBOX_OUTPUT_PIPE_2].epAttribs = USB_TRANSFER_TYPE_INTERRUPT;
+    epInfo[XBOX_OUTPUT_PIPE_2].bmNakPower = USB_NAK_NOWAIT; // Only poll once for interrupt endpoints
+    epInfo[XBOX_OUTPUT_PIPE_2].maxPktSize = EP_MAXPKTSIZE;
+    epInfo[XBOX_OUTPUT_PIPE_2].bmSndToggle = 0;
+    epInfo[XBOX_OUTPUT_PIPE_2].bmRcvToggle = 0;
 
-    epInfo[ XBOX_INPUT_PIPE_3 ].epAddr = 0x05; // XBOX 360 report endpoint - poll interval 1ms
-    epInfo[ XBOX_INPUT_PIPE_3 ].epAttribs = USB_TRANSFER_TYPE_INTERRUPT;
-    epInfo[ XBOX_INPUT_PIPE_3 ].bmNakPower = USB_NAK_NOWAIT; // Only poll once for interrupt endpoints
-    epInfo[ XBOX_INPUT_PIPE_3 ].maxPktSize = EP_MAXPKTSIZE;
-    epInfo[ XBOX_INPUT_PIPE_3 ].bmSndToggle = 0;
-    epInfo[ XBOX_INPUT_PIPE_3 ].bmRcvToggle = 0;
-    epInfo[ XBOX_OUTPUT_PIPE_3 ].epAddr = 0x05; // XBOX 360 output endpoint - poll interval 8ms
-    epInfo[ XBOX_OUTPUT_PIPE_3 ].epAttribs = USB_TRANSFER_TYPE_INTERRUPT;
-    epInfo[ XBOX_OUTPUT_PIPE_3 ].bmNakPower = USB_NAK_NOWAIT; // Only poll once for interrupt endpoints
-    epInfo[ XBOX_OUTPUT_PIPE_3 ].maxPktSize = EP_MAXPKTSIZE;
-    epInfo[ XBOX_OUTPUT_PIPE_3 ].bmSndToggle = 0;
-    epInfo[ XBOX_OUTPUT_PIPE_3 ].bmRcvToggle = 0;
+    epInfo[XBOX_INPUT_PIPE_3].epAddr = 0x05; // XBOX 360 report endpoint - poll interval 1ms
+    epInfo[XBOX_INPUT_PIPE_3].epAttribs = USB_TRANSFER_TYPE_INTERRUPT;
+    epInfo[XBOX_INPUT_PIPE_3].bmNakPower = USB_NAK_NOWAIT; // Only poll once for interrupt endpoints
+    epInfo[XBOX_INPUT_PIPE_3].maxPktSize = EP_MAXPKTSIZE;
+    epInfo[XBOX_INPUT_PIPE_3].bmSndToggle = 0;
+    epInfo[XBOX_INPUT_PIPE_3].bmRcvToggle = 0;
+    epInfo[XBOX_OUTPUT_PIPE_3].epAddr = 0x05; // XBOX 360 output endpoint - poll interval 8ms
+    epInfo[XBOX_OUTPUT_PIPE_3].epAttribs = USB_TRANSFER_TYPE_INTERRUPT;
+    epInfo[XBOX_OUTPUT_PIPE_3].bmNakPower = USB_NAK_NOWAIT; // Only poll once for interrupt endpoints
+    epInfo[XBOX_OUTPUT_PIPE_3].maxPktSize = EP_MAXPKTSIZE;
+    epInfo[XBOX_OUTPUT_PIPE_3].bmSndToggle = 0;
+    epInfo[XBOX_OUTPUT_PIPE_3].bmRcvToggle = 0;
 
-    epInfo[ XBOX_INPUT_PIPE_4 ].epAddr = 0x07; // XBOX 360 report endpoint - poll interval 1ms
-    epInfo[ XBOX_INPUT_PIPE_4 ].epAttribs = USB_TRANSFER_TYPE_INTERRUPT;
-    epInfo[ XBOX_INPUT_PIPE_4 ].bmNakPower = USB_NAK_NOWAIT; // Only poll once for interrupt endpoints
-    epInfo[ XBOX_INPUT_PIPE_4 ].maxPktSize = EP_MAXPKTSIZE;
-    epInfo[ XBOX_INPUT_PIPE_4 ].bmSndToggle = 0;
-    epInfo[ XBOX_INPUT_PIPE_4 ].bmRcvToggle = 0;
-    epInfo[ XBOX_OUTPUT_PIPE_4 ].epAddr = 0x07; // XBOX 360 output endpoint - poll interval 8ms
-    epInfo[ XBOX_OUTPUT_PIPE_4 ].epAttribs = USB_TRANSFER_TYPE_INTERRUPT;
-    epInfo[ XBOX_OUTPUT_PIPE_4 ].bmNakPower = USB_NAK_NOWAIT; // Only poll once for interrupt endpoints
-    epInfo[ XBOX_OUTPUT_PIPE_4 ].maxPktSize = EP_MAXPKTSIZE;
-    epInfo[ XBOX_OUTPUT_PIPE_4 ].bmSndToggle = 0;
-    epInfo[ XBOX_OUTPUT_PIPE_4 ].bmRcvToggle = 0;
+    epInfo[XBOX_INPUT_PIPE_4].epAddr = 0x07; // XBOX 360 report endpoint - poll interval 1ms
+    epInfo[XBOX_INPUT_PIPE_4].epAttribs = USB_TRANSFER_TYPE_INTERRUPT;
+    epInfo[XBOX_INPUT_PIPE_4].bmNakPower = USB_NAK_NOWAIT; // Only poll once for interrupt endpoints
+    epInfo[XBOX_INPUT_PIPE_4].maxPktSize = EP_MAXPKTSIZE;
+    epInfo[XBOX_INPUT_PIPE_4].bmSndToggle = 0;
+    epInfo[XBOX_INPUT_PIPE_4].bmRcvToggle = 0;
+    epInfo[XBOX_OUTPUT_PIPE_4].epAddr = 0x07; // XBOX 360 output endpoint - poll interval 8ms
+    epInfo[XBOX_OUTPUT_PIPE_4].epAttribs = USB_TRANSFER_TYPE_INTERRUPT;
+    epInfo[XBOX_OUTPUT_PIPE_4].bmNakPower = USB_NAK_NOWAIT; // Only poll once for interrupt endpoints
+    epInfo[XBOX_OUTPUT_PIPE_4].maxPktSize = EP_MAXPKTSIZE;
+    epInfo[XBOX_OUTPUT_PIPE_4].bmSndToggle = 0;
+    epInfo[XBOX_OUTPUT_PIPE_4].bmRcvToggle = 0;
 
     rcode = pUsb->setEpInfoEntry(bAddress, 9, epInfo);
-    if(rcode)
-    goto FailSetDevTblEntry;
+    if (rcode)
+        goto FailSetDevTblEntry;
 
     delay(200); //Give time for address change
 
-    rcode = pUsb->setConf(bAddress, epInfo[ XBOX_CONTROL_PIPE ].epAddr, 1);
-    if(rcode)
+    rcode = pUsb->setConf(bAddress, epInfo[XBOX_CONTROL_PIPE].epAddr, 1);
+    if (rcode)
         goto FailSetConfDescr;
 
     XboxReceiverConnected = true;
     bPollEnable = true;
     checkStatusTimer = 0; // Reset timer
-    return 0; // Successful configuration
+    return 0;             // Successful configuration
 
-    /* Diagnostic messages */
-    FailSetDevTblEntry:
+/* Diagnostic messages */
+FailSetDevTblEntry:
 
+FailSetConfDescr:
 
-    FailSetConfDescr:
-
-
-    Fail:
+Fail:
     Release();
 
     return rcode;
 }
 
 /* Performs a cleanup after failed Init() attempt */
-uint8_t XBOXRECV::Release() {
+uint8_t XBOXRECV::Release()
+{
     XboxReceiverConnected = false;
-    for(uint8_t i = 0; i < 4; i++)
-    Xbox360Connected[i] = 0x00;
+    for (uint8_t i = 0; i < 4; i++)
+        Xbox360Connected[i] = 0x00;
 
     pUsb->GetAddressPool().FreeAddress(bAddress);
     bAddress = 0;
@@ -281,7 +286,8 @@ uint8_t XBOXRECV::Poll()
             case 2: inputPipe = XBOX_INPUT_PIPE_3; break;
             case 3: inputPipe = XBOX_INPUT_PIPE_4; break;
         }
-        while (rcode !=hrNAK)
+        rcode = hrSUCCESS;
+        while (rcode != hrNAK)
         {
             uint16_t bufferSize = EP_MAXPKTSIZE;
             rcode = pUsb->inTransfer(bAddress, epInfo[inputPipe].epAddr, &bufferSize, readBuf);
@@ -315,48 +321,52 @@ uint8_t XBOXRECV::Poll()
     return 0;
 }
 
-void XBOXRECV::readReport(uint8_t controller) {
-    if(readBuf == NULL)
-    return;
+void XBOXRECV::readReport(uint8_t controller)
+{
+    if (readBuf == NULL)
+        return;
     // This report is sent when a controller is connected and disconnected
-    if(readBuf[0] & 0x08 && readBuf[1] != Xbox360Connected[controller]) {
+    if (readBuf[0] & 0x08 && readBuf[1] != Xbox360Connected[controller])
+    {
         /*
         readBuf[1]==0x80 for a controller
         readBuf[1]==0x40 for a headset only
         readBuf[1]==0xC0 for a controller+headset only
         */
         Xbox360Connected[controller] = readBuf[1];
-
-        if(Xbox360Connected[controller]) {
-            chatPadInitNeeded[controller]=1; //Chatpad init set true by default
+        if (Xbox360Connected[controller])
+        {
             onInit(controller);
-            } else {
-            chatPadInitNeeded[controller]=0;
         }
         return;
     }
 
     // Controller status report
-    if(readBuf[1] == 0x00 && readBuf[3] & 0x13 && readBuf[4] >= 0x22) {
+    if (readBuf[1] == 0x00 && readBuf[3] & 0x13 && readBuf[4] >= 0x22)
+    {
         controllerStatus[controller] = ((uint16_t)readBuf[3] << 8) | readBuf[4];
         return;
     }
 
-    if(readBuf[1] == 0x00 && readBuf[3] == 0xF0) {
+    if (readBuf[1] == 0x00 && readBuf[3] == 0xF0)
+    {
         //To tell the host there's no more events?
         return;
     }
 
     //Some peripheral is connected to the controller and needs attention. (Should be chatpad)
-    if (readBuf[1] == 0xF8){
+    if (readBuf[1] == 0xF8)
+    {
         chatPadInitNeeded[controller] = 1;
         return;
     }
 
     //Standard controller event
-    if((readBuf[1] == 0x01 || readBuf[1] == 0x03) && readBuf[3] == 0xF0){
+    if ((readBuf[1] & 0x01) && readBuf[3] == 0xF0)
+    {
         // A controller must be connected if it's sending data
-        if(!Xbox360Connected[controller]){
+        if (!Xbox360Connected[controller])
+        {
             Xbox360Connected[controller] |= 0x80;
         }
 
@@ -370,14 +380,18 @@ void XBOXRECV::readReport(uint8_t controller) {
             hatValue[controller][RightHatX] = (int16_t)(((uint16_t)readBuf[15] << 8) | readBuf[14]);
             hatValue[controller][RightHatY] = (int16_t)(((uint16_t)readBuf[17] << 8) | readBuf[16]);
 
-            if(ButtonState[controller] != OldButtonState[controller]) {
+            if (ButtonState[controller] != OldButtonState[controller])
+            {
                 buttonStateChanged[controller] = true;
-                ButtonClickState[controller] = (ButtonState[controller] >> 16) & ((~OldButtonState[controller]) >> 16); // Update click state variable, but don't include the two trigger buttons L2 and R2
-                if(((uint8_t)OldButtonState[controller]) == 0 && ((uint8_t)ButtonState[controller]) != 0) {
+                //Update click state variable, but don't include the two trigger buttons L2 and R2
+                ButtonClickState[controller] = (ButtonState[controller] >> 16) & ((~OldButtonState[controller]) >> 16);
+                if (((uint8_t)OldButtonState[controller]) == 0 && ((uint8_t)ButtonState[controller]) != 0)
+                {
                     R2Clicked[controller] = true;
                 }
 
-                if((uint8_t)(OldButtonState[controller] >> 8) == 0 && (uint8_t)(ButtonState[controller] >> 8) != 0){
+                if ((uint8_t)(OldButtonState[controller] >> 8) == 0 && (uint8_t)(ButtonState[controller] >> 8) != 0)
+                {
                     L2Clicked[controller] = true;
                 }
                 OldButtonState[controller] = ButtonState[controller];
@@ -386,50 +400,62 @@ void XBOXRECV::readReport(uint8_t controller) {
     }
 
     //Chatpad Events
-    if((readBuf[1] == 0x02 || readBuf[1] == 0x03) && readBuf[3] == 0xF0){
+    if ((readBuf[1] & 0x02) && readBuf[3] == 0xF0)
+    {
 
         //This is a key press event
-        if(readBuf[24] == 0x00){
-            ChatPadState[controller]  = 0;
-            ChatPadState[controller] |= ((uint32_t)(readBuf[25])<<16) & 0xFF0000; //This contains modifiers like shift, green, orange and messenger buttons They are OR'd together in one byte
-            ChatPadState[controller] |= ((uint32_t)(readBuf[26])<<8)  & 0x00FF00;  //This contains the first button being pressed.
-            ChatPadState[controller] |= ((uint32_t)(readBuf[27])<<0)  & 0x0000FF;//This contains the second button being pressed.
+        if (readBuf[24] == 0x00)
+        {
+            ChatPadState[controller] = 0;
+            ChatPadState[controller] |= ((uint32_t)(readBuf[25]) << 16) & 0xFF0000; //This contains modifiers like shift, green, orange and messenger buttons They are OR'd together in one byte
+            ChatPadState[controller] |= ((uint32_t)(readBuf[26]) << 8) & 0x00FF00;  //This contains the first button being pressed.
+            ChatPadState[controller] |= ((uint32_t)(readBuf[27]) << 0) & 0x0000FF;  //This contains the second button being pressed.
 
-            if(ChatPadState[controller] != OldChatPadState[controller]) {
+            if (ChatPadState[controller] != OldChatPadState[controller])
+            {
                 ChatPadStateChanged[controller] = true;
                 ChatPadClickState[controller] = ChatPadState[controller] & ~OldChatPadState[controller];
                 OldChatPadState[controller] = ChatPadState[controller];
             }
-
+        }
         //This is a handshake request
-        } else if (readBuf[24] == 0xF0 && readBuf[25] == 0x03){
+        else if (readBuf[24] == 0xF0 && readBuf[25] == 0x03)
+        {
             chatPadInitNeeded[controller] = 1;
-
+        }
         //This is a Chatpad LED status packet
-        } else if (readBuf[24] == 0xF0 && readBuf[25] == 0x04){
+        else if (readBuf[24] == 0xF0 && readBuf[25] == 0x04)
+        {
             //uint8_t leds = readBuf[26];
         }
     }
     memset(readBuf, 0x00, 32);
 }
 
-uint8_t XBOXRECV::getButtonPress(ButtonEnum b, uint8_t controller) {
-    if(b == L2) // These are analog buttons
-    return (uint8_t)(ButtonState[controller] >> 8);
-    else if(b == R2)
-    return (uint8_t)ButtonState[controller];
+uint8_t XBOXRECV::getButtonPress(ButtonEnum b, uint8_t controller)
+{
+    if (b == L2) // These are analog buttons
+        return (uint8_t)(ButtonState[controller] >> 8);
+    else if (b == R2)
+        return (uint8_t)ButtonState[controller];
     return (bool)(ButtonState[controller] & ((uint32_t)pgm_read_word(&XBOX_BUTTONS[(uint8_t)b]) << 16));
 }
 
-bool XBOXRECV::getButtonClick(ButtonEnum b, uint8_t controller) {
-    if(b == L2) {
-        if(L2Clicked[controller]) {
+bool XBOXRECV::getButtonClick(ButtonEnum b, uint8_t controller)
+{
+    if (b == L2)
+    {
+        if (L2Clicked[controller])
+        {
             L2Clicked[controller] = false;
             return true;
         }
         return false;
-        } else if(b == R2) {
-        if(R2Clicked[controller]) {
+    }
+    else if (b == R2)
+    {
+        if (R2Clicked[controller])
+        {
             R2Clicked[controller] = false;
             return true;
         }
@@ -441,48 +467,56 @@ bool XBOXRECV::getButtonClick(ButtonEnum b, uint8_t controller) {
     return click;
 }
 
-
-uint8_t XBOXRECV::getChatPadPress(ChatPadButton b, uint8_t controller) {
+uint8_t XBOXRECV::getChatPadPress(ChatPadButton b, uint8_t controller)
+{
     uint8_t button = b;
-    uint8_t ChatPadState1=(uint8_t)(ChatPadState[controller]>>16 & 0x0000FF);
-    uint8_t ChatPadState2=(uint8_t)(ChatPadState[controller]>>8 & 0x0000FF);
-    uint8_t ChatPadState3=(uint8_t)(ChatPadState[controller]>>0 & 0x0000FF);
+    uint8_t click1 = (uint8_t)(ChatPadState[controller] >> 16 & 0x0000FF);
+    uint8_t click2 = (uint8_t)(ChatPadState[controller] >> 8 & 0x0000FF);
+    uint8_t click3 = (uint8_t)(ChatPadState[controller] >> 0 & 0x0000FF);
 
-    if(button < 17 && ChatPadState1 & button){
+    if (button < 17 && click1 & button)
+    {
         return 1;
-    } else if (button >= 17 && (ChatPadState2==button || ChatPadState3==button)){
-        return 1;
-    } else {
-        return 0;
     }
+    else if (button >= 17 && (click2 == button || click3 == button))
+    {
+        return 1;
+    }
+    return 0;
 }
 
-uint8_t XBOXRECV::getChatPadClick(ChatPadButton b, uint8_t controller) {
+uint8_t XBOXRECV::getChatPadClick(ChatPadButton b, uint8_t controller)
+{
     uint8_t button = b;
-    uint8_t ChatPadClickState1=(uint8_t)((ChatPadClickState[controller]>>16) & 0x0000FF);
-    uint8_t ChatPadClickState2=(uint8_t)((ChatPadClickState[controller]>>8)  & 0x0000FF);
-    uint8_t ChatPadClickState3=(uint8_t)((ChatPadClickState[controller]>>0)  & 0x0000FF);
+    uint8_t click1 = (uint8_t)((ChatPadClickState[controller] >> 16) & 0x0000FF);
+    uint8_t click2 = (uint8_t)((ChatPadClickState[controller] >> 8) & 0x0000FF);
+    uint8_t click3 = (uint8_t)((ChatPadClickState[controller] >> 0) & 0x0000FF);
 
-    if(button < 17 && ChatPadClickState1 & button){
-        ChatPadClickState[controller] &= ~(((uint32_t)button<<16)&0xFF0000);
+    if (button < 17 && click1 & button)
+    {
+        ChatPadClickState[controller] &= ~(((uint32_t)button << 16) & 0xFF0000);
         return 1;
-    } else if (button >= 17 && ChatPadClickState2 == button){
-        ChatPadClickState[controller]&=0xFF00FF;
-        return 1;
-    } else if (button >= 17 && ChatPadClickState3==button){
-        ChatPadClickState[controller]&=0xFFFF00;
-        return 1;
-    } else {
-        return 0;
     }
-
+    else if (button >= 17 && click2 == button)
+    {
+        ChatPadClickState[controller] &= 0xFF00FF;
+        return 1;
+    }
+    else if (button >= 17 && click3 == button)
+    {
+        ChatPadClickState[controller] &= 0xFFFF00;
+        return 1;
+    }
+    return 0;
 }
 
-int16_t XBOXRECV::getAnalogHat(AnalogHatEnum a, uint8_t controller) {
+int16_t XBOXRECV::getAnalogHat(AnalogHatEnum a, uint8_t controller)
+{
     return hatValue[controller][a];
 }
 
-bool XBOXRECV::buttonChanged(uint8_t controller) {
+bool XBOXRECV::buttonChanged(uint8_t controller)
+{
     bool state = buttonStateChanged[controller];
     buttonStateChanged[controller] = false;
     return state;
@@ -507,7 +541,8 @@ ControllerStatus[controller] & 0x2000   // 0
 ControllerStatus[controller] & 0x4000   // 0
 ControllerStatus[controller] & 0x8000   // 0
 */
-uint8_t XBOXRECV::getBatteryLevel(uint8_t controller) {
+uint8_t XBOXRECV::getBatteryLevel(uint8_t controller)
+{
     return ((controllerStatus[controller] & 0x00C0) >> 6);
 }
 
@@ -537,13 +572,13 @@ void XBOXRECV::XboxCommand(uint8_t controller, uint8_t* data, uint16_t nbytes) {
     }
 }
 
-void XBOXRECV::disconnect(uint8_t controller) {
-    memset(writeBuf,0x00,12);
+void XBOXRECV::disconnect(uint8_t controller)
+{
+    memset(writeBuf, 0x00, 12);
     writeBuf[0] = 0x00;
     writeBuf[1] = 0x00;
     writeBuf[2] = 0x08;
     writeBuf[3] = 0xC0;
-
     XboxCommand(controller, writeBuf, 12);
 }
 
@@ -565,8 +600,9 @@ void XBOXRECV::disconnect(uint8_t controller) {
 * 14: persistent slow all blink
 * 15: blink once, then previous setting
 */
-void XBOXRECV::setLedRaw(uint8_t value, uint8_t controller) {
-    memset(writeBuf,0x00,12);
+void XBOXRECV::setLedRaw(uint8_t value, uint8_t controller)
+{
+    memset(writeBuf, 0x00, 12);
     writeBuf[0] = 0x00;
     writeBuf[1] = 0x00;
     writeBuf[2] = 0x08;
@@ -575,18 +611,19 @@ void XBOXRECV::setLedRaw(uint8_t value, uint8_t controller) {
     XboxCommand(controller, writeBuf, 12);
 }
 
-void XBOXRECV::checkControllerPresence(uint8_t controller) {
-    memset(writeBuf,0x00,12);
+void XBOXRECV::checkControllerPresence(uint8_t controller)
+{
+    memset(writeBuf, 0x00, 12);
     writeBuf[0] = 0x08;
     writeBuf[1] = 0x00;
     writeBuf[2] = 0x0F;
     writeBuf[3] = 0xc0;
     XboxCommand(controller, writeBuf, 12);
-
 }
 
-void XBOXRECV::checkControllerBattery(uint8_t controller) {
-    memset(writeBuf,0x00,12);
+void XBOXRECV::checkControllerBattery(uint8_t controller)
+{
+    memset(writeBuf, 0x00, 12);
     writeBuf[0] = 0x00;
     writeBuf[1] = 0x00;
     writeBuf[2] = 0x00;
@@ -594,29 +631,31 @@ void XBOXRECV::checkControllerBattery(uint8_t controller) {
     XboxCommand(controller, writeBuf, 12);
 }
 
-void XBOXRECV::enableChatPad(uint8_t controller) {
-    memset(writeBuf,0x00,12);
+void XBOXRECV::enableChatPad(uint8_t controller)
+{
+    memset(writeBuf, 0x00, 12);
     writeBuf[0] = 0x00;
     writeBuf[1] = 0x00;
     writeBuf[2] = 0x0C;
     writeBuf[3] = 0x1B;
     XboxCommand(controller, writeBuf, 12);
-    chatpadEnabled=1;
+    chatpadEnabled = 1;
 }
 
-
-void XBOXRECV::chatPadKeepAlive1(uint8_t controller) {
-    memset(writeBuf,0x00,12);
+void XBOXRECV::chatPadKeepAlive1(uint8_t controller)
+{
+    memset(writeBuf, 0x00, 12);
     writeBuf[0] = 0x00;
     writeBuf[1] = 0x00;
     writeBuf[2] = 0x0C;
     writeBuf[3] = 0x1F;
     XboxCommand(controller, writeBuf, 12);
-    chatpadEnabled=1;
+    chatpadEnabled = 1;
 }
 
-void XBOXRECV::chatPadKeepAlive2(uint8_t controller) {
-    memset(writeBuf,0x00,12);
+void XBOXRECV::chatPadKeepAlive2(uint8_t controller)
+{
+    memset(writeBuf, 0x00, 12);
     writeBuf[0] = 0x00;
     writeBuf[1] = 0x00;
     writeBuf[2] = 0x0C;
@@ -624,9 +663,9 @@ void XBOXRECV::chatPadKeepAlive2(uint8_t controller) {
     XboxCommand(controller, writeBuf, 12);
 }
 
-
-void XBOXRECV::setRumbleOn(uint8_t lValue, uint8_t rValue, uint8_t controller) {
-    memset(writeBuf,0x00,12);
+void XBOXRECV::setRumbleOn(uint8_t lValue, uint8_t rValue, uint8_t controller)
+{
+    memset(writeBuf, 0x00, 12);
     writeBuf[0] = 0x00;
     writeBuf[1] = 0x01;
     writeBuf[2] = 0x0f;
@@ -634,14 +673,14 @@ void XBOXRECV::setRumbleOn(uint8_t lValue, uint8_t rValue, uint8_t controller) {
     writeBuf[4] = 0x00;
     writeBuf[5] = lValue; // big weight
     writeBuf[6] = rValue; // small weight
-
     XboxCommand(controller, writeBuf, 12);
 }
 
-void XBOXRECV::onInit(uint8_t controller) {
-    memset(writeBuf,0x00,12);
-    setLedRaw(0x00, controller); //Set LED OFF
-    setLedRaw(0x02+controller, controller); //Set LED quadrant blinking
+void XBOXRECV::onInit(uint8_t controller)
+{
+    memset(writeBuf, 0x00, 12);
+    setLedRaw(0x00, controller);              //Set LED OFF
+    setLedRaw(0x02 + controller, controller); //Set LED quadrant blinking
 
     //Not sure what this is, but windows driver does it
     writeBuf[0] = 0x00;
@@ -650,34 +689,36 @@ void XBOXRECV::onInit(uint8_t controller) {
     writeBuf[3] = 0x80;
     XboxCommand(controller, writeBuf, 12);
 
-    //Request battery level
     checkControllerBattery(controller);
 
-    setLedRaw(0x06+controller, controller); //Set LED quadrant on (solid);
-
-
+    setLedRaw(0x06 + controller, controller); //Set LED quadrant on (solid);
 }
 
-void XBOXRECV::chatPadQueueLed(uint8_t led, uint8_t controller){
-    for(uint8_t i=0;i<4;i++){
-        if(chatPadLedQueue[controller][i]==0xFF){
-            chatPadLedQueue[controller][i]=led;
+void XBOXRECV::chatPadQueueLed(uint8_t led, uint8_t controller)
+{
+    for (uint8_t i = 0; i < 4; i++)
+    {
+        if (chatPadLedQueue[controller][i] == 0xFF)
+        {
+            chatPadLedQueue[controller][i] = led;
             return;
         }
     }
 }
 
-void XBOXRECV::chatPadProcessLed(uint8_t controller) {
-    if(chatPadLedQueue[controller][0]!=0xFF){
-        memset(writeBuf,0x00,12);
+void XBOXRECV::chatPadProcessLed(uint8_t controller)
+{
+    if (chatPadLedQueue[controller][0] != 0xFF)
+    {
+        memset(writeBuf, 0x00, 12);
         writeBuf[0] = 0x00;
         writeBuf[1] = 0x00;
         writeBuf[2] = 0x0C;
         writeBuf[3] = chatPadLedQueue[controller][0];
         XboxCommand(controller, writeBuf, 12);
-        chatPadLedQueue[controller][0]=chatPadLedQueue[controller][1];
-        chatPadLedQueue[controller][1]=chatPadLedQueue[controller][2];
-        chatPadLedQueue[controller][2]=chatPadLedQueue[controller][3];
-        chatPadLedQueue[controller][3]=0xFF;
+        chatPadLedQueue[controller][0] = chatPadLedQueue[controller][1];
+        chatPadLedQueue[controller][1] = chatPadLedQueue[controller][2];
+        chatPadLedQueue[controller][2] = chatPadLedQueue[controller][3];
+        chatPadLedQueue[controller][3] = 0xFF;
     }
 }
