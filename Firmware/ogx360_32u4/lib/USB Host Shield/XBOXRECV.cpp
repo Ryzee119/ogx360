@@ -390,10 +390,10 @@ void XBOXRECV::readReport(uint8_t controller) {
 
         //This is a key press event
         if(readBuf[24] == 0x00){
-            ChatPadState[controller]=0;
-            ChatPadState[controller]	|=((uint32_t)(readBuf[25])<<16) & 0xFF0000; //This contains modifiers like shift, green, orange and messenger buttons They are OR'd together in one byte
-            ChatPadState[controller]	|=((uint32_t)(readBuf[26])<<8)  & 0xFFFF00;  //This contains the first button being pressed.
-            ChatPadState[controller]	|=(uint32_t)(readBuf[27]);		//This contains the second button being pressed.
+            ChatPadState[controller]  = 0;
+            ChatPadState[controller] |= ((uint32_t)(readBuf[25])<<16) & 0xFF0000; //This contains modifiers like shift, green, orange and messenger buttons They are OR'd together in one byte
+            ChatPadState[controller] |= ((uint32_t)(readBuf[26])<<8)  & 0x00FF00;  //This contains the first button being pressed.
+            ChatPadState[controller] |= ((uint32_t)(readBuf[27])<<0)  & 0x0000FF;//This contains the second button being pressed.
 
             if(ChatPadState[controller] != OldChatPadState[controller]) {
                 ChatPadStateChanged[controller] = true;
@@ -448,31 +448,31 @@ uint8_t XBOXRECV::getChatPadPress(ChatPadButton b, uint8_t controller) {
     uint8_t ChatPadState2=(uint8_t)(ChatPadState[controller]>>8 & 0x0000FF);
     uint8_t ChatPadState3=(uint8_t)(ChatPadState[controller]>>0 & 0x0000FF);
 
-    if(button<17 && ChatPadState1&button){
+    if(button < 17 && ChatPadState1 & button){
         return 1;
-        } else if (ChatPadState2==button || ChatPadState3==button){
+    } else if (button >= 17 && (ChatPadState2==button || ChatPadState3==button)){
         return 1;
-        } else {
+    } else {
         return 0;
     }
 }
 
 uint8_t XBOXRECV::getChatPadClick(ChatPadButton b, uint8_t controller) {
     uint8_t button = b;
-    uint8_t ChatPadClickState1=(uint8_t)(ChatPadClickState[controller]>>16 & 0x0000FF);
-    uint8_t ChatPadClickState2=(uint8_t)(ChatPadClickState[controller]>>8 & 0x0000FF);
-    uint8_t ChatPadClickState3=(uint8_t)(ChatPadClickState[controller]>>0 & 0x0000FF);
+    uint8_t ChatPadClickState1=(uint8_t)((ChatPadClickState[controller]>>16) & 0x0000FF);
+    uint8_t ChatPadClickState2=(uint8_t)((ChatPadClickState[controller]>>8)  & 0x0000FF);
+    uint8_t ChatPadClickState3=(uint8_t)((ChatPadClickState[controller]>>0)  & 0x0000FF);
 
-    if(button<17 && ChatPadClickState1&button){
+    if(button < 17 && ChatPadClickState1 & button){
         ChatPadClickState[controller] &= ~(((uint32_t)button<<16)&0xFF0000);
         return 1;
-        } else if (ChatPadClickState2==button){
+    } else if (button >= 17 && ChatPadClickState2 == button){
         ChatPadClickState[controller]&=0xFF00FF;
         return 1;
-        } else if (ChatPadClickState3==button){
+    } else if (button >= 17 && ChatPadClickState3==button){
         ChatPadClickState[controller]&=0xFFFF00;
         return 1;
-        } else {
+    } else {
         return 0;
     }
 
