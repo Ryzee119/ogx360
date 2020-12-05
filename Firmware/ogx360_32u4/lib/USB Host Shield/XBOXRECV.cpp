@@ -311,10 +311,12 @@ uint8_t XBOXRECV::Poll()
             switch (state[i])
             {
                 case 0: checkControllerPresence(i); break;
-                case 1: chatPadKeepAlive1(i);       break;
-                case 2: chatPadKeepAlive2(i);       break;
+                case 1: setLedRaw(0x06 + i, i);     break;
+                case 2: chatPadKeepAlive1(i);       break;
+                case 3: chatPadKeepAlive2(i);       break;
+                
             }
-            state[i] = ((state[i] + 1) % 3);
+            state[i] = ((state[i] + 1) % 4);
             checkStatusTimer[i] = millis();
         }
     }
@@ -548,6 +550,7 @@ uint8_t XBOXRECV::getBatteryLevel(uint8_t controller)
 
 void XBOXRECV::XboxCommand(uint8_t controller, uint8_t* data, uint16_t nbytes) {
     uint8_t outputPipe;
+    uint32_t outputTimer[4] = {0};
     switch(controller) {
         case 0: outputPipe = XBOX_OUTPUT_PIPE_1; break;
         case 1: outputPipe = XBOX_OUTPUT_PIPE_2; break;
@@ -556,7 +559,10 @@ void XBOXRECV::XboxCommand(uint8_t controller, uint8_t* data, uint16_t nbytes) {
         default: return;
     }
 
-    //Send report
+    //Send report (limit to 8ms between pipe transmissions)
+    while (millis() - outputTimer[controller] < 8);
+    outputTimer[controller] = millis();
+
     uint8_t rcode = hrNAK;
     while (rcode != hrSUCCESS)
         rcode = pUsb->outTransfer(bAddress, epInfo[outputPipe].epAddr, nbytes, data);
@@ -607,7 +613,6 @@ void XBOXRECV::setLedRaw(uint8_t value, uint8_t controller)
     writeBuf[1] = 0x00;
     writeBuf[2] = 0x08;
     writeBuf[3] = value | 0x40;
-
     XboxCommand(controller, writeBuf, 12);
 }
 
