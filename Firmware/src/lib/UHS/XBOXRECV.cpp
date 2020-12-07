@@ -271,7 +271,6 @@ uint8_t XBOXRECV::Poll()
     if (!bPollEnable)
         return 0;
 
-    static uint8_t i = 0;
     static uint32_t checkStatusTimer[4] = {0};
     static uint32_t chatPadLedTimer[4] = {0};
     volatile static uint32_t idleTimer[4] = {0};

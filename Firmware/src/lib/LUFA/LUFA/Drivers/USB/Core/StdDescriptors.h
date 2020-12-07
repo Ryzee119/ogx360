@@ -76,7 +76,9 @@
 			 *
 			 *  \param[in] mA  Maximum number of milliamps the device consumes when the given configuration is selected.
 			 */
+			#ifndef USB_CONFIG_POWER_MA
 			#define USB_CONFIG_POWER_MA(mA)           ((mA) >> 1)
+			#endif
 
 			/** Macro to calculate the Unicode length of a string with a given number of Unicode characters.
 			 *  Should be used in string descriptor's headers for giving the string descriptor's byte length.

@@ -110,7 +110,9 @@
 		 *
 		 *  \note See \ref Group_EndpointManagement and \ref Group_PipeManagement for endpoint/pipe functions.
 		 */
+		#ifndef EP_TYPE_CONTROL
 		#define EP_TYPE_CONTROL                    0x00
+		#endif
 
 		/** Mask for an ISOCHRONOUS type endpoint or pipe.
 		 *
