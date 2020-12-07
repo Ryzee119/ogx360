@@ -44,50 +44,47 @@ this software.
 #include "dukecontroller.h"
 #include "steelbattalion.h"
 
-
 #define DUKE_CONTROLLER 0
 #define STEELBATTALION 1
 
 /* Function Prototypes: */
 #ifdef __cplusplus
-extern "C" {
-	#endif
+extern "C"
+{
+#endif
 
-	uint16_t CALLBACK_USB_GetDescriptor(const uint16_t wValue,
-	const uint16_t wIndex,
-	const void** const DescriptorAddress)
-	ATTR_WARN_UNUSED_RESULT ATTR_NON_NULL_PTR_ARG(3);
-	void SetupHardware(void);
-	void EVENT_USB_Device_Connect(void);
-	void EVENT_USB_Device_Disconnect(void);
-	void EVENT_USB_Device_ConfigurationChanged(void);
-	void EVENT_USB_Device_ControlRequest(void);
-	void EVENT_USB_Device_StartOfFrame(void);
-	bool CALLBACK_HID_Device_CreateHIDReport(USB_ClassInfo_HID_Device_t* const HIDInterfaceInfo,
-	uint8_t* const ReportID,
-	const uint8_t ReportType,
-	void* ReportData,
-	uint16_t* const ReportSize);
-	void CALLBACK_HID_Device_ProcessHIDReport(USB_ClassInfo_HID_Device_t* const HIDInterfaceInfo,
-	const uint8_t ReportID,
-	const uint8_t ReportType,
-	const void* ReportData,
-	const uint16_t ReportSize);
+    uint16_t CALLBACK_USB_GetDescriptor(const uint16_t wValue,
+                                        const uint16_t wIndex,
+                                        const void **const DescriptorAddress)
+        ATTR_WARN_UNUSED_RESULT ATTR_NON_NULL_PTR_ARG(3);
+    void SetupHardware(void);
+    void EVENT_USB_Device_Connect(void);
+    void EVENT_USB_Device_Disconnect(void);
+    void EVENT_USB_Device_ConfigurationChanged(void);
+    void EVENT_USB_Device_ControlRequest(void);
+    void EVENT_USB_Device_StartOfFrame(void);
+    bool CALLBACK_HID_Device_CreateHIDReport(USB_ClassInfo_HID_Device_t *const HIDInterfaceInfo,
+                                             uint8_t *const ReportID,
+                                             const uint8_t ReportType,
+                                             void *ReportData,
+                                             uint16_t *const ReportSize);
+    void CALLBACK_HID_Device_ProcessHIDReport(USB_ClassInfo_HID_Device_t *const HIDInterfaceInfo,
+                                              const uint8_t ReportID,
+                                              const uint8_t ReportType,
+                                              const void *ReportData,
+                                              const uint16_t ReportSize);
 
-	
-
-	/* Data Types: */
-	extern USB_ClassInfo_HID_Device_t DukeController_HID_Interface;
-	extern USB_ClassInfo_HID_Device_t SteelBattalion_HID_Interface;
-	extern USB_XboxGamepad_Data_t XboxOGDuke[4];
-	#ifdef SUPPORTBATTALION
-	extern USB_XboxSteelBattalion_Data_t XboxOGSteelBattalion;
-	extern USB_XboxSteelBattalion_Feedback_t XboxOGSteelBattalionFeedback;
-	#endif
-	extern bool enumerationComplete;
-	extern uint8_t playerID;
-	#ifdef __cplusplus
+    /* Data Types: */
+    extern USB_ClassInfo_HID_Device_t DukeController_HID_Interface;
+    extern USB_ClassInfo_HID_Device_t SteelBattalion_HID_Interface;
+    extern USB_XboxGamepad_Data_t XboxOGDuke[MAX_CONTROLLERS];
+#ifdef SUPPORTBATTALION
+    extern USB_XboxSteelBattalion_Data_t XboxOGSteelBattalion;
+    extern USB_XboxSteelBattalion_Feedback_t XboxOGSteelBattalionFeedback;
+#endif
+    extern bool enumerationComplete;
+    extern uint8_t playerID;
+#ifdef __cplusplus
 }
 #endif
 #endif
-
