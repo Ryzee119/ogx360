@@ -274,6 +274,7 @@ uint8_t XBOXRECV::Poll()
     static uint8_t i = 0;
     static uint32_t checkStatusTimer[4] = {0};
     static uint32_t chatPadLedTimer[4] = {0};
+    volatile static uint32_t idleTimer[4] = {0};
 
     for (uint8_t i = 0; i < 4; i++)
     {
@@ -292,7 +293,12 @@ uint8_t XBOXRECV::Poll()
             uint16_t bufferSize = EP_MAXPKTSIZE;
             rcode = pUsb->inTransfer(bAddress, epInfo[inputPipe].epAddr, &bufferSize, readBuf);
             if (bufferSize > 0)
+            {
                 readReport(i);
+                //Reset idle timer on user input
+                if (readBuf[1] & 0x03)
+                    idleTimer[i] = millis();
+            }
         }
 
         if (chatPadInitNeeded[i])
@@ -310,11 +316,16 @@ uint8_t XBOXRECV::Poll()
             static uint8_t state[4] = {0};
             switch (state[i])
             {
-                case 0: checkControllerPresence(i); break;
-                case 1: setLedRaw(0x06 + i, i);     break;
-                case 2: chatPadKeepAlive1(i);       break;
-                case 3: chatPadKeepAlive2(i);       break;
-                
+                case 0:
+                    if (!Xbox360Connected[i] || (millis() - idleTimer[i]) > 2500)
+                    {
+                        checkControllerPresence(i);
+                        idleTimer[i] = millis();
+                    }
+                    break;
+                case 1: setLedRaw(0x06 + i, i); break;
+                case 2: chatPadKeepAlive1(i);   break;
+                case 3: chatPadKeepAlive2(i);   break;
             }
             state[i] = ((state[i] + 1) % 4);
             checkStatusTimer[i] = millis();
