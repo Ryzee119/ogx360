@@ -24,89 +24,89 @@
 #include "xboxEnums.h"
 
 /* Data Xbox 360 taken from descriptors */
-#define EP_MAXPKTSIZE       32 // max size for data via USB
+#define EP_MAXPKTSIZE 32 // max size for data via USB
 
 /* Names we give to the 9 Xbox360 pipes */
-#define XBOX_CONTROL_PIPE   0
-#define XBOX_INPUT_PIPE_1   1
-#define XBOX_OUTPUT_PIPE_1  2
-#define XBOX_INPUT_PIPE_2   3
-#define XBOX_OUTPUT_PIPE_2  4
-#define XBOX_INPUT_PIPE_3   5
-#define XBOX_OUTPUT_PIPE_3  6
-#define XBOX_INPUT_PIPE_4   7
-#define XBOX_OUTPUT_PIPE_4  8
+#define XBOX_CONTROL_PIPE 0
+#define XBOX_INPUT_PIPE_1 1
+#define XBOX_OUTPUT_PIPE_1 2
+#define XBOX_INPUT_PIPE_2 3
+#define XBOX_OUTPUT_PIPE_2 4
+#define XBOX_INPUT_PIPE_3 5
+#define XBOX_OUTPUT_PIPE_3 6
+#define XBOX_INPUT_PIPE_4 7
+#define XBOX_OUTPUT_PIPE_4 8
 
-#define XBOX_INPUT_PIPE_1_CHATPAD  9
+#define XBOX_INPUT_PIPE_1_CHATPAD 9
 
 // PID and VID of the different devices
-#define XBOX_VID                                 0x045E  // Microsoft Corporation
-#define MADCATZ_UNOFFICIAL_VID                   0x1BAD  // For unofficial Mad Catz receivers
-#define JOYTECH_UNOFFICIAL_VID                   0x162E  // For unofficial Joytech controllers
+#define XBOX_VID 0x045E               // Microsoft Corporation
+#define MADCATZ_UNOFFICIAL_VID 0x1BAD // For unofficial Mad Catz receivers
+#define JOYTECH_UNOFFICIAL_VID 0x162E // For unofficial Joytech controllers
 
-#define XBOX_WIRELESS_RECEIVER_PID               0x0719  // Microsoft Wireless Gaming Receiver
-#define XBOX_WIRELESS_RECEIVER_THIRD_PARTY_PID   0x0291  // Third party Wireless Gaming Receiver
-#define XBOX_WIRELESS_RECEIVER_THIRD_PARTY1_PID  0x02AA  // Another Third party Wireless Gaming Receiver
-#define XBOX_WIRELESS_RECEIVER_THIRD_PARTY2_PID  0x02A9  // Another Third party Wireless Gaming Receiver
+#define XBOX_WIRELESS_RECEIVER_PID 0x0719              // Microsoft Wireless Gaming Receiver
+#define XBOX_WIRELESS_RECEIVER_THIRD_PARTY_PID 0x0291  // Third party Wireless Gaming Receiver
+#define XBOX_WIRELESS_RECEIVER_THIRD_PARTY1_PID 0x02AA // Another Third party Wireless Gaming Receiver
+#define XBOX_WIRELESS_RECEIVER_THIRD_PARTY2_PID 0x02A9 // Another Third party Wireless Gaming Receiver
 
-#define XBOX_MAX_ENDPOINTS   17
+#define XBOX_MAX_ENDPOINTS 17
 
+enum ChatPadButton
+{
+        //Offset byte 26 or 27. You can get 2 buttons are once on the chatpad,
+        CHATPAD_1 = 23,
+        CHATPAD_2 = 22,
+        CHATPAD_3 = 21,
+        CHATPAD_4 = 20,
+        CHATPAD_5 = 19,
+        CHATPAD_6 = 18,
+        CHATPAD_7 = 17,
+        CHATPAD_8 = 103,
+        CHATPAD_9 = 102,
+        CHATPAD_0 = 101,
 
-enum ChatPadButton {
-	//Offset byte 26 or 27. You can get 2 buttons are once on the chatpad,
-	CHATPAD_1=23,
-	CHATPAD_2=22,
-	CHATPAD_3=21,
-	CHATPAD_4=20,
-	CHATPAD_5=19,
-	CHATPAD_6=18,
-	CHATPAD_7=17,
-	CHATPAD_8=103,
-	CHATPAD_9=102,
-	CHATPAD_0=101,
+        CHATPAD_Q = 39,
+        CHATPAD_W = 38,
+        CHATPAD_E = 37,
+        CHATPAD_R = 36,
+        CHATPAD_T = 35,
+        CHATPAD_Y = 34,
+        CHATPAD_U = 33,
+        CHATPAD_I = 118,
+        CHATPAD_O = 117,
+        CHATPAD_P = 100,
 
-	CHATPAD_Q=39,
-	CHATPAD_W=38,
-	CHATPAD_E=37,
-	CHATPAD_R=36,
-	CHATPAD_T=35,
-	CHATPAD_Y=34,
-	CHATPAD_U=33,
-	CHATPAD_I=118,
-	CHATPAD_O=117,
-	CHATPAD_P=100,
+        CHATPAD_A = 55,
+        CHATPAD_S = 54,
+        CHATPAD_D = 53,
+        CHATPAD_F = 52,
+        CHATPAD_G = 51,
+        CHATPAD_H = 50,
+        CHATPAD_J = 49,
+        CHATPAD_K = 119,
+        CHATPAD_L = 114,
+        CHATPAD_COMMA = 98,
 
-	CHATPAD_A=55,
-	CHATPAD_S=54,
-	CHATPAD_D=53,
-	CHATPAD_F=52,
-	CHATPAD_G=51,
-	CHATPAD_H=50,
-	CHATPAD_J=49,
-	CHATPAD_K=119,
-	CHATPAD_L=114,
-	CHATPAD_COMMA=98,
+        CHATPAD_Z = 70,
+        CHATPAD_X = 69,
+        CHATPAD_C = 68,
+        CHATPAD_V = 67,
+        CHATPAD_B = 66,
+        CHATPAD_N = 65,
+        CHATPAD_M = 82,
+        CHATPAD_PERIOD = 83,
+        CHATPAD_ENTER = 99,
 
-	CHATPAD_Z=70,
-	CHATPAD_X=69,
-	CHATPAD_C=68,
-	CHATPAD_V=67,
-	CHATPAD_B=66,
-	CHATPAD_N=65,
-	CHATPAD_M=82,
-	CHATPAD_PERIOD=83,
-	CHATPAD_ENTER=99,
+        CHATPAD_LEFT = 85,
+        CHATPAD_SPACE = 84,
+        CHATPAD_RIGHT = 81,
+        CHATPAD_BACK = 113,
 
-	CHATPAD_LEFT=85,
-	CHATPAD_SPACE=84,
-	CHATPAD_RIGHT=81,
-	CHATPAD_BACK=113,
-
-	//Offset byte 25,
-	CHATPAD_SHIFT=1,
-	CHATPAD_GREEN=2,
-	CHATPAD_ORANGE=4,
-	CHATPAD_MESSENGER=8,
+        //Offset byte 25,
+        CHATPAD_SHIFT = 1,
+        CHATPAD_GREEN = 2,
+        CHATPAD_ORANGE = 4,
+        CHATPAD_MESSENGER = 8,
 };
 
 #define CHATPAD_LED_CAPSLOCK_OFF 0x00
@@ -118,13 +118,13 @@ enum ChatPadButton {
 #define CHATPAD_LED_ORANGE_ON 0x0A
 #define CHATPAD_LED_MESSENGER_ON 0x0B
 
-
 /**
  * This class implements support for a Xbox Wireless receiver.
  *
  * Up to four controllers can connect to one receiver, if more is needed one can use a second receiver via the USBHub class.
  */
-class XBOXRECV : public USBDeviceConfig {
+class XBOXRECV : public USBDeviceConfig
+{
 public:
         /**
          * Constructor for the XBOXRECV class.
@@ -164,7 +164,8 @@ public:
          * Get the device address.
          * @return The device address.
          */
-        virtual uint8_t GetAddress() {
+        virtual uint8_t GetAddress()
+        {
                 return bAddress;
         };
 
@@ -172,7 +173,8 @@ public:
          * Used to check if the controller has been initialized.
          * @return True if it's ready.
          */
-        virtual bool isReady() {
+        virtual bool isReady()
+        {
                 return bPollEnable;
         };
 
@@ -182,7 +184,8 @@ public:
          * @param  pid The device's PID.
          * @return     Returns true if the device's VID and PID matches this driver.
          */
-        virtual bool VIDPIDOK(uint16_t vid, uint16_t pid) {
+        virtual bool VIDPIDOK(uint16_t vid, uint16_t pid)
+        {
                 return ((vid == XBOX_VID ||
                          vid == MADCATZ_UNOFFICIAL_VID ||
                          vid == JOYTECH_UNOFFICIAL_VID) &&
@@ -228,7 +231,8 @@ public:
          * Turn rumble off and all the LEDs on the specific controller.
          * @param  controller The controller to write to. Default to 0.
          */
-        void setAllOff(uint8_t controller = 0) {
+        void setAllOff(uint8_t controller = 0)
+        {
                 setRumbleOn(0, 0, controller);
                 setLedOff(controller);
         };
@@ -237,7 +241,8 @@ public:
          * Turn rumble off the specific controller.
          * @param  controller The controller to write to. Default to 0.
          */
-        void setRumbleOff(uint8_t controller = 0) {
+        void setRumbleOff(uint8_t controller = 0)
+        {
                 setRumbleOn(0, 0, controller);
         };
         /**
@@ -260,7 +265,8 @@ public:
          * Turn all LEDs off the specific controller.
          * @param controller The controller to write to. Default to 0.
          */
-        void setLedOff(uint8_t controller = 0) {
+        void setLedOff(uint8_t controller = 0)
+        {
                 setLedRaw(0, controller);
         };
         /**
@@ -298,22 +304,22 @@ public:
          * Used to call your own function when the controller is successfully initialized.
          * @param funcOnInit Function to call.
          */
-        void attachOnInit(void (*funcOnInit)(void)) {
+        void attachOnInit(void (*funcOnInit)(void))
+        {
                 pFuncOnInit = funcOnInit;
         };
 
-		void checkControllerPresence(uint8_t controller = 0); //Ryzee - moved function to public and split into two functions.
-		void checkControllerBattery(uint8_t controller = 0); //Ryzee - moved function to public and split into two functions.
+        void checkControllerPresence(uint8_t controller = 0); //Ryzee - moved function to public and split into two functions.
+        void checkControllerBattery(uint8_t controller = 0);  //Ryzee - moved function to public and split into two functions.
 
-		void enableChatPad(uint8_t controller); //Ryzee
-		void chatPadKeepAlive1(uint8_t controller); //Ryzee
-		void chatPadKeepAlive2(uint8_t controller); //Ryzee
-		uint8_t getChatPadPress(ChatPadButton b, uint8_t controller); //Ryzee
-		uint8_t getChatPadClick(ChatPadButton b, uint8_t controller); //Ryzee
-		void chatPadQueueLed(uint8_t led, uint8_t controller); //Ryzee
-		uint8_t chatPadLedQueue[4][4]; //You can queue up 4 LED commands
-		uint8_t chatPadInitNeeded[4];
-
+        void enableChatPad(uint8_t controller);                       //Ryzee
+        void chatPadKeepAlive1(uint8_t controller);                   //Ryzee
+        void chatPadKeepAlive2(uint8_t controller);                   //Ryzee
+        uint8_t getChatPadPress(ChatPadButton b, uint8_t controller); //Ryzee
+        uint8_t getChatPadClick(ChatPadButton b, uint8_t controller); //Ryzee
+        void chatPadQueueLed(uint8_t led, uint8_t controller);        //Ryzee
+        uint8_t chatPadLedQueue[4][4];                                //You can queue up 4 LED commands
+        uint8_t chatPadInitNeeded[4];
 
         /**@}*/
 
@@ -349,32 +355,30 @@ private:
         uint16_t ButtonClickState[4];
         bool buttonStateChanged[4]; // True if a button has changed
 
-
-		  /* Variables to store the chatpad buttons */
-		  uint32_t ChatPadState[4];
-		  uint32_t OldChatPadState[4];
-		  uint32_t ChatPadClickState[4];
-		  bool ChatPadStateChanged[4]; // True if a chatpad button has changed
+        /* Variables to store the chatpad buttons */
+        uint32_t ChatPadState[4];
+        uint32_t OldChatPadState[4];
+        uint32_t ChatPadClickState[4];
+        bool ChatPadStateChanged[4]; // True if a chatpad button has changed
 
         int16_t hatValue[4][4];
         uint16_t controllerStatus[4];
-
 
         bool L2Clicked[4]; // These buttons are analog, so we use we use these bools to check if they where clicked or not
         bool R2Clicked[4];
 
         uint32_t checkStatusTimer; //Timing for checkStatus() signals
-				uint32_t chatPadLedTimer; //Timing for chat pad led updates
+        uint32_t chatPadLedTimer;  //Timing for chat pad led updates
 
         uint8_t readBuf[EP_MAXPKTSIZE]; // General purpose buffer for input data
-        uint8_t writeBuf[12]; // General purpose buffer for output data
+        uint8_t writeBuf[12];           // General purpose buffer for output data
 
-        void readReport(uint8_t controller); // read incoming data
+        void readReport(uint8_t controller);                  // read incoming data
         void printReport(uint8_t controller, uint8_t nBytes); // print incoming date - Uncomment for debugging
 
         /* Private commands */
-        void XboxCommand(uint8_t controller, uint8_t* data, uint16_t nbytes);
-				void chatPadProcessLed(uint8_t controller);
-       //void checkStatus(); moved to public function - Ryzee
+        void XboxCommand(uint8_t controller, uint8_t *data, uint16_t nbytes);
+        void chatPadProcessLed(uint8_t controller);
+        //void checkStatus(); moved to public function - Ryzee
 };
 #endif
