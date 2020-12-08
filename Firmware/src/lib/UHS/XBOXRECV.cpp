@@ -571,7 +571,6 @@ void XBOXRECV::XboxCommand(uint8_t controller, uint8_t* data, uint16_t nbytes) {
 
     //Send report (limit to 8ms between pipe transmissions)
     while (millis() - outputTimer[controller] < 8);
-    outputTimer[controller] = millis();
 
     uint8_t rcode = hrNAK;
     while (rcode != hrSUCCESS)
@@ -586,6 +585,7 @@ void XBOXRECV::XboxCommand(uint8_t controller, uint8_t* data, uint16_t nbytes) {
         if (bufferSize > 0)
             readReport(controller);
     }
+    outputTimer[controller] = millis();
 }
 
 void XBOXRECV::disconnect(uint8_t controller)
