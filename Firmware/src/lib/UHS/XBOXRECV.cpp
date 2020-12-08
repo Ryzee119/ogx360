@@ -314,7 +314,7 @@ uint8_t XBOXRECV::Poll()
             chatPadProcessLed(i);
             chatPadLedTimer[i] = millis();
         }
-        else if (millis() - checkStatusTimer[i] > 2500)
+        else if (millis() - checkStatusTimer[i] > 1000)
         {
             static uint8_t state[4] = {0};
             switch (state[i])
