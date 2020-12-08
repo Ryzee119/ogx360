@@ -564,7 +564,7 @@ uint8_t XBOXRECV::getBatteryLevel(uint8_t controller)
 
 void XBOXRECV::XboxCommand(uint8_t controller, uint8_t* data, uint16_t nbytes) {
     uint8_t outputPipe;
-    uint32_t outputTimer[4] = {0};
+    static uint32_t outputTimer[4] = {0};
     uint32_t timeout;
     switch(controller) {
         case 0: outputPipe = XBOX_OUTPUT_PIPE_1; break;
