@@ -801,7 +801,6 @@ int main(void)
 /* Send the HID report to the OG Xbox */
 void sendControllerHIDReport()
 {
-    USB_USBTask();
     switch (ConnectedXID)
     {
     case DUKE_CONTROLLER:
@@ -819,6 +818,7 @@ void sendControllerHIDReport()
         break;
 #endif
     }
+    USB_USBTask();
 }
 
 #ifdef MASTER
