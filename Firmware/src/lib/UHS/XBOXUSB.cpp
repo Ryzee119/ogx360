@@ -321,8 +321,26 @@ int16_t XBOXUSB::getAnalogHat(AnalogHatEnum a)
 /* Xbox Controller commands */
 void XBOXUSB::XboxCommand(uint8_t *data, uint16_t nbytes)
 {
-    pUsb->outTransfer(bAddress, epInfo[XBOX_OUTPUT_PIPE].epAddr, nbytes, data);
-    delay(1);
+    uint32_t timeout;
+
+    uint8_t rcode = hrNAK;
+    while (millis() - outPipeTimer < 2);
+
+    timeout= millis();
+    while (rcode != hrSUCCESS && (millis() - timeout) < 50)
+        pUsb->outTransfer(bAddress, epInfo[XBOX_OUTPUT_PIPE].epAddr, nbytes, data);
+
+    //Readback any response
+    rcode = hrSUCCESS;
+    timeout = millis();
+    while (rcode != hrNAK && (millis() - timeout) < 50)
+    {
+        uint16_t bufferSize = EP_MAXPKTSIZE;
+        rcode = pUsb->inTransfer(bAddress, epInfo[XBOX_INPUT_PIPE].epAddr, &bufferSize, readBuf);
+        if (bufferSize > 0)
+            readReport();
+    }
+    outPipeTimer = millis();
 }
 
 void XBOXUSB::setLedRaw(uint8_t value)
@@ -370,10 +388,14 @@ void XBOXUSB::onInit()
 {
     uint8_t stringDescriptor[10];
     //8bit-do appears as a Wired Xbox 360 controller, but will quickly change to a switch controller if you do not request a string descriptor
-    pUsb->ctrlReq(bAddress, epInfo[XBOX_CONTROL_PIPE].epAddr, 0x80, 0x06, 0x02, 0x03, 0x0409, 0x0002, 2, NULL, NULL); //Request string descriptor
+    //Request string descriptors
+    pUsb->ctrlReq(bAddress, epInfo[XBOX_CONTROL_PIPE].epAddr, 0x80, 0x06, 0x02, 0x03, 0x0409, 0x0002, 2, stringDescriptor, NULL);
     delay(1);
-    pUsb->ctrlReq(bAddress, epInfo[XBOX_CONTROL_PIPE].epAddr, 0x80, 0x06, 0x02, 0x03, 0x0409, 0x0022, 10, stringDescriptor, NULL); //Request string descriptor
+    //Request string descriptors
+    pUsb->ctrlReq(bAddress, epInfo[XBOX_CONTROL_PIPE].epAddr, 0x80, 0x06, 0x02, 0x03, 0x0409, 0x0022, 10, stringDescriptor, NULL);
     delay(1);
+
+
     uint8_t outBuf0[3] = {0x01, 0x03, 0x02};
     uint8_t outBuf1[3] = {0x01, 0x03, 0x06};
     uint8_t outBuf2[3] = {0x02, 0x08, 0x03}; //Not sure what this. Seen in windows driver

@@ -232,6 +232,9 @@ public:
     /** True if a Xbox 360 controller is connected. */
     bool Xbox360Connected;
 
+    /** Used to limit the output transfer rate of the pipe**/
+    uint32_t outPipeTimer = 0;
+
 protected:
     /** Pointer to USB class instance. */
     USB *pUsb;
