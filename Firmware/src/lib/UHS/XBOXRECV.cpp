@@ -295,7 +295,7 @@ uint8_t XBOXRECV::Poll()
             {
                 readReport(i);
                 //Reset idle timer on user input
-                if (readBuf[1] & 0x03)
+                if (readBuf[1] & 0x01)
                     idleTimer[i] = millis();
             }
         }
