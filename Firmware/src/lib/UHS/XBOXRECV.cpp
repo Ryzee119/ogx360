@@ -297,10 +297,10 @@ uint8_t XBOXRECV::Poll()
             rcode = pUsb->inTransfer(bAddress, epInfo[inputPipe].epAddr, &bufferSize, readBuf);
             if (bufferSize > 0)
             {
-                readReport(i);
                 //Reset idle timer on user input
                 if (readBuf[1] & 0x01)
                     idleTimer[i] = millis();
+                readReport(i);
             }
         }
 
