@@ -41,45 +41,50 @@ XBOXRECV::XBOXRECV(USB *p) : pUsb(p),
 
 uint8_t XBOXRECV::ConfigureDevice(uint8_t parent, uint8_t port, bool lowspeed)
 {
-    const uint8_t constBufSize = sizeof(USB_DEVICE_DESCRIPTOR);
-    uint8_t buf[constBufSize];
-    USB_DEVICE_DESCRIPTOR *udd = reinterpret_cast<USB_DEVICE_DESCRIPTOR *>(buf);
+    const uint8_t dev_desc = sizeof(USB_DEVICE_DESCRIPTOR);
+
+    const uint8_t conf_desc = sizeof(USB_CONFIGURATION_DESCRIPTOR) +
+                              sizeof(USB_INTERFACE_DESCRIPTOR);
+    uint8_t dev_desc_buf[dev_desc];
+    uint8_t conf_desc_buff[conf_desc];
+
     uint8_t rcode;
     UsbDevice *p = NULL;
     EpInfo *oldep_ptr = NULL;
-    uint16_t PID, VID;
+    uint8_t interface_subclass, interface_protocol;
+    USB_DEVICE_DESCRIPTOR *udd = reinterpret_cast<USB_DEVICE_DESCRIPTOR *>(dev_desc_buf);
+    USB_INTERFACE_DESCRIPTOR *uid = reinterpret_cast<USB_INTERFACE_DESCRIPTOR *>(conf_desc_buff +
+                                                                                 sizeof(USB_CONFIGURATION_DESCRIPTOR));
 
     AddressPool &addrPool = pUsb->GetAddressPool();
 
     if (bAddress)
-    {
         return USB_ERROR_CLASS_INSTANCE_ALREADY_IN_USE;
-    }
 
     p = addrPool.GetUsbDevicePtr(0);
 
     if (!p)
-    {
         return USB_ERROR_ADDRESS_NOT_FOUND_IN_POOL;
-    }
 
     if (!p->epinfo)
-    {
         return USB_ERROR_EPINFO_IS_NULL;
-    }
 
     oldep_ptr = p->epinfo;
     p->epinfo = epInfo;
     p->lowspeed = lowspeed;
 
-    rcode = pUsb->getDevDescr(0, 0, constBufSize, (uint8_t *)buf);
+    rcode = pUsb->getDevDescr(0, 0, dev_desc, (uint8_t *)dev_desc_buf);
+    rcode = pUsb->getConfDescr(0, 0, conf_desc, 0, (uint8_t *)conf_desc_buff);
+
     p->epinfo = oldep_ptr;
     if (rcode)
         goto FailGetDevDescr;
 
-    VID = udd->idVendor;
-    PID = udd->idProduct;
-    if (!VIDPIDOK(VID, PID))
+    interface_subclass = uid->bInterfaceSubClass;
+    interface_protocol = uid->bInterfaceProtocol;
+
+    if ((interface_subclass != 0x5D ||  //Xbox360 wireless bInterfaceSubClass
+	     interface_protocol != 0x81))   //Xbox360 wireless bInterfaceProtocol
         goto FailUnknownDevice;
 
     bAddress = addrPool.AllocAddress(parent, false, port);
@@ -105,9 +110,6 @@ FailGetDevDescr:
     goto Fail;
 
 FailUnknownDevice:
-#ifdef DEBUG_USB_HOST
-    NotifyFailUnknownDevice(VID, PID);
-#endif
     rcode = USB_DEV_CONFIG_ERROR_DEVICE_NOT_SUPPORTED;
 
 Fail:
@@ -273,6 +275,7 @@ uint8_t XBOXRECV::Poll()
 
     static uint32_t checkStatusTimer[4] = {0};
     static uint32_t chatPadLedTimer[4] = {0};
+    uint32_t timeout;
     volatile static uint32_t idleTimer[4] = {0};
 
     for (uint8_t i = 0; i < 4; i++)
@@ -287,7 +290,8 @@ uint8_t XBOXRECV::Poll()
             case 3: inputPipe = XBOX_INPUT_PIPE_4; break;
         }
         rcode = hrSUCCESS;
-        while (rcode != hrNAK)
+        timeout = millis();
+        while (rcode != hrNAK && (millis() - timeout) < 50)
         {
             uint16_t bufferSize = EP_MAXPKTSIZE;
             rcode = pUsb->inTransfer(bAddress, epInfo[inputPipe].epAddr, &bufferSize, readBuf);
@@ -561,6 +565,7 @@ uint8_t XBOXRECV::getBatteryLevel(uint8_t controller)
 void XBOXRECV::XboxCommand(uint8_t controller, uint8_t* data, uint16_t nbytes) {
     uint8_t outputPipe;
     uint32_t outputTimer[4] = {0};
+    uint32_t timeout;
     switch(controller) {
         case 0: outputPipe = XBOX_OUTPUT_PIPE_1; break;
         case 1: outputPipe = XBOX_OUTPUT_PIPE_2; break;
@@ -573,12 +578,14 @@ void XBOXRECV::XboxCommand(uint8_t controller, uint8_t* data, uint16_t nbytes) {
     while (millis() - outputTimer[controller] < 8);
 
     uint8_t rcode = hrNAK;
-    while (rcode != hrSUCCESS)
+    timeout= millis();
+    while (rcode != hrSUCCESS && (millis() - timeout) < 50)
         rcode = pUsb->outTransfer(bAddress, epInfo[outputPipe].epAddr, nbytes, data);
 
     //Readback any response
     rcode = hrSUCCESS;
-    while (rcode != hrNAK)
+    timeout= millis();
+    while (rcode != hrNAK && (millis() - timeout) < 50)
     {
         uint16_t bufferSize = EP_MAXPKTSIZE;
         rcode = pUsb->inTransfer(bAddress, epInfo[outputPipe - 1].epAddr, &bufferSize, readBuf);
