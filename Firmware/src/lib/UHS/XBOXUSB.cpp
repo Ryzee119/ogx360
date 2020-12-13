@@ -46,6 +46,7 @@ uint8_t XBOXUSB::Init(uint8_t parent, uint8_t port, bool lowspeed)
     EpInfo *oldep_ptr = NULL;
     uint16_t PID;
     uint16_t VID;
+    bool v114;		// 2 Wired Controller Versions: 1.10 & 1.14
 
     // get memory address of USB device address pool
     AddressPool &addrPool = pUsb->GetAddressPool();
@@ -90,6 +91,11 @@ uint8_t XBOXUSB::Init(uint8_t parent, uint8_t port, bool lowspeed)
 
     // Get device descriptor
     rcode = pUsb->getDevDescr(0, 0, sizeof(USB_DEVICE_DESCRIPTOR), (uint8_t *)buf);
+    if (udd->bcdDevice == 0x114)
+        v114 = true;
+    else
+        v114 = false;
+
     // Restore p->epinfo
     p->epinfo = oldep_ptr;
 
@@ -155,7 +161,7 @@ uint8_t XBOXUSB::Init(uint8_t parent, uint8_t port, bool lowspeed)
     epInfo[XBOX_INPUT_PIPE].maxPktSize = EP_MAXPKTSIZE;
     epInfo[XBOX_INPUT_PIPE].bmSndToggle = 0;
     epInfo[XBOX_INPUT_PIPE].bmRcvToggle = 0;
-    epInfo[XBOX_OUTPUT_PIPE].epAddr = 0x02; // XBOX 360 output endpoint
+    epInfo[XBOX_OUTPUT_PIPE].epAddr = (v114) ? 0x01 : 0x02; // XBOX 360 output endpoint
     epInfo[XBOX_OUTPUT_PIPE].epAttribs = USB_TRANSFER_TYPE_INTERRUPT;
     epInfo[XBOX_OUTPUT_PIPE].bmNakPower = USB_NAK_NOWAIT; // Only poll once for interrupt endpoints
     epInfo[XBOX_OUTPUT_PIPE].maxPktSize = EP_MAXPKTSIZE;
@@ -328,7 +334,7 @@ void XBOXUSB::XboxCommand(uint8_t *data, uint16_t nbytes)
 
     timeout= millis();
     while (rcode != hrSUCCESS && (millis() - timeout) < 50)
-        pUsb->outTransfer(bAddress, epInfo[XBOX_OUTPUT_PIPE].epAddr, nbytes, data);
+        rcode = pUsb->outTransfer(bAddress, epInfo[XBOX_OUTPUT_PIPE].epAddr, nbytes, data);
 
     //Readback any response
     rcode = hrSUCCESS;
