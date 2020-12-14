@@ -1,0 +1,4 @@
+gerbers: .kitspace
+bom: .kitspace/bom.csv
+color: blue
+site: https://github.com/Ryzee119/ogx360
