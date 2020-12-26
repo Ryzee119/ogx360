@@ -319,24 +319,23 @@ int main(void)
                     //It will Extinguish, Reload (if empty), or Wash if required. It will rumble for Chaff but you need to press Y to chaff.
                     //This is determined by reading back the LED feedback from the console. The game normally
                     //makes these LEDs flash when action is required. I use this data to rumble the controller and determine what X should do.
+                    uint8_t SB_left_actuator = 0;
+                    uint8_t SB_right_actuator = 0;
                     if ((XboxOGSteelBattalionFeedback.Chaff_Extinguisher & 0xF0) != 0)
                     {
-                        XboxOGDuke[i].right_actuator = (XboxOGSteelBattalionFeedback.Chaff_Extinguisher << 0) & 0xF0; //Only use right motor for chaff
-                        XboxOGDuke[i].rumbleUpdate = 1;
+                        SB_right_actuator = (XboxOGSteelBattalionFeedback.Chaff_Extinguisher << 0) & 0xF0; //Only use right motor for chaff
                     }
                     if ((XboxOGSteelBattalionFeedback.Chaff_Extinguisher & 0x0F) != 0)
                     {
-                        XboxOGDuke[i].left_actuator = (XboxOGSteelBattalionFeedback.Chaff_Extinguisher << 4) & 0xF0;
-                        XboxOGDuke[i].right_actuator = XboxOGDuke[i].left_actuator;
-                        XboxOGDuke[i].rumbleUpdate = 1;
+                        SB_left_actuator = (XboxOGSteelBattalionFeedback.Chaff_Extinguisher << 4) & 0xF0;
+                        SB_right_actuator = SB_left_actuator;
                         if (Xbox360Wireless.getButtonPress(X, i))
                             XboxOGSteelBattalion.dButtons[1] |= SBC_GAMEPAD_W1_EXTINGUISHER;
                     }
                     if ((XboxOGSteelBattalionFeedback.Comm1_MagazineChange & 0x0F) != 0)
                     {
-                        XboxOGDuke[i].left_actuator = (XboxOGSteelBattalionFeedback.Comm1_MagazineChange << 4) & 0xF0;
-                        XboxOGDuke[i].right_actuator = XboxOGDuke[i].left_actuator;
-                        XboxOGDuke[i].rumbleUpdate = 1;
+                        SB_left_actuator = (XboxOGSteelBattalionFeedback.Comm1_MagazineChange << 4) & 0xF0;
+                        SB_right_actuator = SB_left_actuator;
                         if (Xbox360Wireless.getButtonPress(X, i))
                             XboxOGSteelBattalion.dButtons[1] |= SBC_GAMEPAD_W1_WEAPONCONMAGAZINE;
                     }
@@ -347,8 +346,14 @@ int main(void)
                     }
                     if ((XboxOGSteelBattalionFeedback.CockpitHatch_EmergencyEject & 0x0F) != 0)
                     {
-                        XboxOGDuke[i].left_actuator = (XboxOGSteelBattalionFeedback.CockpitHatch_EmergencyEject << 4) & 0xF0;
-                        XboxOGDuke[i].right_actuator = XboxOGDuke[i].left_actuator;
+                        SB_left_actuator = (XboxOGSteelBattalionFeedback.CockpitHatch_EmergencyEject << 4) & 0xF0;
+                        SB_right_actuator = SB_left_actuator;
+                    }
+                    //Only update rumble data if it's different.  This will take care of turning off rumble motor.
+                    if (SB_left_actuator != XboxOGDuke[i].left_actuator || SB_right_actuator != XboxOGDuke[i].right_actuator)
+                    {
+                        XboxOGDuke[i].left_actuator = SB_left_actuator;
+                        XboxOGDuke[i].right_actuator = SB_right_actuator;
                         XboxOGDuke[i].rumbleUpdate = 1;
                     }
 
