@@ -6,7 +6,7 @@
 <setting alwaysvectorfont="no"/>
 <setting verticaltext="up"/>
 </settings>
-<grid distance="0.1" unitdist="inch" unit="inch" style="lines" multiple="1" display="yes" altdistance="0.05" altunitdist="inch" altunit="inch"/>
+<grid distance="0.1" unitdist="inch" unit="inch" style="lines" multiple="1" display="no" altdistance="0.01" altunitdist="inch" altunit="inch"/>
 <layers>
 <layer number="1" name="Top" color="4" fill="1" visible="no" active="no"/>
 <layer number="2" name="Route2" color="16" fill="1" visible="no" active="no"/>
@@ -23290,19 +23290,6 @@ CONTROLLER 4</text>
 <pinref part="Y1" gate="G$1" pin="2"/>
 </segment>
 </net>
-<net name="USB_RESET" class="0">
-<segment>
-<wire x1="160.02" y1="106.68" x2="157.48" y2="106.68" width="0.1524" layer="91"/>
-<wire x1="157.48" y1="106.68" x2="154.94" y2="109.22" width="0.1524" layer="91"/>
-<wire x1="154.94" y1="118.11" x2="154.94" y2="120.65" width="0.1524" layer="91"/>
-<wire x1="154.94" y1="129.54" x2="154.94" y2="120.65" width="0.1524" layer="91"/>
-<label x="154.94" y="115.57" size="1.27" layer="95" rot="R90"/>
-<pinref part="U4" gate="G$1" pin="A9/D9"/>
-<wire x1="156.21" y1="132.08" x2="154.94" y2="130.81" width="0.1524" layer="91"/>
-<wire x1="154.94" y1="130.81" x2="154.94" y2="129.54" width="0.1524" layer="91"/>
-<wire x1="154.94" y1="109.22" x2="154.94" y2="118.11" width="0.1524" layer="91"/>
-</segment>
-</net>
 <net name="VBCOMP" class="0">
 <segment>
 <wire x1="87.63" y1="154.94" x2="43.18" y2="154.94" width="0.1524" layer="91"/>
@@ -23514,6 +23501,17 @@ CONTROLLER 4</text>
 <wire x1="158.75" y1="96.52" x2="140.97" y2="96.52" width="0.1524" layer="91"/>
 <label x="143.51" y="96.52" size="1.27" layer="95"/>
 <pinref part="U2" gate="G$1" pin="4A"/>
+</segment>
+<segment>
+<wire x1="160.02" y1="106.68" x2="157.48" y2="106.68" width="0.1524" layer="91"/>
+<wire x1="157.48" y1="106.68" x2="154.94" y2="109.22" width="0.1524" layer="91"/>
+<wire x1="154.94" y1="118.11" x2="154.94" y2="120.65" width="0.1524" layer="91"/>
+<wire x1="154.94" y1="129.54" x2="154.94" y2="120.65" width="0.1524" layer="91"/>
+<label x="154.94" y="115.57" size="1.27" layer="95" rot="R90"/>
+<pinref part="U4" gate="G$1" pin="A9/D9"/>
+<wire x1="156.21" y1="132.08" x2="154.94" y2="130.81" width="0.1524" layer="91"/>
+<wire x1="154.94" y1="130.81" x2="154.94" y2="129.54" width="0.1524" layer="91"/>
+<wire x1="154.94" y1="109.22" x2="154.94" y2="118.11" width="0.1524" layer="91"/>
 </segment>
 </net>
 <net name="MAX_MOSI" class="0">
