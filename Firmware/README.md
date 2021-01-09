@@ -33,7 +33,7 @@ The module will now appear as a keyboard and serial device in windows. Note the 
 
 Open a serial monitoring program such as [Termite](https://www.compuphase.com/software_termite.htm), and set the following settings `Baud rate: 115200, 8 Data Bits, 1 Stop Bit, Parity None, Flowing Control RTS/CTS`. Once you connect to the COM Port, the self test should be performed. A healthy board with a Wireless Receiver connected should output the following:
 
-<img src="../Images/connection.jpg" alt="connection diagram"/>  
+<img src="../Images/selftest.jpg" alt="connection diagram"/>  
 
 ## References
 * Xbox USB protocol info can be found [here](https://xboxdevwiki.net/Xbox_Input_Devices).
