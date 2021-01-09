@@ -3,7 +3,7 @@
 <eagle version="9.6.2">
 <drawing>
 <settings>
-<setting alwaysvectorfont="yes"/>
+<setting alwaysvectorfont="no"/>
 <setting verticaltext="up"/>
 </settings>
 <grid distance="25" unitdist="mil" unit="mm" style="lines" multiple="1" display="yes" altdistance="12.5" altunitdist="mil" altunit="mm"/>
@@ -184,7 +184,7 @@
 <layer number="255" name="routoute" color="7" fill="1" visible="yes" active="yes"/>
 </layers>
 <board>
-<fusionsync huburn="a.cGVyc29uYWw6dWUyZDg2Yzlk" projecturn="a.cGVyc29uYWw6dWUyZDg2YzlkIzIwMjAxMjEzMzYyMTgyMTMx" f3durn="urn:adsk.wipprod:dm.lineage:Cv0jk7A5QHWnhMoSxUJy-Q" pcbguid="" lastpulledtime="" lastsyncedchangeguid="1328549d-c9a3-a5b3-8ccd-199cf1c7b1e0" latestrevisionid="ccd092eb-6284-4767-97b7-4a64f160f77f" lastsyncedrevisionid="ccd092eb-6284-4767-97b7-4a64f160f77f" lastboardhashguid="f56ebee8-1ea0-2351-31bd-e778a8cae038" lastpushedtime="2020-12-14T08:00:36Z" linktopcb3d="true"/>
+<fusionsync huburn="a.cGVyc29uYWw6dWUyZDg2Yzlk" projecturn="a.cGVyc29uYWw6dWUyZDg2YzlkIzIwMjAxMjEzMzYyMTgyMTMx" f3durn="urn:adsk.wipprod:dm.lineage:Cv0jk7A5QHWnhMoSxUJy-Q" pcbguid="" lastpulledtime="" lastsyncedchangeguid="1328549d-c9a3-a5b3-8ccd-199cf1c7b1e0" latestrevisionid="ccd092eb-6284-4767-97b7-4a64f160f77f" lastsyncedrevisionid="ccd092eb-6284-4767-97b7-4a64f160f77f" lastboardhashguid="f56ebee8-1ea0-2351-31bd-e778a8cae038" lastpushedtime="2020-12-14T08:00:36Z" linktopcb3d="false"/>
 <plain>
 <wire x1="-0.3175" y1="0" x2="96.8175" y2="0" width="0" layer="20"/>
 <wire x1="96.8175" y1="0" x2="96.8175" y2="36.5" width="0" layer="20"/>
@@ -4778,9 +4778,6 @@ design rules under a new name.</description>
 <wire x1="7.305" y1="26.3525" x2="9.8425" y2="26.3525" width="0.254" layer="1"/>
 <wire x1="9.8425" y1="26.3525" x2="10.4808" y2="26.9908" width="0.254" layer="1"/>
 </signal>
-<signal name="USB_RESET">
-<contactref element="U4" pad="P$13"/>
-</signal>
 <signal name="VBCOMP">
 <contactref element="U1" pad="22"/>
 <contactref element="C1" pad="1"/>
@@ -4915,6 +4912,11 @@ design rules under a new name.</description>
 </signal>
 <signal name="AT_RES">
 <contactref element="U2" pad="9"/>
+<contactref element="U4" pad="P$13"/>
+<wire x1="23.1775" y1="3.175" x2="26.0952625" y2="3.175" width="0.254" layer="1"/>
+<wire x1="26.0952625" y1="3.175" x2="26.5016625" y2="2.7686" width="0.254" layer="1"/>
+<wire x1="26.5016625" y1="2.7686" x2="31.9211" y2="2.7686" width="0.254" layer="1"/>
+<wire x1="31.9211" y1="2.7686" x2="33.5975" y2="4.445" width="0.254" layer="1"/>
 </signal>
 <signal name="MAX_MOSI">
 <contactref element="U2" pad="2"/>
