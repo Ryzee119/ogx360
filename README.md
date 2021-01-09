@@ -10,7 +10,7 @@ The ogx360 is a small circuit board which allows you to a range of modern USB co
 * Another video attempting to show the input lag is here: https://youtu.be/V7Pnba7Y12Y
 * Another video showing the Steel Battalion Controller support is here: https://youtu.be/g_eQlOcccg8
 
-<img src="./Images/image1.jpg" alt="ogx360-1" width="75%"/>  
+<img src="./Images/image4.jpg" alt="ogx360 banner" width="100%"/>  
 
 ## Features include:
 * Full rumble support on all controllers.
@@ -25,7 +25,7 @@ The ogx360 is a small circuit board which allows you to a range of modern USB co
 * 8bitdo Wireless Adaptor (See http://www.8bitdo.com/wireless-usb-adapter/ for supported controllers). One controller per 8bitdo adaptor.
 * ChronusMAX (See https://cronusmax.com/ for supported devices). Ensure it is configured to appear as an Xbox 360 Controller. One controller per adaptor.
 * Genuine Wired Xbox One Controllers.
-* **NOTE** - When connecting multiple USB bus powered devices, an externally powered USB2.0 hub is highly recommended.
+* **NOTE** - When connecting multiple USB bus powered devices, a USB2.0 hub is required.
 
 ## Steel Battalion controller emulation
 * You need a wireless Xbox 360 controller with a chatpad peripheral.
@@ -35,8 +35,8 @@ The ogx360 is a small circuit board which allows you to a range of modern USB co
 <img src="./Images/steelbattalion.png" alt="sbmapping"/>  
 
 ## Connection to your Xbox
-![connection](https://i.imgur.com/oz59WBT.jpg)  
+<img src="./Images/connection.jpg" alt="connection diagram"/>  
 
-<img src="./Images/image2.jpg" alt="ogx360-2"/>  
+<img src="./Images/image2.jpg" alt="ogx360 in use"/>  
 
 By Ryzee119
