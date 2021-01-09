@@ -262,7 +262,24 @@ int main(void)
                     XboxOGDuke[i].leftStickX = getAnalogHat(LeftHatX, i);
                     XboxOGDuke[i].leftStickY = getAnalogHat(LeftHatY, i);
                     XboxOGDuke[i].rightStickX = getAnalogHat(RightHatX, i);
-                    XboxOGDuke[i].rightStickY = getAnalogHat(RightHatY, i);
+
+                    //Press the right stick in and BACK to toggle right stick Y-axis inverstion.
+                    static int astick_invert_tgle[4] = {0};
+                    static int astick_invert_old[4] = {0};
+                    if (astick_invert_tgle[i])
+                        XboxOGDuke[i].rightStickY = -getAnalogHat(RightHatY, i) - 1;
+                    else
+                        XboxOGDuke[i].rightStickY = getAnalogHat(RightHatY, i);
+
+                    if (getButtonPress(BACK, i) && getButtonPress(R3, i))
+                    {
+                        XboxOGDuke[i].dButtons &= ~BACK_BTN;
+                        (astick_invert_tgle[i] == astick_invert_old[i]) ? (astick_invert_tgle[i] ^= 1) : 1;
+                    }
+                    else
+                    {
+                        astick_invert_old[i] = astick_invert_tgle[i];
+                    }
                 }
 #ifdef SUPPORTBATTALION
                 //Button Mapping for Steel Battalion Controller - only applicable for player 1 and Xbox 360 Wireless Controllers
