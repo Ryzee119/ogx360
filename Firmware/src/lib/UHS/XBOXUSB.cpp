@@ -39,73 +39,61 @@ XBOXUSB::XBOXUSB(USB *p) : pUsb(p),     // pointer to USB class instance - manda
 
 uint8_t XBOXUSB::Init(uint8_t parent, uint8_t port, bool lowspeed)
 {
-    uint8_t buf[sizeof(USB_DEVICE_DESCRIPTOR)];
-    USB_DEVICE_DESCRIPTOR *udd = reinterpret_cast<USB_DEVICE_DESCRIPTOR *>(buf);
+    const uint8_t dev_desc = sizeof(USB_DEVICE_DESCRIPTOR);
+    uint8_t dev_desc_buf[dev_desc];
+
+    //Hardcoded length is not ideal but should be enough to encompass interface and endpoint descriptors.
+    //Not enough RAM in this chip to properly malloc this stuff.
+    uint8_t conf_desc_buff[64];
+    uint8_t num_endpoints;
     uint8_t rcode;
     UsbDevice *p = NULL;
     EpInfo *oldep_ptr = NULL;
-    uint16_t PID;
-    uint16_t VID;
-    bool v114;		// 2 Wired Controller Versions: 1.10 & 1.14
+    uint8_t interface_subclass, interface_protocol;
+    USB_DEVICE_DESCRIPTOR *udd = reinterpret_cast<USB_DEVICE_DESCRIPTOR *>(dev_desc_buf);
+    USB_INTERFACE_DESCRIPTOR *uid;
+    //Config descriptor parser variables
+    uint8_t cd_len = 0, cd_type = 0, cd_pos = 0;
 
-    // get memory address of USB device address pool
     AddressPool &addrPool = pUsb->GetAddressPool();
-#ifdef EXTRADEBUG
-    Notify(PSTR("\r\nXBOXUSB Init"), 0x80);
-#endif
-    // check if address has already been assigned to an instance
-    if (bAddress)
-    {
-#ifdef DEBUG_USB_HOST
-        Notify(PSTR("\r\nAddress in use"), 0x80);
-#endif
-        return USB_ERROR_CLASS_INSTANCE_ALREADY_IN_USE;
-    }
 
-    // Get pointer to pseudo device with address 0 assigned
+    if (bAddress)
+        return USB_ERROR_CLASS_INSTANCE_ALREADY_IN_USE;
+
     p = addrPool.GetUsbDevicePtr(0);
 
     if (!p)
-    {
-#ifdef DEBUG_USB_HOST
-        Notify(PSTR("\r\nAddress not found"), 0x80);
-#endif
         return USB_ERROR_ADDRESS_NOT_FOUND_IN_POOL;
-    }
 
     if (!p->epinfo)
-    {
-#ifdef DEBUG_USB_HOST
-        Notify(PSTR("\r\nepinfo is null"), 0x80);
-#endif
         return USB_ERROR_EPINFO_IS_NULL;
-    }
 
-    // Save old pointer to EP_RECORD of address 0
     oldep_ptr = p->epinfo;
-
-    // Temporary assign new pointer to epInfo to p->epinfo in order to avoid toggle inconsistence
     p->epinfo = epInfo;
-
     p->lowspeed = lowspeed;
 
-    // Get device descriptor
-    rcode = pUsb->getDevDescr(0, 0, sizeof(USB_DEVICE_DESCRIPTOR), (uint8_t *)buf);
-    if (udd->bcdDevice == 0x114)
-        v114 = true;
-    else
-        v114 = false;
-
-    // Restore p->epinfo
-    p->epinfo = oldep_ptr;
-
+    rcode = pUsb->getDevDescr(0, 0, dev_desc, (uint8_t *)dev_desc_buf);
     if (rcode)
         goto FailGetDevDescr;
 
-    VID = udd->idVendor;
-    PID = udd->idProduct;
+    rcode = pUsb->getConfDescr(0, 0, sizeof(conf_desc_buff), 0, conf_desc_buff);
+    if (rcode)
+        goto FailGetDevDescr;
 
-    if (!VIDPIDOK(VID, PID))
+    p->epinfo = oldep_ptr;
+
+    uid = reinterpret_cast<USB_INTERFACE_DESCRIPTOR *>(conf_desc_buff +
+                                                       sizeof(USB_CONFIGURATION_DESCRIPTOR));
+    interface_subclass = uid->bInterfaceSubClass;
+    interface_protocol = uid->bInterfaceProtocol;
+
+    if ((interface_subclass != 0x5D ||  //Xbox360 wired bInterfaceSubClass
+	     interface_protocol != 0x01))   //Xbox360 wired bInterfaceProtocol
+        goto FailUnknownDevice;
+
+    num_endpoints = uid->bNumEndpoints;
+
+    if (num_endpoints != 2)
         goto FailUnknownDevice;
 
     // Allocate new address according to device class
@@ -116,6 +104,37 @@ uint8_t XBOXUSB::Init(uint8_t parent, uint8_t port, bool lowspeed)
 
     // Extract Max Packet Size from device descriptor
     epInfo[0].maxPktSize = udd->bMaxPacketSize0;
+
+    epInfo[XBOX_INPUT_PIPE].epAddr = 0;
+    epInfo[XBOX_OUTPUT_PIPE].epAddr = 0;
+
+    //Parse the configuration descriptor to find the two endpoint addresses
+    while (epInfo[XBOX_INPUT_PIPE].epAddr == 0 || epInfo[XBOX_OUTPUT_PIPE].epAddr == 0)
+    {
+        if (cd_pos >= sizeof(conf_desc_buff) - 1)
+            break;
+
+        cd_len = conf_desc_buff[cd_pos];
+        cd_type = conf_desc_buff[cd_pos + 1];
+
+        if (cd_type == USB_ENDPOINT_DESCRIPTOR_TYPE)
+        {
+            USB_ENDPOINT_DESCRIPTOR *uepd = reinterpret_cast<USB_ENDPOINT_DESCRIPTOR *>(&conf_desc_buff[cd_pos]);
+            if (uepd->bmAttributes == USB_TRANSFER_TYPE_INTERRUPT)
+            {
+                int pipe;
+                (uepd->bEndpointAddress & 0x80) ? (pipe = XBOX_INPUT_PIPE) : (pipe = XBOX_OUTPUT_PIPE);
+                epInfo[pipe].epAddr = uepd->bEndpointAddress & 0x7F;
+                epInfo[pipe].epAttribs = uepd->bmAttributes;
+            }
+        }
+        cd_pos += cd_len;
+    }
+
+    if (epInfo[XBOX_INPUT_PIPE].epAddr == 0 || epInfo[XBOX_OUTPUT_PIPE].epAddr == 0)
+    {
+        goto FailGetDevDescr;
+    }
 
     // Assign new address to the device
     rcode = pUsb->setAddr(0, 0, bAddress);
@@ -155,13 +174,11 @@ uint8_t XBOXUSB::Init(uint8_t parent, uint8_t port, bool lowspeed)
     configuration values for device, interface, endpoints and HID for the XBOX360 Controllers */
 
     /* Initialize data structures for endpoints of device */
-    epInfo[XBOX_INPUT_PIPE].epAddr = 0x01; // XBOX 360 report endpoint
     epInfo[XBOX_INPUT_PIPE].epAttribs = USB_TRANSFER_TYPE_INTERRUPT;
     epInfo[XBOX_INPUT_PIPE].bmNakPower = USB_NAK_NOWAIT; // Only poll once for interrupt endpoints
     epInfo[XBOX_INPUT_PIPE].maxPktSize = EP_MAXPKTSIZE;
     epInfo[XBOX_INPUT_PIPE].bmSndToggle = 0;
     epInfo[XBOX_INPUT_PIPE].bmRcvToggle = 0;
-    epInfo[XBOX_OUTPUT_PIPE].epAddr = (v114) ? 0x01 : 0x02; // XBOX 360 output endpoint
     epInfo[XBOX_OUTPUT_PIPE].epAttribs = USB_TRANSFER_TYPE_INTERRUPT;
     epInfo[XBOX_OUTPUT_PIPE].bmNakPower = USB_NAK_NOWAIT; // Only poll once for interrupt endpoints
     epInfo[XBOX_OUTPUT_PIPE].maxPktSize = EP_MAXPKTSIZE;
@@ -330,7 +347,7 @@ void XBOXUSB::XboxCommand(uint8_t *data, uint16_t nbytes)
     uint32_t timeout;
 
     uint8_t rcode = hrNAK;
-    while (millis() - outPipeTimer < 2);
+    while (millis() - outPipeTimer < 1);
 
     timeout= millis();
     while (rcode != hrSUCCESS && (millis() - timeout) < 50)

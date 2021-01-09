@@ -30,36 +30,6 @@
 #define XBOX_INPUT_PIPE 1
 #define XBOX_OUTPUT_PIPE 2
 
-// PID and VID of the different devices
-#define MICROSOFT_VID 0x045E    // Microsoft Corporation
-#define HARMONIX_VID 0x1BAD     // Harmonix Music Systems, Inc.
-#define JOYTECH_VID 0x162E      // Joytech Europe Ltd.
-#define PDP_VID 0x0E6F          // Performance Designed Products (PDP), LLC
-#define HONEYBEE_VID 0x12AB     // Honey Bee (Hong Kong) Limited
-#define THRUSTMASTER_VID 0x24C6 // ThrustMaster, Inc.
-#define MADCATZ_VID 0x0738      // Mad Catz Global Limited
-
-#define XBOX_WIRED_PID 0x028E                         // Xbox 360 Wired controller
-#define XBOX_WIRELESS_PID 0x028F                      // Xbox 360 Wireless Controller (Charging only)
-#define XBOX_WIRELESS_RECEIVER_PID 0x0719             // Xbox 360 Wireless Gaming Receiver
-#define XBOX_WIRELESS_RECEIVER_THIRD_PARTY_PID 0x0291 // Xbox 360 Wireless Gaming Receiver (Clone)
-#define MADCATZ_WIRED_PID 0xF016                      // Mad Catz wired controller
-#define MADCATZ_FIGHTSTICK_PID 0xF03A                 // MadCatz FightStick Neo
-#define JOYTECH_WIRED_PID 0xBEEF                      // For Joytech wired controller
-#define GAMESTOP_WIRED_PID1 0x0401                    // Gamestop wired controller
-#define GAMESTOP_WIRED_PID2 0x0413                    // Gamestop wired controller
-#define AFTERGLOW_WIRED_PID1 0x0213                   // Afterglow wired controller - it uses the same VID as a Gamestop controller
-#define AFTERGLOW_WIRED_PID2 0x0302                   // Afterglow wired controller - it uses the same VID as a Gamestop controller
-#define MADCATZ_PID1 0x4738                           // Street Fighter IV FightStick TE
-#define MADCATZ_PID2 0xF018                           // Mad Catz Street Fighter IV SE
-#define ROCKCANDY_WIRED_PID 0xFAFE                    // Rock candy wired controller
-#define THRUSTMASTER_GPX_WIRED_PID 0x5B02             // Thrustmaster gpx controller
-#define THRUSTMASTER_WHEEL_PID 0x5B00                 // Thrustmaster wheel controller
-#define SF4_FIGHTPAD_PID 0x4728                       // Street fighter 4 fight pad stick controller
-#define HORI_RAP_VXSA_PID 0xF502                      // Hori rap vx-sa stick controller
-#define MADCATZ_BEAT_PAD 0x4740                       // MadCatz Beat Pad
-#define KONAMI_DANCE_PAD 0x0004                       // Konami Dance Pad
-
 #define XBOX_REPORT_BUFFER_SIZE 14 // Size of the input report buffer
 
 //#define XBOX_MAX_ENDPOINTS   3
@@ -112,41 +82,6 @@ public:
         return bPollEnable;
     };
 
-    /**
-     * Used by the USB core to check what this driver support.
-     * @param  vid The device's VID.
-     * @param  pid The device's PID.
-     * @return     Returns true if the device's VID and PID matches this driver.
-     */
-    virtual bool VIDPIDOK(uint16_t vid, uint16_t pid)
-    {
-        return ((vid == MICROSOFT_VID ||
-                 vid == HARMONIX_VID ||
-                 vid == JOYTECH_VID ||
-                 vid == JOYTECH_VID ||
-                 vid == PDP_VID ||
-                 vid == HONEYBEE_VID ||
-                 vid == THRUSTMASTER_VID ||
-                 vid == MADCATZ_VID) &&
-
-                (pid == XBOX_WIRED_PID ||
-                 pid == MADCATZ_WIRED_PID ||
-                 pid == MADCATZ_FIGHTSTICK_PID ||
-                 pid == JOYTECH_WIRED_PID ||
-                 pid == GAMESTOP_WIRED_PID1 ||
-                 pid == GAMESTOP_WIRED_PID2 ||
-                 pid == AFTERGLOW_WIRED_PID1 ||
-                 pid == AFTERGLOW_WIRED_PID2 ||
-                 pid == MADCATZ_PID1 ||
-                 pid == MADCATZ_PID2 ||
-                 pid == ROCKCANDY_WIRED_PID ||
-                 pid == THRUSTMASTER_GPX_WIRED_PID ||
-                 pid == THRUSTMASTER_WHEEL_PID ||
-                 pid == SF4_FIGHTPAD_PID ||
-                 pid == HORI_RAP_VXSA_PID ||
-                 pid == MADCATZ_BEAT_PAD ||
-                 pid == KONAMI_DANCE_PAD));
-    };
     /**@}*/
 
     /** @name Xbox Controller functions */
