@@ -4,7 +4,7 @@
 If you like my work please consider a small donation<br>
 [![paypal](https://img.shields.io/badge/Donate-PayPal-green.svg)](https://www.paypal.com/cgi-bin/webscr?cmd=_donations&business=49HV7N8QH9KQ8&currency_code=AUD&source=url)<br>
 
-The ogx360 is a small circuit board which allows you to a range of modern USB controllers on the Original Xbox Console.
+The ogx360 is a small circuit board which allows you to use a range of modern USB controllers on the Original Xbox Console.
 
 * A simple video showing some its feature is on youtube https://youtu.be/ycZjQUjz1Fk
 * Another video attempting to show the input lag is here: https://youtu.be/V7Pnba7Y12Y
