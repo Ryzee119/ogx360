@@ -27,3 +27,10 @@ jobs:
       run: |
         cd Firmware
         platformio run
+        
+    - name: Upload Artifact
+      uses: actions/upload-artifact@v2
+      with:
+        name: ogx360
+        path: |
+          Fimware/.pio/build/
