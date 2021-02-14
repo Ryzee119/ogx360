@@ -262,23 +262,42 @@ int main(void)
                     XboxOGDuke[i].leftStickX = getAnalogHat(LeftHatX, i);
                     XboxOGDuke[i].leftStickY = getAnalogHat(LeftHatY, i);
                     XboxOGDuke[i].rightStickX = getAnalogHat(RightHatX, i);
+                    XboxOGDuke[i].rightStickY = getAnalogHat(RightHatY, i);
 
-                    //Press the right stick in and BACK to toggle right stick Y-axis inverstion.
-                    static int astick_invert_tgle[4] = {0};
-                    static int astick_invert_old[4] = {0};
-                    if (astick_invert_tgle[i])
+                    //Press the right stick in and DUP to toggle right stick Y-axis inverstion.
+                    static int astick_invert_tgleY[4] = {0};
+                    static int astick_invert_oldY[4] = {0};
+                    if (astick_invert_tgleY[i])
                         XboxOGDuke[i].rightStickY = -getAnalogHat(RightHatY, i) - 1;
                     else
                         XboxOGDuke[i].rightStickY = getAnalogHat(RightHatY, i);
 
-                    if (getButtonPress(BACK, i) && getButtonPress(R3, i))
+                    if (getButtonPress(UP, i) && getButtonPress(R3, i))
                     {
-                        XboxOGDuke[i].dButtons &= ~BACK_BTN;
-                        (astick_invert_tgle[i] == astick_invert_old[i]) ? (astick_invert_tgle[i] ^= 1) : 1;
+                        XboxOGDuke[i].dButtons &= ~DUP;
+                        (astick_invert_tgleY[i] == astick_invert_oldY[i]) ? (astick_invert_tgleY[i] ^= 1) : 1;
                     }
                     else
                     {
-                        astick_invert_old[i] = astick_invert_tgle[i];
+                        astick_invert_oldY[i] = astick_invert_tgleY[i];
+                    }
+
+                    //Press the right stick in and DRIGHT to toggle right stick X-axis inverstion.
+                    static int astick_invert_tgleX[4] = {0};
+                    static int astick_invert_oldX[4] = {0};
+                    if (astick_invert_tgleX[i])
+                        XboxOGDuke[i].rightStickX = -getAnalogHat(RightHatX, i) - 1;
+                    else
+                        XboxOGDuke[i].rightStickX = getAnalogHat(RightHatX, i);
+
+                    if (getButtonPress(RIGHT, i) && getButtonPress(R3, i))
+                    {
+                        XboxOGDuke[i].dButtons &= ~DRIGHT;
+                        (astick_invert_tgleX[i] == astick_invert_oldX[i]) ? (astick_invert_tgleX[i] ^= 1) : 1;
+                    }
+                    else
+                    {
+                        astick_invert_oldX[i] = astick_invert_tgleX[i];
                     }
                 }
 #ifdef SUPPORTBATTALION
