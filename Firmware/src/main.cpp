@@ -26,6 +26,7 @@ In settings.h you can configure the following options:
 #include "xiddevice.h"
 #include "Wire.h"
 #include "EEPROM.h"
+#include "xboxrf.h"
 
 #ifdef MASTER
 #include <XBOXRECV.h>
@@ -193,6 +194,9 @@ int main(void)
         Xbox360Wireless.chatPadLedQueue[i][3] = 0xFF;
         Xbox360Wireless.chatPadInitNeeded[i] = 1;
     }
+
+    //Init Xbox360 RF module
+    rf360_init(4 /*data pin*/, 5 /*clock pin*/);
 #endif
 
 #ifdef SUPPORTBATTALION
@@ -783,6 +787,8 @@ int main(void)
                     Wire.endTransmission(true);
                 }
             }
+
+            rf360_updateled(i, controllerConnected(i));
         } //End master for loop
 
         //Handle Player 1 controller connect/disconnect events.
