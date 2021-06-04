@@ -16,16 +16,15 @@
    SOFTWARE.
  */
 
-#include "HID.h"
-#include "XID.h"
+#include "usbd_xid.h"
 
 #if defined(USBCON)
 
-#define ENABLE_USBH_XID_DEBUG
-#ifdef ENABLE_USBH_XID_DEBUG
-#define USBH_XID_DEBUG(a) Serial1.print(F(a))
+#define ENABLE_USBD_XID_DEBUG
+#ifdef ENABLE_USBD_XID_DEBUG
+#define USBD_XID_DEBUG(a) Serial1.print(F(a))
 #else
-#define USBH_XID_DEBUG(...)
+#define USBD_XID_DEBUG(...)
 #endif
 
 XID_ &XID()
@@ -83,20 +82,20 @@ bool XID_::setup(USBSetup &setup)
     {
         if (request == 0x06 && wValue == 0x4200)
         {
-            USBH_XID_DEBUG("Sending XID Descriptor\n");
+            USBD_XID_DEBUG("Sending XID Descriptor\n");
             USB_SendControl(0, DUKE_DESC_XID, sizeof(DUKE_DESC_XID));
             //USB_SendControl(0, BATTALION_DESC_XID, sizeof(BATTALION_DESC_XID));
             return true;
         }
         if (request == 0x01 && wValue == 0x0100)
         {
-            USBH_XID_DEBUG("Sending XID Capabilities IN\n");
+            USBD_XID_DEBUG("Sending XID Capabilities IN\n");
             USB_SendControl(0, DUKE_CAPABILITIES_IN, sizeof(DUKE_CAPABILITIES_IN));
             return true;
         }
         if (request == 0x01 && wValue == 0x0200)
         {
-            USBH_XID_DEBUG("Sending XID Capabilities OUT\n");
+            USBD_XID_DEBUG("Sending XID Capabilities OUT\n");
             USB_SendControl(0, DUKE_CAPABILITIES_OUT, sizeof(DUKE_CAPABILITIES_OUT));
             return true;
         }
@@ -106,20 +105,20 @@ bool XID_::setup(USBSetup &setup)
     {
         if (request == 0x01 && wValue == 0x0100)
         {
-            USBH_XID_DEBUG("Sending HID Report IN\n");
+            USBD_XID_DEBUG("Sending HID Report IN\n");
             USB_SendControl(0, xid_in_data, sizeof(xid_in_data));
             return true;
         }
         if (request == 0x09 && wValue == 0x0200)
         {
-            USBH_XID_DEBUG("Getting HID Report Out\n");
+            USBD_XID_DEBUG("Getting HID Report Out\n");
             uint16_t length = min(sizeof(xid_out_data), setup.wLength);
             USB_RecvControl(xid_out_data, length);
             return true;
         }
     }
 
-    USBH_XID_DEBUG("STALL\n");
+    USBD_XID_DEBUG("STALL\n");
     return false;
 }
 

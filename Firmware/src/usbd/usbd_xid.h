@@ -39,7 +39,6 @@
 #define LS_BTN (1 << 6)
 #define RS_BTN (1 << 7)
 
-
 static const DeviceDescriptor xid_dev_descriptor PROGMEM =
   D_DEVICE(0x00, 0x00, 0x00, USB_EP_SIZE, USB_VID, USB_PID, 0x0121, 0, 0, 0, 1);
 
@@ -113,6 +112,15 @@ typedef struct __attribute__((packed))
   uint16_t lValue;
   uint16_t hValue;
 } xid_gamepad_out;
+
+typedef struct __attribute__((packed))
+{
+  xid_gamepad_in in;
+  xid_gamepad_out out;
+  uint8_t in_dirty;
+  uint8_t out_dirty;
+} xid_gamepad;
+
 
 typedef struct __attribute__((packed))
 {
