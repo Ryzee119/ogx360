@@ -9,6 +9,7 @@
 #define MAIN_H_
 #include <inttypes.h>
 
+#define MAX_GAMEPADS 4
 #define USB_HOST_RESET_PIN 9
 #define ARDUINO_LED_PIN 17
 #define PLAYER_ID1_PIN 19
