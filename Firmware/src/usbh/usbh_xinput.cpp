@@ -1,3 +1,6 @@
+// Copyright 2020, Ryan Wendland, ogx360
+// SPDX-License-Identifier: GPL-3.0-or-later
+
 #include "usbh_xinput.h"
 
 #define ENABLE_USBH_XINPUT_DEBUG
