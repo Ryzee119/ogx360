@@ -10,8 +10,39 @@
 #define XBOX_INPUT_PIPE 1
 #define XBOX_OUTPUT_PIPE 2
 
-#define EP_MAXPKTSIZE 33
-#define XBOX_MAX_ENDPOINTS 5
+#define EP_MAXPKTSIZE 32
+#define XBOX_MAX_ENDPOINTS 9
+
+#ifndef XINPUT_MAXGAMEPADS
+#define XINPUT_MAXGAMEPADS 4
+#endif
+
+//https://docs.microsoft.com/en-us/windows/win32/api/xinput/ns-xinput-xinput_gamepad
+#define XINPUT_GAMEPAD_DPAD_UP 0x0001
+#define XINPUT_GAMEPAD_DPAD_DOWN 0x0002
+#define XINPUT_GAMEPAD_DPAD_LEFT 0x0004
+#define XINPUT_GAMEPAD_DPAD_RIGHT 0x0008
+#define XINPUT_GAMEPAD_START 0x0010
+#define XINPUT_GAMEPAD_BACK 0x0020
+#define XINPUT_GAMEPAD_LEFT_THUMB 0x0040
+#define XINPUT_GAMEPAD_RIGHT_THUMB 0x0080
+#define XINPUT_GAMEPAD_LEFT_SHOULDER 0x0100
+#define XINPUT_GAMEPAD_RIGHT_SHOULDER 0x0200
+#define XINPUT_GAMEPAD_A 0x1000
+#define XINPUT_GAMEPAD_B 0x2000
+#define XINPUT_GAMEPAD_X 0x4000
+#define XINPUT_GAMEPAD_Y 0x8000
+
+typedef struct
+{
+    uint16_t wButtons;
+    uint8_t bLeftTrigger;
+    uint8_t bRightTrigger;
+    int16_t sThumbLX;
+    int16_t sThumbLY;
+    int16_t sThumbRX;
+    int16_t sThumbRY;
+} xinput_padstate_t;
 
 typedef enum
 {
@@ -19,7 +50,48 @@ typedef enum
     XBOXONE,
     XBOX360_WIRELESS,
     XBOX360_WIRED
-} xidtype_t;
+} xinput_type_t;
+
+typedef struct xinput_pad_t
+{
+    //usbh backend handles
+    uint8_t initialised;
+    uint8_t bAddress;
+    EpInfo *usbh_inPipe;  //Pipe specific to this pad
+    EpInfo *usbh_outPipe; //Pipe specific to this pad
+    //xinput controller state
+    xinput_padstate_t pad_state; //Current pad button/stick state
+    uint8_t lValue_requested;    //Requested left rumble value
+    uint8_t rValue_requested;    //Requested right rumble value
+    uint8_t led_requested;       //Requested led quadrant, 1-4 or 0 for off
+    uint8_t lValue_actual;
+    uint8_t rValue_actual;
+    uint8_t led_actual;
+    struct xinput_pad_t *next; //Pointer to the next one
+} xinput_pad_t;
+
+xinput_pad_t *usbh_xinput_get_device_list(void);
+
+static const uint8_t xbox360_wireless_rumble[] PROGMEM = {0x00, 0x01, 0x0F, 0xC0, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00};
+static const uint8_t xbox360_wired_rumble[] PROGMEM = {0x00, 0x08, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00};
+static const uint8_t xbox_one_rumble[] PROGMEM = {0x09, 0x00, 0x00, 0x09, 0x00, 0x0f, 0x00, 0x00, 0x00, 0x00, 0xFF, 0x00, 0xEB};
+
+static const uint8_t xbox360_wireless_led[] PROGMEM = {0x00, 0x00, 0x08, 0x40, 0x00, 0x00, 0x00, 0x00};
+static const uint8_t xbox360_wired_led[] PROGMEM = {0x01, 0x03, 0x00};
+
+static const uint8_t xboxone_start_input[] PROGMEM = {0x05, 0x20, 0x00, 0x01, 0x00};
+static const uint8_t xboxone_s_init[] PROGMEM = {0x05, 0x20, 0x00, 0x0f, 0x06};
+static const uint8_t xboxone_pdp_init1[] PROGMEM = {0x0a, 0x20, 0x00, 0x03, 0x00, 0x01, 0x14};
+static const uint8_t xboxone_pdp_init2[] PROGMEM = {0x06, 0x30};
+static const uint8_t xboxone_pdp_init3[] PROGMEM = {0x06, 0x20, 0x00, 0x02, 0x01, 0x00};
+
+
+//Xbox360 Wireless Commands
+static const uint8_t xbox360w_inquire_present[] PROGMEM = {0x08, 0x00, 0x0F, 0xC0, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00};
+static const uint8_t xbox360w_controller_info[] PROGMEM = {0x00, 0x00, 0x00, 0x40, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00};
+static const uint8_t xbox360w_chatpad_init[] PROGMEM = {0x00, 0x00, 0x0C, 0x1B};
+static const uint8_t xbox360w_chatpad_keepalive1[] PROGMEM = {0x00, 0x00, 0x0C, 0x1F};
+static const uint8_t xbox360w_chatpad_keepalive2[] PROGMEM = {0x00, 0x00, 0x0C, 0x1E};
 
 class XINPUT : public USBDeviceConfig
 {
@@ -46,6 +118,14 @@ protected:
 
 private:
     bool bIsReady;
-    xidtype_t xid_type;
+    uint32_t timer;
+    xinput_type_t xinput_type;
+    uint8_t rdata[EP_MAXPKTSIZE];
+    xinput_pad_t *alloc_xinput_device(uint8_t bAddress, EpInfo *in, EpInfo *out);
+    uint8_t free_xinput_device(xinput_pad_t *xinput_dev);
+    uint8_t get_xinput_device_index(xinput_pad_t *xinput);
+    bool ParseInputData(xinput_pad_t **xpad, EpInfo *ep_in);
+    bool GetRumbleCommand(xinput_pad_t *xpad, uint8_t *tdata, uint8_t *len, uint8_t lValue, uint8_t rValue);
+    bool GetLedCommand(xinput_pad_t *xpad, uint8_t *tdata, uint8_t *len, uint8_t quadrant);
 };
 #endif
