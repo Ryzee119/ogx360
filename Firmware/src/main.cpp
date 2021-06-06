@@ -35,16 +35,6 @@ In settings.h you can configure the following options:
 void master_init(usbd_duke_t *usbd_head, uint8_t len);
 void master_task(usbd_duke_t *usbd_head, uint8_t len);
 
-static inline void USB_Detach(void)
-{
-    UDCON |= (1 << DETACH);
-}
-
-static inline void USB_Attach(void)
-{
-    UDCON &= ~(1 << DETACH);
-}
-
 uint8_t playerID;
 XID_ usbd_xid;
 usbd_duke_t usbd_duke[MAX_GAMEPADS];

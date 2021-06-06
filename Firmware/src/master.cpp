@@ -100,8 +100,13 @@ void master_task(usbd_duke_t *usbd_head, uint8_t max_controllers)
         usbh_xinput_t *usbh_xin = &usbh_xhead[i];
 
         if (usbh_xin->bAddress == 0)
-        {
-            if (i != 0)
+        {   
+            if (i == 0)
+            {
+                //Disconnect OG Xbox size USB device
+                UDCON |= (1 << DETACH);
+            }
+            else
             {
                 //No controller connected, let the slave device know
                 static const uint8_t disablePacket = 0xF0;
@@ -111,6 +116,10 @@ void master_task(usbd_duke_t *usbd_head, uint8_t max_controllers)
             }
             continue;
         }
+
+        //Connect OG Xbox size USB device if not connected
+        if (i==0)
+            UDCON &= ~(1 << DETACH);
 
         xinput_padstate_t *usbh_xstate = &usbh_xin->pad_state;
         memset(&usbd_dev[i].in.dButtons, 0x00, 10);
