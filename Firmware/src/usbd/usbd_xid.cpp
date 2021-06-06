@@ -32,6 +32,7 @@ int XID_::getInterface(uint8_t *interfaceCount)
 
 int XID_::getDescriptor(USBSetup &setup)
 {
+    //FIXME FOR STEELBATTALION? OR IS XID DESC ENOUGH
     USB_SendControl(TRANSFER_PGM, &xid_dev_descriptor, sizeof(xid_dev_descriptor));
     return sizeof(xid_dev_descriptor);
 }
@@ -78,6 +79,7 @@ bool XID_::setup(USBSetup &setup)
 
     if (requestType == (REQUEST_DEVICETOHOST | REQUEST_VENDOR | REQUEST_INTERFACE))
     {
+        //FIXME FOR STEELBATTALION
         if (request == 0x06 && wValue == 0x4200)
         {
             USBD_XID_DEBUG("Sending XID Descriptor\n");
