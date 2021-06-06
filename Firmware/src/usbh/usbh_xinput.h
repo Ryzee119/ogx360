@@ -133,7 +133,6 @@ private:
     uint8_t iProduct, iManuf, iSerial;
 #endif
     xinput_type_t xinput_type;
-    uint8_t rdata[EP_MAXPKTSIZE];
     usbh_xinput_t *alloc_xinput_device(uint8_t bAddress, EpInfo *in, EpInfo *out);
     uint8_t free_xinput_device(usbh_xinput_t *xinput_dev);
     int8_t get_xinput_device_index(usbh_xinput_t *xinput);
