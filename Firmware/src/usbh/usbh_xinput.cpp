@@ -62,38 +62,38 @@ usbh_xinput_t *XINPUT::alloc_xinput_device(uint8_t bAddress, EpInfo *in, EpInfo 
 
     uint8_t len;
     GetLedCommand(new_xinput, xdata, &len, 0x00);
-    pUsb->outTransfer(bAddress, new_xinput->usbh_outPipe->epAddr, len, xdata);
+    pUsb->outTransfer(bAddress, out->epAddr, len, xdata);
 
     GetRumbleCommand(new_xinput, xdata, &len, new_xinput->lValue_requested, new_xinput->rValue_requested);
-    pUsb->outTransfer(bAddress, new_xinput->usbh_outPipe->epAddr, len, xdata);
+    pUsb->outTransfer(bAddress, out->epAddr, len, xdata);
 
     if (xinput_type == XBOX360_WIRELESS)
     {
         memcpy_P(xdata, xbox360w_inquire_present, sizeof(xbox360w_inquire_present));
-        pUsb->outTransfer(bAddress, new_xinput->usbh_outPipe->epAddr, sizeof(xbox360w_inquire_present), xdata);
+        pUsb->outTransfer(bAddress, out->epAddr, sizeof(xbox360w_inquire_present), xdata);
 
         memcpy_P(xdata, xbox360w_controller_info, sizeof(xbox360w_controller_info));
-        pUsb->outTransfer(bAddress, new_xinput->usbh_outPipe->epAddr, sizeof(xbox360w_controller_info), xdata);
+        pUsb->outTransfer(bAddress, out->epAddr, sizeof(xbox360w_controller_info), xdata);
     }
     else if (xinput_type == XBOXONE)
     {
         memcpy_P(xdata, xboxone_start_input, sizeof(xboxone_start_input));
-        pUsb->outTransfer(bAddress, new_xinput->usbh_outPipe->epAddr, sizeof(xboxone_start_input), xdata);
+        pUsb->outTransfer(bAddress, out->epAddr, sizeof(xboxone_start_input), xdata);
 
         memcpy_P(xdata, xboxone_s_init, sizeof(xboxone_s_init));
-        pUsb->outTransfer(bAddress, new_xinput->usbh_outPipe->epAddr, sizeof(xboxone_s_init), xdata);
+        pUsb->outTransfer(bAddress, out->epAddr, sizeof(xboxone_s_init), xdata);
 
         //Required for PDP aftermarket controllers
         if (VID == 0x0e6f)
         {
             memcpy_P(xdata, xboxone_pdp_init1, sizeof(xboxone_pdp_init1));
-            pUsb->outTransfer(bAddress, new_xinput->usbh_outPipe->epAddr, sizeof(xboxone_pdp_init1), xdata);
+            pUsb->outTransfer(bAddress, out->epAddr, sizeof(xboxone_pdp_init1), xdata);
 
             memcpy_P(xdata, xboxone_pdp_init2, sizeof(xboxone_pdp_init2));
-            pUsb->outTransfer(bAddress, new_xinput->usbh_outPipe->epAddr, sizeof(xboxone_pdp_init2), xdata);
+            pUsb->outTransfer(bAddress, out->epAddr, sizeof(xboxone_pdp_init2), xdata);
 
             memcpy_P(xdata, xboxone_pdp_init3, sizeof(xboxone_pdp_init3));
-            pUsb->outTransfer(bAddress, new_xinput->usbh_outPipe->epAddr, sizeof(xboxone_pdp_init3), xdata);
+            pUsb->outTransfer(bAddress, out->epAddr, sizeof(xboxone_pdp_init3), xdata);
         }
     }
 
@@ -108,7 +108,7 @@ uint8_t XINPUT::free_xinput_device(usbh_xinput_t *xinput) {
         {
             memset(xinput, 0, sizeof(usbh_xinput_t));
             USBH_XINPUT_DEBUGLN(F("XINPUT: FREED XINPUT"));
-            return 1;;
+            return 1;
         }
     }
     return 0;
@@ -131,7 +131,6 @@ XINPUT::XINPUT(USB *p) : pUsb(p),
     }
 }
 
-//FIXME: Hardcoded conf descriptor length. What if its alots larger? Prob dont have enough RAM for this :(
 //https://techcommunity.microsoft.com/t5/microsoft-usb-blog/how-does-usb-stack-enumerate-a-device/ba-p/270685
 uint8_t XINPUT::ConfigureDevice(uint8_t parent, uint8_t port, bool lowspeed)
 {
@@ -144,34 +143,29 @@ uint8_t XINPUT::ConfigureDevice(uint8_t parent, uint8_t port, bool lowspeed)
     }
 
     AddressPool &addrPool = pUsb->GetAddressPool();
-    UsbDevice *p = addrPool.GetUsbDevicePtr(0);
 
+    UsbDevice *p = addrPool.GetUsbDevicePtr(0);
     if (!p)
     {
         USBH_XINPUT_DEBUGLN(F("XINPUT: USB_ERROR_ADDRESS_NOT_FOUND_IN_POOL"));
         return USB_ERROR_ADDRESS_NOT_FOUND_IN_POOL;
     }
 
-    if (!p->epinfo)
-    {
-        USBH_XINPUT_DEBUGLN(F("XINPUT: USB_ERROR_EPINFO_IS_NULL"));
-        return USB_ERROR_EPINFO_IS_NULL;
-    }
+    p->lowspeed = lowspeed;
 
     //Get the device descriptor now, and check its not a standard class driver
     USB_DEVICE_DESCRIPTOR *udd = reinterpret_cast<USB_DEVICE_DESCRIPTOR *>(xdata);
-    p->lowspeed = lowspeed;
     rcode = pUsb->getDevDescr(0, 0, sizeof(USB_DEVICE_DESCRIPTOR), (uint8_t *)udd);
     if (rcode)
     {
-        USBH_XINPUT_DEBUGLN(F("XINPUT: getDevDescr error"));
+        USBH_XINPUT_DEBUGLN(F("XINPUT: COULD NOT GET DEVICE DESRIPTOR"));
         return rcode;
     }
 
     //Check the device descriptor here. Interface class is checked later.
-    if (udd->bDeviceClass != 0xFF && udd->bDeviceClass != 0x00)
+    if (udd->bDeviceClass != USB_CLASS_VENDOR_SPECIFIC && udd->bDeviceClass != USB_CLASS_USE_CLASS_INFO)
     {
-        USBH_XINPUT_DEBUGLN(F("XINPUT: USB_DEV_CONFIG_ERROR_DEVICE_NOT_SUPPORTED. Failed DeviceClass"));
+        USBH_XINPUT_DEBUGLN(F("XINPUT: USB_DEV_CONFIG_ERROR_DEVICE_NOT_SUPPORTED"));
         return USB_DEV_CONFIG_ERROR_DEVICE_NOT_SUPPORTED;
     }
 
@@ -184,11 +178,11 @@ uint8_t XINPUT::ConfigureDevice(uint8_t parent, uint8_t port, bool lowspeed)
     iSerial = udd->iSerialNumber;
 #endif
 
-    //Now we have some info for the control pipe
-    epInfo[0].epAddr = 0x00;
-    epInfo[0].epAttribs = USB_TRANSFER_TYPE_CONTROL;
-    epInfo[0].maxPktSize = udd->bMaxPacketSize0;
-    epInfo[0].bmNakPower = USB_NAK_MAX_POWER;
+    //Now set info for the control pipe
+    epInfo[XBOX_CONTROL_PIPE].epAddr = 0x00;
+    epInfo[XBOX_CONTROL_PIPE].epAttribs = USB_TRANSFER_TYPE_CONTROL;
+    epInfo[XBOX_CONTROL_PIPE].maxPktSize = udd->bMaxPacketSize0;
+    epInfo[XBOX_CONTROL_PIPE].bmNakPower = USB_NAK_MAX_POWER;
 
     USBH_XINPUT_DEBUGLN(F("XINPUT: 2ND RESET"));
 
@@ -204,7 +198,6 @@ uint8_t XINPUT::Init(uint8_t parent __attribute__((unused)), uint8_t port __attr
     //Get a USB address then set it
     AddressPool &addrPool = pUsb->GetAddressPool();
     bAddress = addrPool.AllocAddress(parent, false, port);
-
     if (!bAddress)
     {
         USBH_XINPUT_DEBUGLN(F("XINPUT: USB_ERROR_OUT_OF_ADDRESS_SPACE_IN_POOL"));
@@ -229,8 +222,6 @@ uint8_t XINPUT::Init(uint8_t parent __attribute__((unused)), uint8_t port __attr
         USBH_XINPUT_DEBUGLN(F("XINPUT: GetUsbDevicePtr error"));
         return USB_ERROR_ADDRESS_NOT_FOUND_IN_POOL;
     }
-    p->lowspeed = lowspeed;
-
 
     //Request the configuration descriptor to determine what xinput device it is and get endpoint info etc.
     rcode = pUsb->getConfDescr(bAddress, 0, sizeof(xdata), 0, xdata);
@@ -277,7 +268,7 @@ uint8_t XINPUT::Init(uint8_t parent __attribute__((unused)), uint8_t port __attr
         epInfo[i].bmSndToggle = 0;
         epInfo[i].bmRcvToggle = 0;
     }
-
+    //XBOX360_WIRELESS all seem to have the same endpoints. Just manually set them.
     if (xinput_type == XBOX360_WIRELESS)
     {
         epInfo[1].epAddr = 0x01;
@@ -347,7 +338,8 @@ uint8_t XINPUT::Init(uint8_t parent __attribute__((unused)), uint8_t port __attr
             Serial1.print("\n");
         }
     }
-#endif 
+#endif
+
     //Wired we can allocated immediately.
     if (xinput_type != XBOX360_WIRELESS)
     {
