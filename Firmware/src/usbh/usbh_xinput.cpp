@@ -3,16 +3,22 @@
 
 #include "usbh_xinput.h"
 
-#define ENABLE_USBH_XINPUT_DEBUG
+//#define ENABLE_USBH_XINPUT_DEBUG
 #ifdef ENABLE_USBH_XINPUT_DEBUG
 #define USBH_XINPUT_DEBUG(a) Serial1.print(a)
+#define USBH_XINPUT_DEBUGLN(a) Serial1.println(a)
 #else
 #define USBH_XINPUT_DEBUG(...)
+#define USBH_XINPUT_DEBUGLN(...)
 #endif
 
-static xinput_pad_t xinput_devices[XINPUT_MAXGAMEPADS];
-static xinput_pad_t *pxinput_list = NULL;
+#define GET_USHORT(a,b) *((uint16_t *)a[b])
+#define GET_SHORT(a,b) *((int16_t *)a[b])
+#define GET_UINT(a,b) *((uint32_t *)a[b])
 
+static usbh_xinput_t xinput_devices[XINPUT_MAXGAMEPADS];
+
+#ifdef ENABLE_USBH_XINPUT_DEBUG
 static void PrintHex8(uint8_t *data, uint8_t length) // prints 8-bit data in hex with leading zeroes
 {
     char tmp[16];
@@ -24,44 +30,34 @@ static void PrintHex8(uint8_t *data, uint8_t length) // prints 8-bit data in hex
     }
     Serial1.print("\n");
 }
+#endif
 
-xinput_pad_t *XINPUT::alloc_xinput_device(uint8_t bAddress, EpInfo *in, EpInfo *out) {
-    xinput_pad_t *new_xinput = NULL;
-    for (int i = 0; i < XINPUT_MAXGAMEPADS; i++)
+usbh_xinput_t *XINPUT::alloc_xinput_device(uint8_t bAddress, EpInfo *in, EpInfo *out) {
+    usbh_xinput_t *new_xinput = NULL;
+    uint8_t index;
+    for (index = 0; index < XINPUT_MAXGAMEPADS; index++)
     {
-        if (xinput_devices[i].bAddress == 0)
+        if (xinput_devices[index].bAddress == 0)
         {
-            new_xinput = &xinput_devices[i];
-            USBH_XINPUT_DEBUG(F("XINPUT: ALLOCATED NEW XINPUT\n"));
+            new_xinput = &xinput_devices[index];
+            USBH_XINPUT_DEBUGLN(F("XINPUT: ALLOCATED NEW XINPUT"));
             break;
         }
     }
 
     if (new_xinput == NULL)
     {
-        USBH_XINPUT_DEBUG(F("XINPUT: COULD NOT ALLOCE NEW XINPUT\n"));
+        USBH_XINPUT_DEBUGLN(F("XINPUT: COULD NOT ALLOCATE NEW XINPUT"));
         return NULL;
     }
 
-    memset(new_xinput, 0, sizeof(xinput_pad_t));
+    memset(new_xinput, 0, sizeof(usbh_xinput_t));
     new_xinput->bAddress = bAddress;
     new_xinput->usbh_inPipe = in;
     new_xinput->usbh_outPipe = out;
-    new_xinput->rValue_requested = 56;
-    new_xinput->lValue_requested = 57;
-    new_xinput->led_requested = get_xinput_device_index(new_xinput) + 1;
-
-    //Chain the new XID to the end of the list.
-    if (pxinput_list == NULL)
-    {
-        pxinput_list = new_xinput;
-    }
-    else
-    {
-        xinput_pad_t *x;
-        for (x = pxinput_list; x->next != NULL; x = x->next);
-        x->next = new_xinput;
-    }
+    new_xinput->rValue_requested = 0;
+    new_xinput->lValue_requested = 0;
+    new_xinput->led_requested = index + 1;
 
     uint8_t len;
     GetLedCommand(new_xinput, rdata, &len, 0x00);
@@ -72,76 +68,59 @@ xinput_pad_t *XINPUT::alloc_xinput_device(uint8_t bAddress, EpInfo *in, EpInfo *
 
     if (xinput_type == XBOX360_WIRELESS)
     {
-        memset(rdata,0,12);
-        rdata[0] = 0x00;
-        rdata[1] = 0x00;
-        rdata[2] = 0x02;
-        rdata[3] = 0x80;
-        pUsb->outTransfer(bAddress, new_xinput->usbh_outPipe->epAddr, 12, rdata);
-
         memcpy_P(rdata, xbox360w_inquire_present, sizeof(xbox360w_inquire_present));
         pUsb->outTransfer(bAddress, new_xinput->usbh_outPipe->epAddr, sizeof(xbox360w_inquire_present), rdata);
 
         memcpy_P(rdata, xbox360w_controller_info, sizeof(xbox360w_controller_info));
         pUsb->outTransfer(bAddress, new_xinput->usbh_outPipe->epAddr, sizeof(xbox360w_controller_info), rdata);
     }
-    
+    else if (xinput_type == XBOXONE)
+    {
+        memcpy_P(rdata, xboxone_start_input, sizeof(xboxone_start_input));
+        pUsb->outTransfer(bAddress, new_xinput->usbh_outPipe->epAddr, sizeof(xboxone_start_input), rdata);
+
+        memcpy_P(rdata, xboxone_s_init, sizeof(xboxone_s_init));
+        pUsb->outTransfer(bAddress, new_xinput->usbh_outPipe->epAddr, sizeof(xboxone_s_init), rdata);
+
+        //Required for PDP aftermarket controllers
+        if (VID == 0x0e6f)
+        {
+            memcpy_P(rdata, xboxone_pdp_init1, sizeof(xboxone_pdp_init1));
+            pUsb->outTransfer(bAddress, new_xinput->usbh_outPipe->epAddr, sizeof(xboxone_pdp_init1), rdata);
+
+            memcpy_P(rdata, xboxone_pdp_init2, sizeof(xboxone_pdp_init2));
+            pUsb->outTransfer(bAddress, new_xinput->usbh_outPipe->epAddr, sizeof(xboxone_pdp_init2), rdata);
+
+            memcpy_P(rdata, xboxone_pdp_init3, sizeof(xboxone_pdp_init3));
+            pUsb->outTransfer(bAddress, new_xinput->usbh_outPipe->epAddr, sizeof(xboxone_pdp_init3), rdata);
+        }
+    }
+
     return new_xinput;
 }
 
-uint8_t XINPUT::free_xinput_device(xinput_pad_t *xinput_dev) {
-    //Find the device head in the linked list
-    xinput_pad_t *head = pxinput_list;
-
-    //Device is head
-    if (xinput_dev == head)
+uint8_t XINPUT::free_xinput_device(usbh_xinput_t *xinput) {
+    uint8_t index;
+    for (index = 0; index < XINPUT_MAXGAMEPADS; index++)
     {
-        pxinput_list = pxinput_list->next;
-        goto found;
-    }
-
-    //Find the head of the device
-    while (head != NULL && head->next != xinput_dev)
-    {
-        head = head->next;
-    }
-
-    //Remove it from the linked list
-    if (head != NULL)
-    {
-        xinput_pad_t *new_tail = xinput_dev->next;
-        head->next = new_tail;
-        goto found;
+        if (&xinput_devices[index] == xinput)
+        {
+            memset(xinput, 0, sizeof(usbh_xinput_t));
+            USBH_XINPUT_DEBUGLN(F("XINPUT: FREED XINPUT"));
+            return 1;;
+        }
     }
     return 0;
-found:
-    memset(xinput_dev, 0, sizeof(xinput_pad_t));
-    return 1;
 }
 
-uint8_t XINPUT::get_xinput_device_index(xinput_pad_t *xinput) {
-    uint8_t index = 0;
-    xinput_pad_t *_xinput = usbh_xinput_get_device_list();
-    while (_xinput != NULL)
-    {
-        if (xinput == _xinput)
-        {
-            break;
-        }
-        _xinput = _xinput->next;
-        index++;
-    }
-    return index;
-}
-
-xinput_pad_t *usbh_xinput_get_device_list(void) {
-    return pxinput_list;
+usbh_xinput_t *usbh_xinput_get_device_list(void) {
+    return xinput_devices;
 }
 
 XINPUT::XINPUT(USB *p) : pUsb(p),
                          bAddress(0),
                          bIsReady(false),
-                         timer(0),
+                         PID(0),VID(0),
                          xinput_type(XINPUT_UNKNOWN)
 {
     if (pUsb)
@@ -160,7 +139,7 @@ uint8_t XINPUT::ConfigureDevice(uint8_t parent, uint8_t port, bool lowspeed)
     //Perform some sanity checks of everything
     if (bAddress)
     {
-        USBH_XINPUT_DEBUG(F("XINPUT: USB_ERROR_CLASS_INSTANCE_ALREADY_IN_USE"));
+        USBH_XINPUT_DEBUGLN(F("XINPUT: USB_ERROR_CLASS_INSTANCE_ALREADY_IN_USE"));
         return USB_ERROR_CLASS_INSTANCE_ALREADY_IN_USE;
     }
 
@@ -169,13 +148,13 @@ uint8_t XINPUT::ConfigureDevice(uint8_t parent, uint8_t port, bool lowspeed)
 
     if (!p)
     {
-        USBH_XINPUT_DEBUG(F("XINPUT: USB_ERROR_ADDRESS_NOT_FOUND_IN_POOL"));
+        USBH_XINPUT_DEBUGLN(F("XINPUT: USB_ERROR_ADDRESS_NOT_FOUND_IN_POOL"));
         return USB_ERROR_ADDRESS_NOT_FOUND_IN_POOL;
     }
 
     if (!p->epinfo)
     {
-        USBH_XINPUT_DEBUG(F("XINPUT: USB_ERROR_EPINFO_IS_NULL"));
+        USBH_XINPUT_DEBUGLN(F("XINPUT: USB_ERROR_EPINFO_IS_NULL"));
         return USB_ERROR_EPINFO_IS_NULL;
     }
 
@@ -185,16 +164,25 @@ uint8_t XINPUT::ConfigureDevice(uint8_t parent, uint8_t port, bool lowspeed)
     rcode = pUsb->getDevDescr(0, 0, sizeof(USB_DEVICE_DESCRIPTOR), (uint8_t *)(&udd));
     if (rcode)
     {
-        USBH_XINPUT_DEBUG(F("XINPUT: getDevDescr error\n"));
+        USBH_XINPUT_DEBUGLN(F("XINPUT: getDevDescr error"));
         return rcode;
     }
 
     //Check the device descriptor here. Interface class is checked later.
     if (udd.bDeviceClass != 0xFF && udd.bDeviceClass != 0x00)
     {
-        USBH_XINPUT_DEBUG(F("XINPUT: USB_DEV_CONFIG_ERROR_DEVICE_NOT_SUPPORTED. Failed DeviceClass"));
+        USBH_XINPUT_DEBUGLN(F("XINPUT: USB_DEV_CONFIG_ERROR_DEVICE_NOT_SUPPORTED. Failed DeviceClass"));
         return USB_DEV_CONFIG_ERROR_DEVICE_NOT_SUPPORTED;
     }
+
+    PID = udd.idProduct;
+    VID = udd.idVendor;
+
+#ifdef ENABLE_XINPUT_STRINGS
+    iProduct = udd.iProduct;
+    iManuf = udd.iManufacturer;
+    iSerial = udd.iSerialNumber;
+#endif
 
     //Now we have some info for the control pipe
     epInfo[0].epAddr = 0x00;
@@ -202,7 +190,10 @@ uint8_t XINPUT::ConfigureDevice(uint8_t parent, uint8_t port, bool lowspeed)
     epInfo[0].maxPktSize = udd.bMaxPacketSize0;
     epInfo[0].bmNakPower = USB_NAK_MAX_POWER;
 
+    USBH_XINPUT_DEBUGLN(F("XINPUT: 2ND RESET"));
+
     //So far so good, lets issue a reset again, then finish everything off in Init
+    //USB_ERROR_CONFIG_REQUIRES_ADDITIONAL_RESET if second descriptor request
     return 0;
 };
 
@@ -216,14 +207,14 @@ uint8_t XINPUT::Init(uint8_t parent __attribute__((unused)), uint8_t port __attr
 
     if (!bAddress)
     {
-        USBH_XINPUT_DEBUG(F("XINPUT: USB_ERROR_OUT_OF_ADDRESS_SPACE_IN_POOL\n"));
+        USBH_XINPUT_DEBUGLN(F("XINPUT: USB_ERROR_OUT_OF_ADDRESS_SPACE_IN_POOL"));
         return USB_ERROR_OUT_OF_ADDRESS_SPACE_IN_POOL;
     }
 
     rcode = pUsb->setAddr(0, 0, bAddress);
     if (rcode)
     {
-        USBH_XINPUT_DEBUG(F("XINPUT: setAddr failed\n"));
+        USBH_XINPUT_DEBUGLN(F("XINPUT: setAddr failed"));
         Release();
         return rcode;
     }
@@ -235,7 +226,7 @@ uint8_t XINPUT::Init(uint8_t parent __attribute__((unused)), uint8_t port __attr
     if (!p)
     {
         Release();
-        USBH_XINPUT_DEBUG(F("XINPUT: GetUsbDevicePtr error\n"));
+        USBH_XINPUT_DEBUGLN(F("XINPUT: GetUsbDevicePtr error"));
         return USB_ERROR_ADDRESS_NOT_FOUND_IN_POOL;
     }
     p->lowspeed = lowspeed;
@@ -246,7 +237,7 @@ uint8_t XINPUT::Init(uint8_t parent __attribute__((unused)), uint8_t port __attr
     if (rcode)
     {
         Release();
-        USBH_XINPUT_DEBUG(F("XINPUT: getConfDescr error\n"));
+        USBH_XINPUT_DEBUGLN(F("XINPUT: getConfDescr error"));
         return rcode;
     }
 
@@ -270,13 +261,12 @@ uint8_t XINPUT::Init(uint8_t parent __attribute__((unused)), uint8_t port __attr
     if (xinput_type == XINPUT_UNKNOWN)
     {
         Release();
-        USBH_XINPUT_DEBUG(F("XINPUT: XINPUT_UNKNOWN\n"));
+        USBH_XINPUT_DEBUGLN(F("XINPUT: XINPUT_UNKNOWN"));
         return USB_DEV_CONFIG_ERROR_DEVICE_NOT_SUPPORTED;
     }
 
-    USBH_XINPUT_DEBUG(F("Xid type: "));
-    USBH_XINPUT_DEBUG(xinput_type);
-    USBH_XINPUT_DEBUG("\n");
+    USBH_XINPUT_DEBUG(F("XID TYPE: "));
+    USBH_XINPUT_DEBUGLN(xinput_type);
 
     for (uint8_t i = 1; i < XBOX_MAX_ENDPOINTS; i++)
     {
@@ -327,7 +317,7 @@ uint8_t XINPUT::Init(uint8_t parent __attribute__((unused)), uint8_t port __attr
     if (rcode)
     {
         Release();
-        USBH_XINPUT_DEBUG(F("XINPUT: setEpInfoEntry error\n"));
+        USBH_XINPUT_DEBUGLN(F("XINPUT: setEpInfoEntry error"));
         return rcode;
     }
 
@@ -336,33 +326,49 @@ uint8_t XINPUT::Init(uint8_t parent __attribute__((unused)), uint8_t port __attr
     if (rcode)
     {
         Release();
-        USBH_XINPUT_DEBUG(F("XINPUT: setConf error\n"));
+        USBH_XINPUT_DEBUGLN(F("XINPUT: setConf error"));
         return rcode;
     }
 
-    //Get string descriptors!
+#ifdef ENABLE_XINPUT_STRINGS
+    uint8_t strings[3] = {iManuf, iProduct, iSerial};
+    for (uint8_t i = 0; i < sizeof(strings); i++)
+    {
+        if (strings[i] > 0)
+        {
+            rcode = pUsb->getStrDescr(bAddress, epInfo[XBOX_CONTROL_PIPE].epAddr, 2, strings[i], 0x0409, rdata);
+            rcode = pUsb->getStrDescr(bAddress, epInfo[XBOX_CONTROL_PIPE].epAddr, min(rdata[0], EP_MAXPKTSIZE), iManuf, 0x0409, rdata);
+            if (rcode != hrSUCCESS)
+                continue;
+            for (int i = 2; i < rdata[0]; i+=2)
+            {
+                Serial1.write(rdata[i]);
+            }
+            Serial1.print("\n");
+        }
+    }
+#endif 
+    //Wired we can allocated immediately.
+    if (xinput_type != XBOX360_WIRELESS)
+    {
+        alloc_xinput_device(bAddress, &epInfo[XBOX_INPUT_PIPE], &epInfo[XBOX_OUTPUT_PIPE]);
+    }
 
     bIsReady = true;
-    USBH_XINPUT_DEBUG(F("XINPUT ENUMERATED OK!\n"));
+    USBH_XINPUT_DEBUGLN(F("XINPUT ENUMERATED OK!"));
     return 0;
 }
 
-/* Performs a cleanup after failed Init() attempt */
 uint8_t XINPUT::Release()
 {
-    xinput_pad_t *xinput = usbh_xinput_get_device_list();
-    while (xinput != NULL)
+    uint8_t index;
+    for (index = 0; index < XINPUT_MAXGAMEPADS; index++)
     {
-        if (xinput->bAddress == bAddress)
+        if (bAddress && xinput_devices[index].bAddress == bAddress)
         {
-            if (free_xinput_device(xinput))
-            {
-                USBH_XINPUT_DEBUG(F("XINPUT FREED\n"));
-                xinput = usbh_xinput_get_device_list();
-                continue;
-            }  
+            memset(&xinput_devices[index], 0, sizeof(usbh_xinput_t));
+            USBH_XINPUT_DEBUGLN(F("XINPUT: FREED XINPUT"));
         }
-        xinput = xinput->next;
     }
 
     pUsb->GetAddressPool().FreeAddress(bAddress);
@@ -387,120 +393,155 @@ uint8_t XINPUT::Poll()
 
         //Find the xinput struct this endpoint belongs to.
         //If its not yet initialised, it will return NULL.
-        xinput_pad_t *xinput = usbh_xinput_get_device_list();
-        while (xinput != NULL)
+        usbh_xinput_t *xinput = NULL;
+        for (uint8_t index = 0; index < XINPUT_MAXGAMEPADS; index++)
         {
-            if (xinput->usbh_inPipe == &epInfo[i] || xinput->usbh_outPipe == &epInfo[i])
+            if (xinput_devices[index].usbh_inPipe == &epInfo[i] || xinput_devices[index].usbh_outPipe == &epInfo[i])
+            {
+                xinput = &xinput_devices[index];
                 break;
-            xinput = xinput->next;
+            }
         }
 
         //The odd numbers are the in endpoints. Need to read always
         if (i % 2 != 0)
+        {
             rcode = pUsb->inTransfer(bAddress, epInfo[i].epAddr, &len, rdata);
-
-        if (rcode == hrSUCCESS)
-        {
-            ParseInputData(&xinput, &epInfo[i]);
-        }
-        
-        while (xinput != NULL)
-        {
-            //Handle output commands;
-            if (xinput->usbh_outPipe == &epInfo[i])
+            if (rcode == hrSUCCESS)
             {
-                //Send rumble
-                if (xinput->lValue_requested != xinput->lValue_actual || xinput->rValue_requested != xinput->rValue_actual)
-                {
-                    USBH_XINPUT_DEBUG(F("SET RUMBLE\n"));
-                    uint8_t len;
-                    GetRumbleCommand(xinput, rdata, &len, xinput->lValue_requested, xinput->rValue_requested);
-                    uint8_t rcode = pUsb->outTransfer(bAddress, epInfo[i].epAddr, len, rdata);
-                    if (rcode == hrSUCCESS)
-                    {
-                        xinput->lValue_actual = xinput->lValue_requested;
-                        xinput->rValue_actual = xinput->rValue_requested;
-                    }
-                    else
-                    {
-                        USBH_XINPUT_DEBUG(F("XINPUT ERROR SENDING RUMBLE COMMAND\n"));
-                    }
-                }
+                ParseInputData(&xinput, &epInfo[i]);
+            }
+            //Skip the output commands, this in an in pipe anyway.
+            continue;
+        }
 
-                //Send led_requested
-                else if (xinput->led_requested != xinput->led_actual)
-                {
-                    USBH_XINPUT_DEBUG(F("SET LED\n"));
-                    uint8_t len;
-                    GetLedCommand(xinput, rdata, &len, xinput->led_requested);
-                    uint8_t rcode = pUsb->outTransfer(bAddress, epInfo[i].epAddr, len, rdata);
-                    if (rcode == hrSUCCESS)
-                    {
-                        xinput->led_actual = xinput->led_requested;
-                    }
-                    else
-                    {
-                        USBH_XINPUT_DEBUG(F("XINPUT ERROR SENDING LED COMMAND\n"));
-                    }
-                }
+        if (xinput->usbh_outPipe != &epInfo[i])
+        {
+            continue;
+        }
 
-                else
+        //Handle output commands;
+        //Send rumble
+        if (xinput->lValue_requested != xinput->lValue_actual || xinput->rValue_requested != xinput->rValue_actual)
+        {
+            USBH_XINPUT_DEBUGLN(F("SET RUMBLE"));
+            uint8_t len;
+            GetRumbleCommand(xinput, rdata, &len, xinput->lValue_requested, xinput->rValue_requested);
+            uint8_t rcode = pUsb->outTransfer(bAddress, epInfo[i].epAddr, len, rdata);
+            if (rcode == hrSUCCESS)
+            {
+                xinput->lValue_actual = xinput->lValue_requested;
+                xinput->rValue_actual = xinput->rValue_requested;
+            }
+            else
+            {
+                USBH_XINPUT_DEBUGLN(F("XINPUT ERROR SENDING RUMBLE COMMAND"));
+            }
+        }
+
+        //Send led_requested
+        else if (xinput->led_requested != xinput->led_actual)
+        {
+            USBH_XINPUT_DEBUGLN(F("SET LED"));
+            uint8_t len;
+            GetLedCommand(xinput, rdata, &len, xinput->led_requested);
+            uint8_t rcode = pUsb->outTransfer(bAddress, epInfo[i].epAddr, len, rdata);
+            if (rcode == hrSUCCESS)
+            {
+                xinput->led_actual = xinput->led_requested;
+            }
+            else
+            {
+                USBH_XINPUT_DEBUGLN(F("XINPUT ERROR SENDING LED COMMAND"));
+            }
+        }
+
+        //Handle chatpad leds (Wireless 360 controller only)
+        else if (xinput->chatpad_initialised && xinput_type == XBOX360_WIRELESS && xinput->chatpad_led_requested != xinput->chatpad_led_actual)
+        {
+            USBH_XINPUT_DEBUGLN(F("SET CHATPAD LEDS"));
+            memcpy_P(rdata, xbox360w_chatpad_led_ctrl, sizeof(xbox360w_chatpad_led_ctrl));
+
+            //caps, green, orange, messenger
+            static const uint8_t chatpad_mod[4] = {CHATPAD_CAPSLOCK, CHATPAD_GREEN, CHATPAD_ORANGE, CHATPAD_MESSENGER};
+            static const uint8_t chatpad_led_on[4] = {0x08, 0x09, 0x0A, 0x0B}; //Commands byte to turn on the led
+            static const uint8_t chatpad_led_off[4] = {0x00, 0x01, 0x02, 0x03}; //Command byte to turn off the led
+            for (uint8_t led = 0; led < 4; led++)
+            {
+                if (!(xinput->chatpad_led_actual & chatpad_mod[led]) && (xinput->chatpad_led_requested & chatpad_mod[led]))
                 {
-                    if (millis() - timer > 100)
-                    {
-                        memcpy_P(rdata, xbox360w_controller_info, sizeof(xbox360w_controller_info));
-                        uint8_t rcode = pUsb->outTransfer(bAddress, epInfo[i].epAddr, sizeof(xbox360w_controller_info), rdata);
-                        if (rcode != hrSUCCESS)
-                        {
-                            USBH_XINPUT_DEBUG(F("XINPUT ERROR SENDING PRESNCE COMMAND\n"));
-                        }
-                        timer = millis();
-                    }
-                    
+                    rdata[3] = chatpad_led_on[led];
+                    rcode = pUsb->outTransfer(bAddress, epInfo[i].epAddr, sizeof(xbox360w_chatpad_led_ctrl), rdata);
+                    xinput->chatpad_led_actual |= chatpad_mod[led];
+                    xinput->timer -= 2000;
+                    break;
+                }
+                else if ((xinput->chatpad_led_actual & chatpad_mod[led]) && !(xinput->chatpad_led_requested & chatpad_mod[led]))
+                {
+                    rdata[3] = chatpad_led_off[led];
+                    rcode = pUsb->outTransfer(bAddress, epInfo[i].epAddr, sizeof(xbox360w_chatpad_led_ctrl), rdata);
+                    xinput->chatpad_led_actual &= ~chatpad_mod[led];
+                    xinput->timer -= 2000;
+                    break;
                 }
             }
-            xinput = xinput->next;
+        }
+
+        //Handle background periodic writes
+        if (millis() - xinput->timer > 2000)
+        {
+            if(xinput_type == XBOX360_WIRELESS)
+            {
+                memcpy_P(rdata, xbox360w_inquire_present, sizeof(xbox360w_inquire_present));
+                pUsb->outTransfer(bAddress, epInfo[i].epAddr, sizeof(xbox360w_inquire_present), rdata);
+
+                memcpy_P(rdata, xbox360w_controller_info, sizeof(xbox360w_controller_info));
+                pUsb->outTransfer(bAddress, epInfo[i].epAddr, sizeof(xbox360w_controller_info), rdata);
+
+                static uint8_t toggle = 1;
+                (toggle ^=1) ? memcpy_P(rdata, xbox360w_chatpad_keepalive1, sizeof(xbox360w_chatpad_keepalive1)) :
+                               memcpy_P(rdata, xbox360w_chatpad_keepalive2, sizeof(xbox360w_chatpad_keepalive2));
+                
+                pUsb->outTransfer(bAddress, epInfo[i].epAddr, sizeof(xbox360w_chatpad_keepalive1), rdata);
+                xinput->timer = millis();
+            }
         }
     }
     return 0;
 }
 
-bool XINPUT::ParseInputData(xinput_pad_t **xpad, EpInfo *ep_in)
+bool XINPUT::ParseInputData(usbh_xinput_t **xpad, EpInfo *ep_in)
 {
 #pragma GCC diagnostic push
 #pragma GCC diagnostic ignored "-Wstrict-aliasing"
-#define GET_USHORT(a,b) *((uint16_t *)a[b])
-#define GET_SHORT(a,b) *((int16_t *)a[b])
 
     uint16_t wButtons;
 
-    xinput_pad_t *_xpad = *xpad;
+    usbh_xinput_t *_xpad = *xpad;
+
+    //If the wired controller inst allocated (failed on init, try again)
+    if (xinput_type != XBOX360_WIRELESS && _xpad == NULL)
+    {
+        USBH_XINPUT_DEBUGLN(F("XINPUT WIRED NOT ALLOCATED YET. DOING IT NOW"));
+        _xpad = alloc_xinput_device(bAddress, &ep_in[0], &ep_in[1]);
+        if (_xpad == NULL)
+            return false;
+    }
 
     switch(xinput_type)
     {
     case XBOX360_WIRED:
-
-        if (_xpad == NULL)
-        {
-            USBH_XINPUT_DEBUG(F("XINPUT WIRED NOT ALLOCATED YET. DOING IT NOW\n"));
-            _xpad = alloc_xinput_device(bAddress, &ep_in[0], &ep_in[1]);
-            if (_xpad == NULL)
-                break;
-        }
-
         //Controller led_requested feedback
         if (rdata[0] == 0x01){
             //Convert it to 1-4, 0 for off.
             _xpad->led_actual = (rdata[2] & 0x0F);
             if (_xpad->led_actual != 0)
                 _xpad->led_actual -= (_xpad->led_actual > 5) ? 5 : 1;
-            //PrintHex8(rdata, 3);
             break;
         }
 
         //FIXME, What is this?
         else if (rdata[0] == 0x02){
-            //PrintHex8(rdata, 8);
             break;
         }
 
@@ -508,19 +549,18 @@ bool XINPUT::ParseInputData(xinput_pad_t **xpad, EpInfo *ep_in)
         else if (rdata[0] == 0x03){
             _xpad->lValue_actual = rdata[3] << 8;
             _xpad->rValue_actual = rdata[4] << 8;
-            //PrintHex8(rdata, 6);
             break;
         }
 
         //FIXME, What is this?
-        else if (rdata[0] == 0x08){
-            //PrintHex8(rdata, 8);
+        else if (rdata[0] == 0x08)
+        {
             break;
         }
 
         else if (rdata[0] != 0x00)
         {
-            USBH_XINPUT_DEBUG(F("UNKNOWN XBOX360 WIRED COMMAND\n"));
+            USBH_XINPUT_DEBUGLN(F("UNKNOWN XBOX360 WIRED COMMAND"));
             break;
         }
 
@@ -558,29 +598,27 @@ bool XINPUT::ParseInputData(xinput_pad_t **xpad, EpInfo *ep_in)
         {
             if (rdata[1] != 0x00 && _xpad == NULL)
             {
-                USBH_XINPUT_DEBUG(F("WIRELESS CONTROLLER CONNECTED\n"));
+                USBH_XINPUT_DEBUGLN(F("WIRELESS CONTROLLER CONNECTED"));
                  _xpad = alloc_xinput_device(bAddress, &ep_in[0], &ep_in[1]);
                 if (_xpad == NULL)
                     break;
             }
+            else if (rdata[1] == 0x00 && _xpad != NULL)
+            {
+                free_xinput_device(_xpad);
+            }
         }
 
-        PrintHex8(rdata, 20);
-
-        ////Some peripheral is connected to the controller and needs attention. (Should be chatpad)
+        //Some peripheral is connected to the controller and needs attention. (Should be chatpad)
         if (rdata[1] == 0xF8)
         {
-
-        }
-
-        else if (rdata[1] == 0x00)
-        {
-            //To tell the host there's no more events?
-            break;
+            USBH_XINPUT_DEBUGLN("CHATPAD INIT NEEDED");
+            memcpy_P(rdata, xbox360w_chatpad_init, sizeof(xbox360w_chatpad_init));
+            pUsb->outTransfer(bAddress, ep_in[1].epAddr, sizeof(xbox360w_chatpad_init), rdata);
         }
 
         //Controller pad event
-        else if ((rdata[1] & 1) && rdata[5] == 0x13)
+        if ((rdata[1] & 1) && rdata[5] == 0x13)
         {
             wButtons = GET_USHORT(&rdata, 6);
             //Map digital buttons
@@ -611,11 +649,39 @@ bool XINPUT::ParseInputData(xinput_pad_t **xpad, EpInfo *ep_in)
             _xpad->pad_state.sThumbRY = GET_SHORT(&rdata, 16);
         }
 
-        else
+        //Chatpad report
+        if ((rdata[1] & 2))
         {
-            //PrintHex8(rdata, 20);
+            //Button data
+            if(rdata[24] == 0x00)
+            {
+                _xpad->chatpad_state[0] = rdata[25];
+                _xpad->chatpad_state[1] = rdata[26];
+                _xpad->chatpad_state[2] = rdata[27];
+            }
+
+            //Status packet
+            if (rdata[24] == 0xF0)
+            {
+                _xpad->chatpad_initialised = 1;
+                //Init needed
+                if (rdata[25] == 0x03)
+                {
+                    USBH_XINPUT_DEBUGLN("CHATPAD INIT NEEDED");
+                    memcpy_P(rdata, xbox360w_chatpad_init, sizeof(xbox360w_chatpad_init));
+                    pUsb->outTransfer(bAddress, ep_in[1].epAddr, sizeof(xbox360w_chatpad_init), rdata);
+                }
+                //LED status
+                if (rdata[25] == 0x04)
+                {
+                    if (rdata[26] & 0x80)
+                    {
+                        _xpad->chatpad_led_actual = rdata[26] & 0x7F;
+                    }
+                }
+            }
         }
-        
+
         return true;
     case XBOXONE:
         wButtons = GET_USHORT(&rdata, 4);
@@ -654,7 +720,7 @@ bool XINPUT::ParseInputData(xinput_pad_t **xpad, EpInfo *ep_in)
     return false;
 }
 
-bool XINPUT::GetRumbleCommand(xinput_pad_t *xpad, uint8_t *tdata, uint8_t *len, uint8_t lValue, uint8_t rValue)
+bool XINPUT::GetRumbleCommand(usbh_xinput_t *xpad, uint8_t *tdata, uint8_t *len, uint8_t lValue, uint8_t rValue)
 {
     //Rumble commands for known controllers
     switch (xinput_type)
@@ -684,7 +750,7 @@ bool XINPUT::GetRumbleCommand(xinput_pad_t *xpad, uint8_t *tdata, uint8_t *len, 
     return 1;
 }
 
-bool XINPUT::GetLedCommand(xinput_pad_t *xpad, uint8_t *tdata, uint8_t *len, uint8_t quadrant)
+bool XINPUT::GetLedCommand(usbh_xinput_t *xpad, uint8_t *tdata, uint8_t *len, uint8_t quadrant)
 {
     //Rumble commands for known controllers
     switch (xinput_type)

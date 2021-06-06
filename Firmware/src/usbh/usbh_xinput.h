@@ -52,7 +52,7 @@ typedef enum
     XBOX360_WIRED
 } xinput_type_t;
 
-typedef struct xinput_pad_t
+typedef struct usbh_xinput_t
 {
     //usbh backend handles
     uint8_t initialised;
@@ -67,10 +67,15 @@ typedef struct xinput_pad_t
     uint8_t lValue_actual;
     uint8_t rValue_actual;
     uint8_t led_actual;
-    struct xinput_pad_t *next; //Pointer to the next one
-} xinput_pad_t;
+    //Chatpad specific components
+    uint8_t chatpad_initialised;
+    uint8_t chatpad_state[3];
+    uint8_t chatpad_led_actual;
+    uint8_t chatpad_led_requested;
+    uint32_t timer;
+} usbh_xinput_t;
 
-xinput_pad_t *usbh_xinput_get_device_list(void);
+usbh_xinput_t *usbh_xinput_get_device_list(void);
 
 static const uint8_t xbox360_wireless_rumble[] PROGMEM = {0x00, 0x01, 0x0F, 0xC0, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00};
 static const uint8_t xbox360_wired_rumble[] PROGMEM = {0x00, 0x08, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00};
@@ -92,6 +97,11 @@ static const uint8_t xbox360w_controller_info[] PROGMEM = {0x00, 0x00, 0x00, 0x4
 static const uint8_t xbox360w_chatpad_init[] PROGMEM = {0x00, 0x00, 0x0C, 0x1B};
 static const uint8_t xbox360w_chatpad_keepalive1[] PROGMEM = {0x00, 0x00, 0x0C, 0x1F};
 static const uint8_t xbox360w_chatpad_keepalive2[] PROGMEM = {0x00, 0x00, 0x0C, 0x1E};
+static const uint8_t xbox360w_chatpad_led_ctrl[] PROGMEM = {0x00, 0x00, 0x0C, 0x00};
+#define CHATPAD_CAPSLOCK 0x20
+#define CHATPAD_GREEN 0x08
+#define CHATPAD_ORANGE 0x10
+#define CHATPAD_MESSENGER 0x01
 
 class XINPUT : public USBDeviceConfig
 {
@@ -118,14 +128,17 @@ protected:
 
 private:
     bool bIsReady;
-    uint32_t timer;
+    uint16_t PID,VID;
+#ifdef ENABLE_XINPUT_STRINGS
+    uint8_t iProduct, iManuf, iSerial;
+#endif
     xinput_type_t xinput_type;
     uint8_t rdata[EP_MAXPKTSIZE];
-    xinput_pad_t *alloc_xinput_device(uint8_t bAddress, EpInfo *in, EpInfo *out);
-    uint8_t free_xinput_device(xinput_pad_t *xinput_dev);
-    uint8_t get_xinput_device_index(xinput_pad_t *xinput);
-    bool ParseInputData(xinput_pad_t **xpad, EpInfo *ep_in);
-    bool GetRumbleCommand(xinput_pad_t *xpad, uint8_t *tdata, uint8_t *len, uint8_t lValue, uint8_t rValue);
-    bool GetLedCommand(xinput_pad_t *xpad, uint8_t *tdata, uint8_t *len, uint8_t quadrant);
+    usbh_xinput_t *alloc_xinput_device(uint8_t bAddress, EpInfo *in, EpInfo *out);
+    uint8_t free_xinput_device(usbh_xinput_t *xinput_dev);
+    int8_t get_xinput_device_index(usbh_xinput_t *xinput);
+    bool ParseInputData(usbh_xinput_t **xpad, EpInfo *ep_in);
+    bool GetRumbleCommand(usbh_xinput_t *xpad, uint8_t *tdata, uint8_t *len, uint8_t lValue, uint8_t rValue);
+    bool GetLedCommand(usbh_xinput_t *xpad, uint8_t *tdata, uint8_t *len, uint8_t quadrant);
 };
 #endif
