@@ -55,7 +55,6 @@ typedef enum
 typedef struct usbh_xinput_t
 {
     //usbh backend handles
-    uint8_t initialised;
     uint8_t bAddress;
     EpInfo *usbh_inPipe;  //Pipe specific to this pad
     EpInfo *usbh_outPipe; //Pipe specific to this pad
@@ -63,35 +62,38 @@ typedef struct usbh_xinput_t
     xinput_padstate_t pad_state; //Current pad button/stick state
     uint8_t lValue_requested;    //Requested left rumble value
     uint8_t rValue_requested;    //Requested right rumble value
-    uint8_t led_requested;       //Requested led quadrant, 1-4 or 0 for off
     uint8_t lValue_actual;
     uint8_t rValue_actual;
+    uint8_t led_requested;       //Requested led quadrant, 1-4 or 0 for off
     uint8_t led_actual;
     //Chatpad specific components
     uint8_t chatpad_initialised;
     uint8_t chatpad_state[3];
-    uint8_t chatpad_led_actual;
     uint8_t chatpad_led_requested;
-    uint32_t timer;
+    uint8_t chatpad_led_actual;
+    uint32_t timer_periodic;
+    uint32_t timer_out;
 } usbh_xinput_t;
 
 usbh_xinput_t *usbh_xinput_get_device_list(void);
 
+//Rumble commands
 static const uint8_t xbox360_wireless_rumble[] PROGMEM = {0x00, 0x01, 0x0F, 0xC0, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00};
 static const uint8_t xbox360_wired_rumble[] PROGMEM = {0x00, 0x08, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00};
 static const uint8_t xbox_one_rumble[] PROGMEM = {0x09, 0x00, 0x00, 0x09, 0x00, 0x0f, 0x00, 0x00, 0x00, 0x00, 0xFF, 0x00, 0xEB};
 
+//Led commands
 static const uint8_t xbox360_wireless_led[] PROGMEM = {0x00, 0x00, 0x08, 0x40, 0x00, 0x00, 0x00, 0x00};
 static const uint8_t xbox360_wired_led[] PROGMEM = {0x01, 0x03, 0x00};
 
+//Init commands
 static const uint8_t xboxone_start_input[] PROGMEM = {0x05, 0x20, 0x00, 0x01, 0x00};
 static const uint8_t xboxone_s_init[] PROGMEM = {0x05, 0x20, 0x00, 0x0f, 0x06};
 static const uint8_t xboxone_pdp_init1[] PROGMEM = {0x0a, 0x20, 0x00, 0x03, 0x00, 0x01, 0x14};
 static const uint8_t xboxone_pdp_init2[] PROGMEM = {0x06, 0x30};
 static const uint8_t xboxone_pdp_init3[] PROGMEM = {0x06, 0x20, 0x00, 0x02, 0x01, 0x00};
 
-
-//Xbox360 Wireless Commands
+//Other Commands
 static const uint8_t xbox360w_inquire_present[] PROGMEM = {0x08, 0x00, 0x0F, 0xC0, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00};
 static const uint8_t xbox360w_controller_info[] PROGMEM = {0x00, 0x00, 0x00, 0x40, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00};
 static const uint8_t xbox360w_chatpad_init[] PROGMEM = {0x00, 0x00, 0x0C, 0x1B};
