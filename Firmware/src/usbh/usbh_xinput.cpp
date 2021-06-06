@@ -124,7 +124,7 @@ XINPUT::XINPUT(USB *p) : pUsb(p),
                          PID(0),VID(0),
                          xinput_type(XINPUT_UNKNOWN)
 {
-    memset(xdata, 0x00, sizeof(xdata);
+    memset(xdata, 0x00, sizeof(xdata));
     if (pUsb)
     {
         pUsb->RegisterDeviceClass(this);
