@@ -32,8 +32,8 @@ In settings.h you can configure the following options:
 #include "usbh/usbh_xinput.h"
 #include "config.h"
 
-void master_init(void);
-void master_task(void);
+void master_init(usbd_duke_t *usbd_head, uint8_t len);
+void master_task(usbd_duke_t *usbd_head, uint8_t len);
 
 static inline void USB_Detach(void)
 {
@@ -46,7 +46,8 @@ static inline void USB_Attach(void)
 }
 
 uint8_t playerID;
-XID_ xid;
+XID_ usbd_xid;
+usbd_duke_t usbd_duke[MAX_GAMEPADS];
 
 void setup()
 {
@@ -70,7 +71,7 @@ void setup()
     //11 = Player 4
     playerID = digitalRead(PLAYER_ID1_PIN) << 1 | digitalRead(PLAYER_ID2_PIN);
 
-    master_init();
+    master_init(&usbd_duke[0], MAX_GAMEPADS);
 
     //Init I2C Master
     Wire.begin();
@@ -86,16 +87,17 @@ void setup()
         Wire.endTransmission(true);
         delay(100);
     }
-
-    Serial1.print("end setup!\n");
 }
 
 void loop()
 {
-    master_task();
-}
+    master_task(&usbd_duke[0], MAX_GAMEPADS);
 
-/* Send the HID report to the OG Xbox */
-void sendControllerHIDReport()
-{
+    static uint32_t poll_timer = 0;
+    if (millis() - poll_timer > 4)
+    {
+        usbd_xid.SendReport(&usbd_duke[0].in, sizeof(usbd_duke_in_t));
+        usbd_xid.GetReport(&usbd_duke[0].out, sizeof(usbd_duke_out_t));
+        poll_timer = millis();
+    }
 }
