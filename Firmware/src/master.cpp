@@ -39,20 +39,16 @@ XINPUT xinput2(&UsbHost);
 XINPUT xinput3(&UsbHost);
 XINPUT xinput4(&UsbHost);
 
-xid_gamepad xboxog_duke[MAX_GAMEPADS];
-
-xinput_pad_t xinput_pad[MAX_GAMEPADS];
-
-void master_init()
+void master_init(usbd_duke_t * usbd_head, uint8_t max_controllers)
 {
     pinMode(USB_HOST_RESET_PIN, OUTPUT);
     digitalWrite(USB_HOST_RESET_PIN, LOW);
 
-    memset(xboxog_duke, 0x00, sizeof(xid_gamepad) * MAX_GAMEPADS);
-    for (uint8_t i = 0; i < MAX_GAMEPADS; i++)
+    memset(usbd_head, 0x00, sizeof(usbd_duke_t) * max_controllers);
+    for (uint8_t i = 0; i < max_controllers; i++)
     {
-        xboxog_duke[i].in.bLength = sizeof(xid_gamepad_in);
-        xboxog_duke[i].out.bLength = sizeof(xid_gamepad_out);
+        usbd_head[i].in.bLength = sizeof(usbd_duke_in_t);
+        usbd_head[i].out.bLength = sizeof(usbd_duke_out_t);
     }
 
     //Init Usb Host Controller
@@ -67,7 +63,7 @@ void master_init()
     }
 
     //Ping slave devices if present. This will cause them to blink
-    for (uint8_t i = 1; i < MAX_GAMEPADS; i++)
+    for (uint8_t i = 1; i < max_controllers; i++)
     {
         static const char ping = 0xAA;
         Wire.beginTransmission(i);
@@ -77,7 +73,7 @@ void master_init()
     }
 }
 
-void PrintHex8(uint8_t *data, uint8_t length) // prints 8-bit data in hex with leading zeroes
+void PrintHex8(uint8_t *data, uint8_t length, bool lf) // prints 8-bit data in hex with leading zeroes
 {
     char tmp[16];
     for (int i = 0; i < length; i++)
@@ -86,35 +82,56 @@ void PrintHex8(uint8_t *data, uint8_t length) // prints 8-bit data in hex with l
         Serial1.print(tmp);
         Serial1.print(" ");
     }
-    Serial1.print("\n");
+    if (lf)
+        Serial1.print("\n");
+    else
+        Serial1.print(" ");
 }
 
-void master_task()
+void master_task(usbd_duke_t *usbd_head, uint8_t max_controllers)
 {
-    static uint32_t tick = 0;
-
     UsbHost.busprobe();
     UsbHost.Task();
-    xinput_pad_t *aa = usbh_xinput_get_device_list();
-    uint32_t index = 0;
-    static uint32_t j = 0;
-    static uint8_t r = 0x55;
-    if (millis() - tick > 10)
+
+    usbd_duke_t *usbd_dev = usbd_head;
+    usbh_xinput_t *usbh_xhead = usbh_xinput_get_device_list();
+    for (int i = 0; i < max_controllers; i++)
     {
-        while (aa != NULL)
-        {
-            if (aa->bAddress)
-            {
-                //Serial1.print(String(index) + ": ");
-                //PrintHex8((uint8_t *)&(aa->pad_state), 12);
-                //aa->led_requested = (j++ % 4) + 1;
-                aa->rValue_requested = r;
-                aa->lValue_requested = r;
-                r++;
-                index++;
-            }
-            aa = aa->next;
-        }
-        tick = millis();
+        usbh_xinput_t *usbh_xin = &usbh_xhead[i];
+
+        if (usbh_xin->bAddress == 0)
+            continue;
+
+        xinput_padstate_t *usbh_xstate = &usbh_xin->pad_state;
+        memset(&usbd_dev[i].in.dButtons, 0x00, 10);
+
+        if (usbh_xstate->wButtons & (1 << 0)) usbd_dev[i].in.dButtons |= DUKE_DUP;
+        if (usbh_xstate->wButtons & (1 << 1)) usbd_dev[i].in.dButtons |= DUKE_DDOWN;
+        if (usbh_xstate->wButtons & (1 << 2)) usbd_dev[i].in.dButtons |= DUKE_DLEFT;
+        if (usbh_xstate->wButtons & (1 << 3)) usbd_dev[i].in.dButtons |= DUKE_DRIGHT;
+        if (usbh_xstate->wButtons & (1 << 4)) usbd_dev[i].in.dButtons |= DUKE_START;
+        if (usbh_xstate->wButtons & (1 << 5)) usbd_dev[i].in.dButtons |= DUKE_BACK;
+        if (usbh_xstate->wButtons & (1 << 6)) usbd_dev[i].in.dButtons |= DUKE_LS;
+        if (usbh_xstate->wButtons & (1 << 7)) usbd_dev[i].in.dButtons |= DUKE_RS;
+
+        //Analog buttons are converted to digital
+        if (usbh_xstate->wButtons & (1 << 8))  usbd_dev[i].in.WHITE = 0xFF;
+        if (usbh_xstate->wButtons & (1 << 9))  usbd_dev[i].in.BLACK = 0xFF;
+        if (usbh_xstate->wButtons & (1 << 12)) usbd_dev[i].in.A = 0xFF;
+        if (usbh_xstate->wButtons & (1 << 13)) usbd_dev[i].in.B = 0xFF;
+        if (usbh_xstate->wButtons & (1 << 14)) usbd_dev[i].in.X = 0xFF;
+        if (usbh_xstate->wButtons & (1 << 15)) usbd_dev[i].in.Y = 0xFF;
+
+        //Analog Sticks
+        usbd_dev[i].in.leftStickX  = usbh_xstate->sThumbLX;
+        usbd_dev[i].in.leftStickY  = usbh_xstate->sThumbLY;
+        usbd_dev[i].in.rightStickX = usbh_xstate->sThumbRX;
+        usbd_dev[i].in.rightStickY = usbh_xstate->sThumbRY;
+        usbd_dev[i].in.L           = usbh_xstate->bLeftTrigger;
+        usbd_dev[i].in.R           = usbh_xstate->bRightTrigger;
+
+        //Update rumble values. Handled in usb host stack backend.
+        usbh_xin->lValue_requested = usbd_dev->out.lValue >> 8;
+        usbh_xin->rValue_requested = usbd_dev->out.hValue >> 8;      
     }
 }
