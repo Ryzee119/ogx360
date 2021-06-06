@@ -15,17 +15,17 @@
 #define XID_EP_IN (pluggedEndpoint)
 #define XID_EP_OUT (pluggedEndpoint + 1)
 
-#define DUP (1 << 0)
-#define DDOWN (1 << 1)
-#define DLEFT (1 << 2)
-#define DRIGHT (1 << 3)
-#define START_BTN (1 << 4)
-#define BACK_BTN (1 << 5)
-#define LS_BTN (1 << 6)
-#define RS_BTN (1 << 7)
+#define DUKE_DUP (1 << 0)
+#define DUKE_DDOWN (1 << 1)
+#define DUKE_DLEFT (1 << 2)
+#define DUKE_DRIGHT (1 << 3)
+#define DUKE_START (1 << 4)
+#define DUKE_BACK (1 << 5)
+#define DUKE_LS (1 << 6)
+#define DUKE_RS (1 << 7)
 
 static const DeviceDescriptor xid_dev_descriptor PROGMEM =
-  D_DEVICE(0x00, 0x00, 0x00, USB_EP_SIZE, USB_VID, USB_PID, 0x0121, 0, 0, 0, 1);
+    D_DEVICE(0x00, 0x00, 0x00, USB_EP_SIZE, USB_VID, USB_PID, 0x0121, 0, 0, 0, 1);
 
 static const uint8_t DUKE_DESC_XID[] PROGMEM = {
     0x10,
@@ -88,7 +88,7 @@ typedef struct __attribute__((packed))
   int16_t leftStickY;
   int16_t rightStickX;
   int16_t rightStickY;
-} xid_gamepad_in;
+} usbd_duke_in_t;
 
 typedef struct __attribute__((packed))
 {
@@ -96,16 +96,15 @@ typedef struct __attribute__((packed))
   uint8_t bLength;
   uint16_t lValue;
   uint16_t hValue;
-} xid_gamepad_out;
+} usbd_duke_out_t;
 
 typedef struct __attribute__((packed))
 {
-  xid_gamepad_in in;
-  xid_gamepad_out out;
+  usbd_duke_in_t in;
+  usbd_duke_out_t out;
   uint8_t in_dirty;
   uint8_t out_dirty;
-} xid_gamepad;
-
+} usbd_duke_t;
 
 typedef struct __attribute__((packed))
 {
@@ -124,7 +123,7 @@ typedef struct __attribute__((packed))
   int16_t leftStickY;
   int16_t rightStickX;
   int16_t rightStickY;
-} xid_steelbattalion_in; //FIXME
+} xid_steelbattalion_in_t; //FIXME
 
 typedef struct __attribute__((packed))
 {
@@ -132,14 +131,15 @@ typedef struct __attribute__((packed))
   uint8_t bLength;
   uint16_t lValue;
   uint16_t hValue;
-} xid_steelbattalion_out; //FIXME
+} xid_steelbattalion_out_t; //FIXME
 
 class XID_ : public PluggableUSBModule
 {
 public:
   XID_(void);
   int begin(void);
-  int SendReport(uint8_t id, const void *data, int len);
+  int SendReport(const void *data, int len);
+  int GetReport(void *data, int len);
 
 protected:
   // Implementation of the PluggableUSBModule
