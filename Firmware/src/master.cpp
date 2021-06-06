@@ -100,7 +100,17 @@ void master_task(usbd_duke_t *usbd_head, uint8_t max_controllers)
         usbh_xinput_t *usbh_xin = &usbh_xhead[i];
 
         if (usbh_xin->bAddress == 0)
+        {
+            if (i != 0)
+            {
+                //No controller connected, let the slave device know
+                static const uint8_t disablePacket = 0xF0;
+                Wire.beginTransmission(i);
+                Wire.write((char *)(&disablePacket), 1);
+                Wire.endTransmission(true);
+            }
             continue;
+        }
 
         xinput_padstate_t *usbh_xstate = &usbh_xin->pad_state;
         memset(&usbd_dev[i].in.dButtons, 0x00, 10);
@@ -130,8 +140,31 @@ void master_task(usbd_duke_t *usbd_head, uint8_t max_controllers)
         usbd_dev[i].in.L           = usbh_xstate->bLeftTrigger;
         usbd_dev[i].in.R           = usbh_xstate->bRightTrigger;
 
-        //Update rumble values. Handled in usb host stack backend.
-        usbh_xin->lValue_requested = usbd_dev->out.lValue >> 8;
-        usbh_xin->rValue_requested = usbd_dev->out.hValue >> 8;      
+        if (i != 0)
+        {
+            //Send controller data to slaves
+            Wire.beginTransmission(i);
+            Wire.write((char *)&usbd_dev[i].in, sizeof(usbd_duke_in_t));
+            Wire.endTransmission(true);
+
+            //Get rumble data from slaves
+            if (Wire.requestFrom(i, 2) == 2)
+            {
+                uint8_t l, r;
+                l = Wire.read();
+                r = Wire.read();
+                if (l != -1) usbd_dev[i].out.lValue = l << 8;
+                if (r != -1) usbd_dev[i].out.hValue = r << 8;
+            }
+            else
+            {
+                Wire.flush();
+                usbd_dev[i].out.lValue = 0;
+                usbd_dev[i].out.hValue = 0;
+            }
+        }
+
+        usbh_xin->lValue_requested = usbd_dev[i].out.lValue >> 8;
+        usbh_xin->rValue_requested = usbd_dev[i].out.hValue >> 8;
     }
 }

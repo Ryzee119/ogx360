@@ -91,8 +91,10 @@ void setup()
 
 void loop()
 {
+    //Handle Master tasks (USB Host controller side)
     master_task(&usbd_duke[0], MAX_GAMEPADS);
 
+    //Handle OG Xbox side (OG Xbox)
     static uint32_t poll_timer = 0;
     if (millis() - poll_timer > 4)
     {
