@@ -71,6 +71,7 @@ typedef struct usbh_xinput_t
     uint8_t chatpad_state[3];
     uint8_t chatpad_led_requested;
     uint8_t chatpad_led_actual;
+    uint8_t chatpad_keepalive_toggle;
     uint32_t timer_periodic;
     uint32_t timer_out;
 } usbh_xinput_t;
