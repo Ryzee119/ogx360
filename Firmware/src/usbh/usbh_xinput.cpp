@@ -60,12 +60,8 @@ usbh_xinput_t *XINPUT::alloc_xinput_device(uint8_t bAddress, EpInfo *in, EpInfo 
     new_xinput->lValue_requested = 0;
     new_xinput->led_requested = index + 1;
 
-    uint8_t len;
-    GetLedCommand(new_xinput, xdata, &len, 0x00);
-    pUsb->outTransfer(bAddress, out->epAddr, len, xdata);
-
-    GetRumbleCommand(new_xinput, xdata, &len, new_xinput->lValue_requested, new_xinput->rValue_requested);
-    pUsb->outTransfer(bAddress, out->epAddr, len, xdata);
+    Setled(new_xinput, 0);
+    SetRumble(new_xinput, 0, 0);
 
     if (xinput_type == XBOX360_WIRELESS)
     {
@@ -432,9 +428,7 @@ uint8_t XINPUT::Poll()
         if (xinput->lValue_requested != xinput->lValue_actual || xinput->rValue_requested != xinput->rValue_actual)
         {
             USBH_XINPUT_DEBUGLN(F("SET RUMBLE"));
-            GetRumbleCommand(xinput, xdata, &len, xinput->lValue_requested, xinput->rValue_requested);
-            uint8_t rcode = pUsb->outTransfer(bAddress, epInfo[i].epAddr, len, xdata);
-            if (rcode == hrSUCCESS)
+            if (SetRumble(xinput, xinput->lValue_requested, xinput->rValue_requested) == hrSUCCESS)
             {
                 xinput->lValue_actual = xinput->lValue_requested;
                 xinput->rValue_actual = xinput->rValue_requested;
@@ -449,9 +443,7 @@ uint8_t XINPUT::Poll()
         else if (xinput->led_requested != xinput->led_actual)
         {
             USBH_XINPUT_DEBUGLN(F("SET LED"));
-            GetLedCommand(xinput, xdata, &len, xinput->led_requested);
-            uint8_t rcode = pUsb->outTransfer(bAddress, epInfo[i].epAddr, len, xdata);
-            if (rcode == hrSUCCESS)
+            if (SetLed(xinput, xinput->led_requested) == hrSUCCESS)
             {
                 xinput->led_actual = xinput->led_requested;
             }
@@ -471,7 +463,7 @@ uint8_t XINPUT::Poll()
             static const uint8_t chatpad_mod[4] = {CHATPAD_CAPSLOCK, CHATPAD_GREEN, CHATPAD_ORANGE, CHATPAD_MESSENGER};
             static const uint8_t chatpad_led_on[4] = {0x08, 0x09, 0x0A, 0x0B}; //Commands byte to turn on the led
             static const uint8_t chatpad_led_off[4] = {0x00, 0x01, 0x02, 0x03}; //Command byte to turn off the led
-            for (uint8_t led = 0; led < 4; led++)
+            for (uint8_t led = 0; led < sizeof(chatpad_mod); led++)
             {
                 //The user has requested a led to turn on that isnt already on
                 if (!(xinput->chatpad_led_actual & chatpad_mod[led]) && (xinput->chatpad_led_requested & chatpad_mod[led]))
@@ -727,54 +719,56 @@ bool XINPUT::ParseInputData(usbh_xinput_t **xpad, EpInfo *ep_in)
     return false;
 }
 
-bool XINPUT::GetRumbleCommand(usbh_xinput_t *xpad, uint8_t *tdata, uint8_t *len, uint8_t lValue, uint8_t rValue)
+uint8_t XINPUT::SetRumble(usbh_xinput_t *xpad, uint8_t lValue, uint8_t rValue)
 {
+    uint16_t len;
     //Rumble commands for known controllers
     switch (xinput_type)
     {
     case XBOX360_WIRELESS:
-        memcpy_P(tdata, xbox360_wireless_rumble, sizeof(xbox360_wireless_rumble));
-        tdata[5] = lValue;
-        tdata[6] = rValue;
-        *len = sizeof(xbox360_wireless_rumble);
+        memcpy_P(xdata, xbox360_wireless_rumble, sizeof(xbox360_wireless_rumble));
+        xdata[5] = lValue;
+        xdata[6] = rValue;
+        len = sizeof(xbox360_wireless_rumble);
         break;
     case XBOX360_WIRED:
-        memcpy_P(tdata, xbox360_wired_rumble, sizeof(xbox360_wired_rumble));
-        tdata[3] = lValue;
-        tdata[4] = rValue;
-        *len = sizeof(xbox360_wired_rumble);
+        memcpy_P(xdata, xbox360_wired_rumble, sizeof(xbox360_wired_rumble));
+        xdata[3] = lValue;
+        xdata[4] = rValue;
+        len = sizeof(xbox360_wired_rumble);
         break;
     case XBOXONE:
-        memcpy_P(tdata, xbox_one_rumble, sizeof(xbox_one_rumble));
-        tdata[8] = lValue / 2.6f;  //Scale is 0 to 100
-        tdata[9] = rValue / 2.6f; //Scale is 0 to 100
-        *len = sizeof(xbox_one_rumble);
+        memcpy_P(xdata, xbox_one_rumble, sizeof(xbox_one_rumble));
+        xdata[8] = lValue / 2.6f;  //Scale is 0 to 100
+        xdata[9] = rValue / 2.6f; //Scale is 0 to 100
+        len = sizeof(xbox_one_rumble);
         break;
     default:
-        return 0;
+        return hrSUCCESS;
     }
 
-    return 1;
+    return pUsb->outTransfer(bAddress, xpad->usbh_outPipe->epAddr, len, xdata);
 }
 
-bool XINPUT::GetLedCommand(usbh_xinput_t *xpad, uint8_t *tdata, uint8_t *len, uint8_t quadrant)
+uint8_t XINPUT::SetLed(usbh_xinput_t *xpad, uint8_t quadrant)
 {
+    uint16_t len;
     //Rumble commands for known controllers
     switch (xinput_type)
     {
     case XBOX360_WIRELESS:
-        memcpy_P(tdata, xbox360_wireless_led, sizeof(xbox360_wireless_led));
+        memcpy_P(xdata, xbox360_wireless_led, sizeof(xbox360_wireless_led));
         tdata[3] = (quadrant == 0) ? 0 : (0x40 | (quadrant + 5));
-        *len = sizeof(xbox360_wireless_led);
+        len = sizeof(xbox360_wireless_led);
         break;
     case XBOX360_WIRED:
-        memcpy_P(tdata, xbox360_wired_led, sizeof(xbox360_wired_led));
+        memcpy_P(xdata, xbox360_wired_led, sizeof(xbox360_wired_led));
         tdata[2] = (quadrant == 0) ? 0 : (quadrant + 5);
-        *len = sizeof(xbox360_wired_led);
+        len = sizeof(xbox360_wired_led);
         break;
     default:
         return 0;
     }
-
-    return 1;
+    
+    return pUsb->outTransfer(bAddress, xpad->usbh_outPipe->epAddr, len, xdata);
 }
