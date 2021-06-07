@@ -123,6 +123,8 @@ public:
     {
         return bIsReady;
     };
+    uint8_t SetRumble(usbh_xinput_t *xpad, uint8_t lValue, uint8_t rValue);
+    uint8_t SetLed(usbh_xinput_t *xpad, uint8_t quadrant);
 
 protected:
     USB *pUsb;
@@ -140,7 +142,5 @@ private:
     uint8_t free_xinput_device(usbh_xinput_t *xinput_dev);
     int8_t get_xinput_device_index(usbh_xinput_t *xinput);
     bool ParseInputData(usbh_xinput_t **xpad, EpInfo *ep_in);
-    bool GetRumbleCommand(usbh_xinput_t *xpad, uint8_t *tdata, uint8_t *len, uint8_t lValue, uint8_t rValue);
-    bool GetLedCommand(usbh_xinput_t *xpad, uint8_t *tdata, uint8_t *len, uint8_t quadrant);
 };
 #endif
