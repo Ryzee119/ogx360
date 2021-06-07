@@ -758,12 +758,12 @@ uint8_t XINPUT::SetLed(usbh_xinput_t *xpad, uint8_t quadrant)
     {
     case XBOX360_WIRELESS:
         memcpy_P(xdata, xbox360_wireless_led, sizeof(xbox360_wireless_led));
-        tdata[3] = (quadrant == 0) ? 0 : (0x40 | (quadrant + 5));
+        xdata[3] = (quadrant == 0) ? 0 : (0x40 | (quadrant + 5));
         len = sizeof(xbox360_wireless_led);
         break;
     case XBOX360_WIRED:
         memcpy_P(xdata, xbox360_wired_led, sizeof(xbox360_wired_led));
-        tdata[2] = (quadrant == 0) ? 0 : (quadrant + 5);
+        xdata[2] = (quadrant == 0) ? 0 : (quadrant + 5);
         len = sizeof(xbox360_wired_led);
         break;
     default:
