@@ -496,8 +496,9 @@ uint8_t XINPUT::Poll()
                 memcpy_P(xdata, xbox360w_controller_info, sizeof(xbox360w_controller_info));
                 pUsb->outTransfer(bAddress, epInfo[i].epAddr, sizeof(xbox360w_controller_info), xdata);
 
-                (chatpad_keepalive_toggle ^= 1) ? memcpy_P(xdata, xbox360w_chatpad_keepalive1, sizeof(xbox360w_chatpad_keepalive1)) :
-                                                  memcpy_P(xdata, xbox360w_chatpad_keepalive2, sizeof(xbox360w_chatpad_keepalive2));
+                (xinput->chatpad_keepalive_toggle ^= 1) ? \
+                    memcpy_P(xdata, xbox360w_chatpad_keepalive1, sizeof(xbox360w_chatpad_keepalive1)) :
+                    memcpy_P(xdata, xbox360w_chatpad_keepalive2, sizeof(xbox360w_chatpad_keepalive2));
                 
                 pUsb->outTransfer(bAddress, epInfo[i].epAddr, sizeof(xbox360w_chatpad_keepalive1), xdata);
             }
