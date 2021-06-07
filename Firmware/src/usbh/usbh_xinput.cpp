@@ -411,6 +411,12 @@ uint8_t XINPUT::Poll()
         {
             continue;
         }
+        
+        //Handle output commands; dont spam output. 20ms is ok for now. (FIXME: Should be bInterval)
+        if (millis() - xinput->timer_out < 20)
+        {
+            continue;
+        }
 
         //Handle output commands;
         //Send rumble
@@ -465,7 +471,7 @@ uint8_t XINPUT::Poll()
                     xdata[3] = chatpad_led_on[led];
                     rcode = pUsb->outTransfer(bAddress, epInfo[i].epAddr, sizeof(xbox360w_chatpad_led_ctrl), xdata);
                     xinput->chatpad_led_actual |= chatpad_mod[led];
-                    xinput->timer -= 2000;
+                    xinput->timer_periodic -= 2000; //Force chatpad keep alive packet check
                     break;
                 }
                 else if ((xinput->chatpad_led_actual & chatpad_mod[led]) && !(xinput->chatpad_led_requested & chatpad_mod[led]))
@@ -473,14 +479,14 @@ uint8_t XINPUT::Poll()
                     xdata[3] = chatpad_led_off[led];
                     rcode = pUsb->outTransfer(bAddress, epInfo[i].epAddr, sizeof(xbox360w_chatpad_led_ctrl), xdata);
                     xinput->chatpad_led_actual &= ~chatpad_mod[led];
-                    xinput->timer -= 2000;
+                    xinput->timer_periodic -= 2000; //Force chatpad keep alive packet check
                     break;
                 }
             }
         }
 
         //Handle background periodic writes
-        if (millis() - xinput->timer > 2000)
+        if (millis() - xinput->timer_periodic > 2000)
         {
             if(xinput_type == XBOX360_WIRELESS)
             {
@@ -490,13 +496,12 @@ uint8_t XINPUT::Poll()
                 memcpy_P(xdata, xbox360w_controller_info, sizeof(xbox360w_controller_info));
                 pUsb->outTransfer(bAddress, epInfo[i].epAddr, sizeof(xbox360w_controller_info), xdata);
 
-                static uint8_t toggle = 1;
-                (toggle ^=1) ? memcpy_P(xdata, xbox360w_chatpad_keepalive1, sizeof(xbox360w_chatpad_keepalive1)) :
-                               memcpy_P(xdata, xbox360w_chatpad_keepalive2, sizeof(xbox360w_chatpad_keepalive2));
+                (chatpad_keepalive_toggle ^= 1) ? memcpy_P(xdata, xbox360w_chatpad_keepalive1, sizeof(xbox360w_chatpad_keepalive1)) :
+                                                  memcpy_P(xdata, xbox360w_chatpad_keepalive2, sizeof(xbox360w_chatpad_keepalive2));
                 
                 pUsb->outTransfer(bAddress, epInfo[i].epAddr, sizeof(xbox360w_chatpad_keepalive1), xdata);
-                xinput->timer = millis();
             }
+            xinput->timer_periodic = millis();
         }
     }
     return 0;
