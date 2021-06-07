@@ -60,7 +60,7 @@ usbh_xinput_t *XINPUT::alloc_xinput_device(uint8_t bAddress, EpInfo *in, EpInfo 
     new_xinput->lValue_requested = 0;
     new_xinput->led_requested = index + 1;
 
-    Setled(new_xinput, 0);
+    SetLed(new_xinput, 0);
     SetRumble(new_xinput, 0, 0);
 
     if (xinput_type == XBOX360_WIRELESS)
