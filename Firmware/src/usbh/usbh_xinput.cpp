@@ -381,10 +381,7 @@ uint8_t XINPUT::Poll()
     //Read all endpoints on this device, and parse into the xinput linked list as required.
     for (uint8_t i = 1; i <= ((xinput_type == XBOX360_WIRELESS) ? 8 : 2); i++)
     {
-        len = EP_MAXPKTSIZE;
-
-        //Find the xinput struct this endpoint belongs to.
-        //If its not yet initialised, it will return NULL.
+        //Find the xinput struct this endpoint belongs to. If its not yet initialised, it will return NULL.
         usbh_xinput_t *xinput = NULL;
         for (uint8_t index = 0; index < XINPUT_MAXGAMEPADS; index++)
         {
@@ -398,32 +395,38 @@ uint8_t XINPUT::Poll()
         //The odd numbers are the in endpoints. Need to read always
         if (i % 2 != 0)
         {
+            len = EP_MAXPKTSIZE;
             rcode = pUsb->inTransfer(bAddress, epInfo[i].epAddr, &len, xdata);
             if (rcode == hrSUCCESS)
             {
                 ParseInputData(&xinput, &epInfo[i]);
             }
-            //Skip the output commands, this in an in pipe anyway.
+            //This is an in pipe, so we're done in this loop.
             continue;
         }
 
+        //Controller isn't connected
+        if(xinput == NULL)
+        {
+            continue;   
+        }
+
+        //The pipe doesnt belong to this xinput device.
         if (xinput->usbh_outPipe != &epInfo[i])
         {
             continue;
         }
-        
-        //Handle output commands; dont spam output. 20ms is ok for now. (FIXME: Should be bInterval)
+
+        //Don't spam output. 20ms is ok for now. (FIXME: Should be bInterval)
         if (millis() - xinput->timer_out < 20)
         {
             continue;
         }
 
-        //Handle output commands;
         //Send rumble
         if (xinput->lValue_requested != xinput->lValue_actual || xinput->rValue_requested != xinput->rValue_actual)
         {
             USBH_XINPUT_DEBUGLN(F("SET RUMBLE"));
-            uint8_t len;
             GetRumbleCommand(xinput, xdata, &len, xinput->lValue_requested, xinput->rValue_requested);
             uint8_t rcode = pUsb->outTransfer(bAddress, epInfo[i].epAddr, len, xdata);
             if (rcode == hrSUCCESS)
@@ -437,11 +440,10 @@ uint8_t XINPUT::Poll()
             }
         }
 
-        //Send led_requested
+        //Send LED commands
         else if (xinput->led_requested != xinput->led_actual)
         {
             USBH_XINPUT_DEBUGLN(F("SET LED"));
-            uint8_t len;
             GetLedCommand(xinput, xdata, &len, xinput->led_requested);
             uint8_t rcode = pUsb->outTransfer(bAddress, epInfo[i].epAddr, len, xdata);
             if (rcode == hrSUCCESS)
@@ -466,6 +468,7 @@ uint8_t XINPUT::Poll()
             static const uint8_t chatpad_led_off[4] = {0x00, 0x01, 0x02, 0x03}; //Command byte to turn off the led
             for (uint8_t led = 0; led < 4; led++)
             {
+                //The user has requested a led to turn on that isnt already on
                 if (!(xinput->chatpad_led_actual & chatpad_mod[led]) && (xinput->chatpad_led_requested & chatpad_mod[led]))
                 {
                     xdata[3] = chatpad_led_on[led];
@@ -474,6 +477,7 @@ uint8_t XINPUT::Poll()
                     xinput->timer_periodic -= 2000; //Force chatpad keep alive packet check
                     break;
                 }
+                //The user has requested a led to turn off that isnt already off
                 else if ((xinput->chatpad_led_actual & chatpad_mod[led]) && !(xinput->chatpad_led_requested & chatpad_mod[led]))
                 {
                     xdata[3] = chatpad_led_off[led];
