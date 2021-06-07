@@ -385,6 +385,11 @@ uint8_t XINPUT::Poll()
         usbh_xinput_t *xinput = NULL;
         for (uint8_t index = 0; index < XINPUT_MAXGAMEPADS; index++)
         {
+            if (xinput_devices[index].bAddress == 0)
+            {
+                continue;   
+            }
+
             if (xinput_devices[index].usbh_inPipe == &epInfo[i] || xinput_devices[index].usbh_outPipe == &epInfo[i])
             {
                 xinput = &xinput_devices[index];
