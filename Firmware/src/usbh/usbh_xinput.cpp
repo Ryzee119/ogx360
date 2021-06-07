@@ -323,11 +323,16 @@ uint8_t XINPUT::Init(uint8_t parent __attribute__((unused)), uint8_t port __attr
     {
         if (strings[i] > 0)
         {
+            //First get the length of the string. Its the first byte. Windows seems to get the first two bytes
+            //Then get the full string.
             rcode = pUsb->getStrDescr(bAddress, epInfo[XBOX_CONTROL_PIPE].epAddr, 2, strings[i], 0x0409, xdata);
-            rcode = pUsb->getStrDescr(bAddress, epInfo[XBOX_CONTROL_PIPE].epAddr, min(xdata[0], EP_MAXPKTSIZE), iManuf, 0x0409, xdata);
+            rcode = pUsb->getStrDescr(bAddress, epInfo[XBOX_CONTROL_PIPE].epAddr, min(xdata[0], EP_MAXPKTSIZE), strings[i], 0x0409, xdata);
             if (rcode != hrSUCCESS)
+            {
                 continue;
-            for (int i = 2; i < xdata[0]; i+=2)
+            }
+            //String starts at byte 2, and is every second byte.
+            for (int i = 2; i < xdata[0]; i += 2)
             {
                 Serial1.write(xdata[i]);
             }
