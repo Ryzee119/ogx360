@@ -437,6 +437,7 @@ uint8_t XINPUT::Poll()
             {
                 xinput->lValue_actual = xinput->lValue_requested;
                 xinput->rValue_actual = xinput->rValue_requested;
+                xinput->timer_out = millis();
             }
             else
             {
@@ -451,6 +452,7 @@ uint8_t XINPUT::Poll()
             if (SetLed(xinput, xinput->led_requested) == hrSUCCESS)
             {
                 xinput->led_actual = xinput->led_requested;
+                xinput->timer_out = millis();
             }
             else
             {
@@ -461,7 +463,6 @@ uint8_t XINPUT::Poll()
         //Handle chatpad leds (Wireless 360 controller only)
         else if (xinput->chatpad_initialised && xinput_type == XBOX360_WIRELESS && xinput->chatpad_led_requested != xinput->chatpad_led_actual)
         {
-            USBH_XINPUT_DEBUGLN(F("SET CHATPAD LEDS"));
             memcpy_P(xdata, xbox360w_chatpad_led_ctrl, sizeof(xbox360w_chatpad_led_ctrl));
 
             //caps, green, orange, messenger
@@ -474,20 +475,23 @@ uint8_t XINPUT::Poll()
                 if (!(xinput->chatpad_led_actual & chatpad_mod[led]) && (xinput->chatpad_led_requested & chatpad_mod[led]))
                 {
                     xdata[3] = chatpad_led_on[led];
-                    rcode = pUsb->outTransfer(bAddress, epInfo[i].epAddr, sizeof(xbox360w_chatpad_led_ctrl), xdata);
                     xinput->chatpad_led_actual |= chatpad_mod[led];
-                    xinput->timer_periodic -= 2000; //Force chatpad keep alive packet check
-                    break;
                 }
                 //The user has requested a led to turn off that isnt already off
                 else if ((xinput->chatpad_led_actual & chatpad_mod[led]) && !(xinput->chatpad_led_requested & chatpad_mod[led]))
                 {
                     xdata[3] = chatpad_led_off[led];
-                    rcode = pUsb->outTransfer(bAddress, epInfo[i].epAddr, sizeof(xbox360w_chatpad_led_ctrl), xdata);
                     xinput->chatpad_led_actual &= ~chatpad_mod[led];
-                    xinput->timer_periodic -= 2000; //Force chatpad keep alive packet check
-                    break;
                 }
+                else
+                {
+                    //No change, check next chatpad led
+                    continue;
+                }
+                USBH_XINPUT_DEBUGLN(F("SET CHATPAD LED"));
+                pUsb->outTransfer(bAddress, epInfo[i].epAddr, sizeof(xbox360w_chatpad_led_ctrl), xdata);
+                xinput->timer_periodic -= 2000; //Force chatpad keep alive packet check
+                xinput->timer_out = millis();
             }
         }
 
@@ -507,6 +511,7 @@ uint8_t XINPUT::Poll()
                     memcpy_P(xdata, xbox360w_chatpad_keepalive2, sizeof(xbox360w_chatpad_keepalive2));
                 
                 pUsb->outTransfer(bAddress, epInfo[i].epAddr, sizeof(xbox360w_chatpad_keepalive1), xdata);
+                xinput->timer_out = millis();
             }
             xinput->timer_periodic = millis();
         }
