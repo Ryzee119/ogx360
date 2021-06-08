@@ -30,28 +30,33 @@ In settings.h you can configure the following options:
 
 #include "usbd/usbd_xid.h"
 #include "usbh/usbh_xinput.h"
-#include "config.h"
+#include "main.h"
 
-void master_init(usbd_duke_t *usbd_head, uint8_t len);
-void master_task(usbd_duke_t *usbd_head, uint8_t len);
+void master_init();
+void master_task();
 
 uint8_t playerID;
 XID_ usbd_xid;
-usbd_duke_t usbd_duke[MAX_GAMEPADS];
+usbd_controller_t usbd_c[MAX_GAMEPADS];
 
 void setup()
 {
     //Init IO
-    pinMode(USB_HOST_RESET_PIN, OUTPUT);
     pinMode(ARDUINO_LED_PIN, OUTPUT);
     pinMode(PLAYER_ID1_PIN, INPUT_PULLUP);
     pinMode(PLAYER_ID2_PIN, INPUT_PULLUP);
-    digitalWrite(USB_HOST_RESET_PIN, LOW);
     digitalWrite(ARDUINO_LED_PIN, HIGH);
 
-    //Initialise the Serial Port
-    Serial1.begin(115200);
-    Serial1.print("hello!\n");
+    memset(usbd_c, 0x00, sizeof(usbd_controller_t) * MAX_GAMEPADS);
+    for (uint8_t i = 0; i < MAX_GAMEPADS; i++)
+    {
+        usbd_c[i].type = DUKE;
+        usbd_c[i].duke.in.bLength = sizeof(usbd_duke_in_t);
+        usbd_c[i].duke.out.bLength = sizeof(usbd_duke_out_t);
+
+        usbd_c[i].sb.in.bLength = sizeof(usbd_sbattalion_in_t);
+        usbd_c[i].sb.out.bLength = sizeof(usbd_sbattalion_out_t);
+    }
 
     //Determine what player this board is. Used for the slave devices mainly.
     //There is 2 ID pins on the PCB which are read in.
@@ -61,35 +66,58 @@ void setup()
     //11 = Player 4
     playerID = digitalRead(PLAYER_ID1_PIN) << 1 | digitalRead(PLAYER_ID2_PIN);
 
-    master_init(&usbd_duke[0], MAX_GAMEPADS);
-
-    //Init I2C Master
-    Wire.begin();
-    Wire.setClock(400000);
-
-    //Ping slave devices if present
-    //This will cause them to blink
-    for (uint8_t i = 1; i < MAX_CONTROLLERS; i++)
+    if (playerID == 0)
     {
-        static const char ping = 0xAA;
-        Wire.beginTransmission(i);
-        Wire.write(&ping, 1);
-        Wire.endTransmission(true);
-        delay(100);
+        master_init();
     }
+    else
+    {
+        //slave_init();
+    }
+
+    
 }
 
 void loop()
 {
     //Handle Master tasks (USB Host controller side)
-    master_task(&usbd_duke[0], MAX_GAMEPADS);
+    if (playerID == 0)
+    {
+        master_task();
+    }
+    else
+    {
+        //slave_task();
+    }
+
+    if (usbd_xid.getType() != usbd_c[0].type)
+    {
+        Serial1.print("CHANGED CONTROLLER TYPE TO ");
+        Serial1.println(usbd_c[0].type);
+        usbd_xid.setType(usbd_c[0].type);
+    }
 
     //Handle OG Xbox side (OG Xbox)
     static uint32_t poll_timer = 0;
     if (millis() - poll_timer > 4)
     {
-        usbd_xid.SendReport(&usbd_duke[0].in, sizeof(usbd_duke_in_t));
-        usbd_xid.GetReport(&usbd_duke[0].out, sizeof(usbd_duke_out_t));
+        if(usbd_xid.getType() == DUKE)
+        {
+            UDCON &= ~(1 << DETACH);
+            usbd_xid.sendReport(&usbd_c[0].duke.in, sizeof(usbd_duke_in_t));
+            usbd_xid.getReport(&usbd_c[0].duke.out, sizeof(usbd_duke_out_t));
+        }
+        else if(usbd_xid.getType() == STEELBATTALTION)
+        {
+            UDCON &= ~(1 << DETACH);
+            usbd_xid.sendReport(&usbd_c[0].sb.in, sizeof(usbd_sbattalion_in_t));
+            usbd_xid.getReport(&usbd_c[0].sb.out, sizeof(usbd_sbattalion_out_t));
+        }
+        else if(usbd_xid.getType() == DISCONNECTED)
+        {
+            UDCON |= (1 << DETACH);
+        }
+        
         poll_timer = millis();
     }
 }
