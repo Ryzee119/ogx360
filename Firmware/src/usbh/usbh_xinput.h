@@ -28,6 +28,8 @@
 #define XINPUT_GAMEPAD_RIGHT_THUMB 0x0080
 #define XINPUT_GAMEPAD_LEFT_SHOULDER 0x0100
 #define XINPUT_GAMEPAD_RIGHT_SHOULDER 0x0200
+#define XINPUT_GAMEPAD_XBOX_BUTTON 0x0400
+#define XINPUT_GAMEPAD_SYNC 0x0800
 #define XINPUT_GAMEPAD_A 0x1000
 #define XINPUT_GAMEPAD_B 0x2000
 #define XINPUT_GAMEPAD_X 0x4000
@@ -66,14 +68,18 @@ typedef struct usbh_xinput_t
     uint8_t rValue_actual;
     uint8_t led_requested;       //Requested led quadrant, 1-4 or 0 for off
     uint8_t led_actual;
+
     //Chatpad specific components
     uint8_t chatpad_initialised;
     uint8_t chatpad_state[3];
     uint8_t chatpad_led_requested;
     uint8_t chatpad_led_actual;
     uint8_t chatpad_keepalive_toggle;
+
+    //Timers used in usb backend
     uint32_t timer_periodic;
     uint32_t timer_out;
+    uint32_t timer_poweroff;
 } usbh_xinput_t;
 
 usbh_xinput_t *usbh_xinput_get_device_list(void);
@@ -97,10 +103,12 @@ static const uint8_t xboxone_pdp_init3[] PROGMEM = {0x06, 0x20, 0x00, 0x02, 0x01
 //Other Commands
 static const uint8_t xbox360w_inquire_present[] PROGMEM = {0x08, 0x00, 0x0F, 0xC0, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00};
 static const uint8_t xbox360w_controller_info[] PROGMEM = {0x00, 0x00, 0x00, 0x40, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00};
+static const uint8_t xbox360w_power_off[] PROGMEM = {0x00, 0x00, 0x08, 0xC0};
 static const uint8_t xbox360w_chatpad_init[] PROGMEM = {0x00, 0x00, 0x0C, 0x1B};
 static const uint8_t xbox360w_chatpad_keepalive1[] PROGMEM = {0x00, 0x00, 0x0C, 0x1F};
 static const uint8_t xbox360w_chatpad_keepalive2[] PROGMEM = {0x00, 0x00, 0x0C, 0x1E};
 static const uint8_t xbox360w_chatpad_led_ctrl[] PROGMEM = {0x00, 0x00, 0x0C, 0x00};
+
 #define CHATPAD_CAPSLOCK 0x20
 #define CHATPAD_GREEN 0x08
 #define CHATPAD_ORANGE 0x10

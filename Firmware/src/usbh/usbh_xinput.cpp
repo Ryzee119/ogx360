@@ -3,7 +3,7 @@
 
 #include "usbh_xinput.h"
 
-#define ENABLE_USBH_XINPUT_DEBUG
+//#define ENABLE_USBH_XINPUT_DEBUG
 #ifdef ENABLE_USBH_XINPUT_DEBUG
 #define USBH_XINPUT_DEBUG(a) Serial1.print(a)
 #else
@@ -499,6 +499,22 @@ uint8_t XINPUT::Poll()
             }
         }
 
+        //Handle controller power off, Hold Xbox button. (Wireless 360 controller only)
+        else if (xinput_type == XBOX360_WIRELESS && xinput->pad_state.wButtons & XINPUT_GAMEPAD_XBOX_BUTTON)
+        {
+            if((millis() - xinput->timer_poweroff) > 1000)
+            {
+                USBH_XINPUT_DEBUG(F("USBH XINPUT: POWERING OFF CONTROLLER\n"));
+                memcpy_P(xdata, xbox360w_power_off, sizeof(xbox360w_power_off));
+                pUsb->outTransfer(bAddress, epInfo[i].epAddr, sizeof(xbox360w_power_off), xdata);
+                xinput->timer_poweroff = millis();
+            }
+        }
+        else if (xinput_type == XBOX360_WIRELESS && !(xinput->pad_state.wButtons & XINPUT_GAMEPAD_XBOX_BUTTON))
+        {
+            xinput->timer_poweroff = millis();
+        }
+
         //Handle background periodic writes
         if (millis() - xinput->timer_periodic > 1000)
         {
@@ -582,8 +598,11 @@ bool XINPUT::ParseInputData(usbh_xinput_t **xpad, EpInfo *ep_in)
             USBH_XINPUT_DEBUG(F("USBH XINPUT: UNKNOWN XBOX360 WIRED COMMAND\n"));
             break;
         }
-        PrintHex8(xdata,12);
+
         if(xdata[1] != 0x14)
+        {
+            break;
+        }
 
         wButtons = GET_USHORT(&xdata, 2);
 
@@ -653,6 +672,7 @@ bool XINPUT::ParseInputData(usbh_xinput_t **xpad, EpInfo *ep_in)
             if (wButtons & (1 << 7)) _xpad->pad_state.wButtons |= XINPUT_GAMEPAD_RIGHT_THUMB;
             if (wButtons & (1 << 8)) _xpad->pad_state.wButtons |= XINPUT_GAMEPAD_LEFT_SHOULDER;
             if (wButtons & (1 << 9)) _xpad->pad_state.wButtons |= XINPUT_GAMEPAD_RIGHT_SHOULDER;
+            if (wButtons & (1 << 10)) _xpad->pad_state.wButtons |= XINPUT_GAMEPAD_XBOX_BUTTON;
             if (wButtons & (1 << 12)) _xpad->pad_state.wButtons |= XINPUT_GAMEPAD_A;
             if (wButtons & (1 << 13)) _xpad->pad_state.wButtons |= XINPUT_GAMEPAD_B;
             if (wButtons & (1 << 14)) _xpad->pad_state.wButtons |= XINPUT_GAMEPAD_X;
