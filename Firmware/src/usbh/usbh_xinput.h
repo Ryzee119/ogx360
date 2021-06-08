@@ -88,7 +88,7 @@ static const uint8_t xbox360_wireless_led[] PROGMEM = {0x00, 0x00, 0x08, 0x40, 0
 static const uint8_t xbox360_wired_led[] PROGMEM = {0x01, 0x03, 0x00};
 
 //Init commands
-static const uint8_t xboxone_start_input[] PROGMEM = {0x05, 0x20, 0x00, 0x01, 0x00};
+static const uint8_t xboxone_start_input[] PROGMEM = {0x05, 0x20, 0x03, 0x01, 0x00};
 static const uint8_t xboxone_s_init[] PROGMEM = {0x05, 0x20, 0x00, 0x0f, 0x06};
 static const uint8_t xboxone_pdp_init1[] PROGMEM = {0x0a, 0x20, 0x00, 0x03, 0x00, 0x01, 0x14};
 static const uint8_t xboxone_pdp_init2[] PROGMEM = {0x06, 0x30};
@@ -105,6 +105,10 @@ static const uint8_t xbox360w_chatpad_led_ctrl[] PROGMEM = {0x00, 0x00, 0x0C, 0x
 #define CHATPAD_GREEN 0x08
 #define CHATPAD_ORANGE 0x10
 #define CHATPAD_MESSENGER 0x01
+//caps, green, orange, messenger
+static const uint8_t chatpad_mod[] PROGMEM = {CHATPAD_CAPSLOCK, CHATPAD_GREEN, CHATPAD_ORANGE, CHATPAD_MESSENGER};
+static const uint8_t chatpad_led_on[] PROGMEM = {0x08, 0x09, 0x0A, 0x0B}; //Commands byte to turn on the led
+static const uint8_t chatpad_led_off[] PROGMEM = {0x00, 0x01, 0x02, 0x03}; //Command byte to turn off the led
 
 class XINPUT : public USBDeviceConfig
 {
