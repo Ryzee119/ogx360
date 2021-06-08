@@ -2,7 +2,6 @@
 // SPDX-License-Identifier: GPL-3.0-or-later
 
 #include "usbd_xid.h"
-#include "HID.h"
 
 #if defined(USBCON)
 
@@ -81,12 +80,17 @@ bool XID_::setup(USBSetup &setup)
 
     if (requestType == (REQUEST_DEVICETOHOST | REQUEST_VENDOR | REQUEST_INTERFACE))
     {
-        //FIXME FOR STEELBATTALION
         if (request == 0x06 && wValue == 0x4200)
         {
             USBD_XID_DEBUG("USBD XID: SENDING XID DESCRIPTOR\n");
-            USB_SendControl(TRANSFER_PGM, DUKE_DESC_XID, sizeof(DUKE_DESC_XID));
-            //USB_SendControl(TRANSFER_PGM, BATTALION_DESC_XID, sizeof(BATTALION_DESC_XID));
+            if (xid_type == DUKE)
+            {
+                USB_SendControl(TRANSFER_PGM, DUKE_DESC_XID, sizeof(DUKE_DESC_XID));
+            }
+            else if (xid_type == STEELBATTALTION)
+            {
+                USB_SendControl(TRANSFER_PGM, BATTALION_DESC_XID, sizeof(BATTALION_DESC_XID));
+            }
             return true;
         }
         if (request == 0x01 && wValue == 0x0100)
@@ -131,12 +135,35 @@ bool XID_::setup(USBSetup &setup)
     return false;
 }
 
+void XID_::setType(xid_type_t type)
+{
+    if (xid_type == type)
+    {
+        return;
+    }
+
+    xid_type = type;
+    UDCON |= (1 << DETACH);
+    delay(10);
+    if (xid_type != DISCONNECTED)
+    {
+        UDCON &= ~(1 << DETACH);
+    } 
+    return;
+}
+
+xid_type_t XID_::getType(void)
+{
+    return xid_type;
+}
+
 XID_::XID_(void) : PluggableUSBModule(2, 1, epType)
 {
     epType[0] = EP_TYPE_INTERRUPT_IN;
     epType[1] = EP_TYPE_INTERRUPT_OUT;
     memset(xid_out_data, 0x00, sizeof(xid_out_data));
     memset(xid_in_data, 0x00, sizeof(xid_in_data));
+    xid_type = DUKE;
     PluggableUSB().plug(this);
 }
 
