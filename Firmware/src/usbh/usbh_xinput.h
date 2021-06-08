@@ -35,6 +35,60 @@
 #define XINPUT_GAMEPAD_X 0x4000
 #define XINPUT_GAMEPAD_Y 0x8000
 
+#define XINPUT_CHATPAD_1 23 
+#define XINPUT_CHATPAD_2 22 
+#define XINPUT_CHATPAD_3 21 
+#define XINPUT_CHATPAD_4 20 
+#define XINPUT_CHATPAD_5 19 
+#define XINPUT_CHATPAD_6 18 
+#define XINPUT_CHATPAD_7 17 
+#define XINPUT_CHATPAD_8 103 
+#define XINPUT_CHATPAD_9 102 
+#define XINPUT_CHATPAD_0 101 
+
+#define XINPUT_CHATPAD_Q 39 
+#define XINPUT_CHATPAD_W 38 
+#define XINPUT_CHATPAD_E 37 
+#define XINPUT_CHATPAD_R 36 
+#define XINPUT_CHATPAD_T 35 
+#define XINPUT_CHATPAD_Y 34 
+#define XINPUT_CHATPAD_U 33 
+#define XINPUT_CHATPAD_I 118 
+#define XINPUT_CHATPAD_O 117 
+#define XINPUT_CHATPAD_P 100 
+
+#define XINPUT_CHATPAD_A 55 
+#define XINPUT_CHATPAD_S 54 
+#define XINPUT_CHATPAD_D 53 
+#define XINPUT_CHATPAD_F 52 
+#define XINPUT_CHATPAD_G 51 
+#define XINPUT_CHATPAD_H 50 
+#define XINPUT_CHATPAD_J 49 
+#define XINPUT_CHATPAD_K 119 
+#define XINPUT_CHATPAD_L 114 
+#define XINPUT_CHATPAD_COMMA 98 
+
+#define XINPUT_CHATPAD_Z 70 
+#define XINPUT_CHATPAD_X 69 
+#define XINPUT_CHATPAD_C 68 
+#define XINPUT_CHATPAD_V 67 
+#define XINPUT_CHATPAD_B 66 
+#define XINPUT_CHATPAD_N 65 
+#define XINPUT_CHATPAD_M 82 
+#define XINPUT_CHATPAD_PERIOD 83 
+#define XINPUT_CHATPAD_ENTER 99 
+
+#define XINPUT_CHATPAD_LEFT 85 
+#define XINPUT_CHATPAD_SPACE 84 
+#define XINPUT_CHATPAD_RIGHT 81 
+#define XINPUT_CHATPAD_BACK 113 
+
+//Offset byte 25 
+#define XINPUT_CHATPAD_SHIFT 1 
+#define XINPUT_CHATPAD_GREEN 2 
+#define XINPUT_CHATPAD_ORANGE 4 
+#define XINPUT_CHATPAD_MESSENGER 8 
+
 typedef struct
 {
     uint16_t wButtons;
@@ -62,6 +116,7 @@ typedef struct usbh_xinput_t
     EpInfo *usbh_outPipe; //Pipe specific to this pad
     //xinput controller state
     xinput_padstate_t pad_state; //Current pad button/stick state
+    uint16_t pad_state_wButtons_old; //Prev pad state buttons
     uint8_t lValue_requested;    //Requested left rumble value
     uint8_t rValue_requested;    //Requested right rumble value
     uint8_t lValue_actual;
@@ -72,6 +127,7 @@ typedef struct usbh_xinput_t
     //Chatpad specific components
     uint8_t chatpad_initialised;
     uint8_t chatpad_state[3];
+    uint8_t chatpad_state_old[3];
     uint8_t chatpad_led_requested;
     uint8_t chatpad_led_actual;
     uint8_t chatpad_keepalive_toggle;
@@ -83,6 +139,10 @@ typedef struct usbh_xinput_t
 } usbh_xinput_t;
 
 usbh_xinput_t *usbh_xinput_get_device_list(void);
+uint8_t usbh_xinput_is_chatpad_pressed(usbh_xinput_t *xinput, uint16_t code);
+uint8_t usbh_xinput_is_gamepad_pressed(usbh_xinput_t *xinput, uint16_t button_mask);
+uint8_t usbh_xinput_was_chatpad_pressed(usbh_xinput_t *xinput, uint16_t code);
+uint8_t usbh_xinput_was_gamepad_pressed(usbh_xinput_t *xinput, uint16_t button_mask);
 
 //Rumble commands
 static const uint8_t xbox360_wireless_rumble[] PROGMEM = {0x00, 0x01, 0x0F, 0xC0, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00};

@@ -3,7 +3,7 @@
 
 #include "usbh_xinput.h"
 
-//#define ENABLE_USBH_XINPUT_DEBUG
+#define ENABLE_USBH_XINPUT_DEBUG
 #ifdef ENABLE_USBH_XINPUT_DEBUG
 #define USBH_XINPUT_DEBUG(a) Serial1.print(a)
 #else
@@ -55,6 +55,7 @@ usbh_xinput_t *XINPUT::alloc_xinput_device(uint8_t bAddress, EpInfo *in, EpInfo 
     new_xinput->usbh_inPipe = in;
     new_xinput->usbh_outPipe = out;
     new_xinput->led_requested = index + 1;
+    new_xinput->chatpad_led_requested = CHATPAD_GREEN;
 
     SetRumble(new_xinput, 0, 0);
     SetLed(new_xinput, 0);
@@ -109,6 +110,81 @@ uint8_t XINPUT::free_xinput_device(usbh_xinput_t *xinput) {
 
 usbh_xinput_t *usbh_xinput_get_device_list(void) {
     return xinput_devices;
+}
+
+uint8_t usbh_xinput_is_chatpad_pressed(usbh_xinput_t *xinput, uint16_t code)
+{
+    if (xinput->bAddress == 0)
+        return 0;
+
+    if (code < 17 && (xinput->chatpad_state[0] & code))
+        return 1;
+
+    if (code < 17)
+        return 0;
+
+    if (xinput->chatpad_state[1] == code)
+        return 1;
+
+    if (xinput->chatpad_state[2] == code)
+        return 1;
+
+    return 0;
+}
+
+uint8_t usbh_xinput_was_chatpad_pressed(usbh_xinput_t *xinput, uint16_t code)
+{
+    if (xinput->bAddress == 0)
+        return 0;
+
+    //Button isnt pressed anymore, Clear it from the history
+    if (usbh_xinput_is_chatpad_pressed(xinput, code) == 0)
+    {
+        for (uint8_t i = 0; i < 3; i++)
+        {
+            if (xinput->chatpad_state_old[i] == code)
+                xinput->chatpad_state_old[i] = 0x00;
+        }
+        return 0;
+    }
+
+    //Button is pressed, and hasnt been pressed before
+    if (xinput->chatpad_state_old[0] != code &&
+        xinput->chatpad_state_old[1] != code &&
+        xinput->chatpad_state_old[2] != code)
+    {
+        for (uint8_t i = 0; i < 3; i++)
+        {
+            if (xinput->chatpad_state_old[i] == 0)
+            {
+                xinput->chatpad_state_old[i] = code;
+                return 1;
+            }
+        }
+    }
+    return 0;
+}
+
+uint8_t usbh_xinput_is_gamepad_pressed(usbh_xinput_t *xinput, uint16_t button_mask)
+{
+    return xinput->pad_state.wButtons & button_mask;
+}
+
+uint8_t usbh_xinput_was_gamepad_pressed(usbh_xinput_t *xinput, uint16_t button_mask)
+{
+    if (usbh_xinput_is_gamepad_pressed(xinput, button_mask))
+    {
+        if ((xinput->pad_state_wButtons_old & button_mask) == 0)
+        {
+            xinput->pad_state_wButtons_old |= button_mask;
+            return 1;
+        }
+    }
+    else
+    {
+        xinput->pad_state_wButtons_old &= ~button_mask;
+    }
+    return 0;
 }
 
 XINPUT::XINPUT(USB *p) : pUsb(p),
@@ -695,9 +771,10 @@ bool XINPUT::ParseInputData(usbh_xinput_t **xpad, EpInfo *ep_in)
             //Chatpad Button data
             if(xdata[24] == 0x00)
             {
-                _xpad->chatpad_state[0] = xdata[25];
-                _xpad->chatpad_state[1] = xdata[26];
-                _xpad->chatpad_state[2] = xdata[27];
+                for (uint8_t i = 0; i < 3; i++)
+                {
+                    _xpad->chatpad_state[i] = xdata[25 + i];
+                }
             }
 
             //Chatpad Status packet
