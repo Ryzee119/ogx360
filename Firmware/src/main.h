@@ -7,7 +7,10 @@
 #include "usbd/usbd_xid.h"
 #include "usbh/usbh_xinput.h"
 
+#ifndef MAX_GAMEPADS
 #define MAX_GAMEPADS 4
+#endif
+
 #define USB_HOST_RESET_PIN 9
 #define ARDUINO_LED_PIN 17
 #define PLAYER_ID1_PIN 19

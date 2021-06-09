@@ -43,8 +43,9 @@ int XID_::sendReport(const void *data, int len)
     if (memcmp(xid_in_data, data, capped_len) != 0)
     {
         //Update local copy, then send
-        memcpy(xid_in_data, data, capped_len);
-        USB_Send(XID_EP_IN | TRANSFER_RELEASE, xid_in_data, capped_len);
+        
+        if (USB_Send(XID_EP_IN | TRANSFER_RELEASE, data, capped_len) == len)
+            memcpy(xid_in_data, data, capped_len);
     }
     return len;
 }

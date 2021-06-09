@@ -1,14 +1,13 @@
 // Copyright 2020, Ryan Wendland, ogx360
 // SPDX-License-Identifier: GPL-3.0-or-later
 
-#ifndef XID_h
-#define XID_h
+#ifndef _XID_h
+#define _XID_h
 
 #define _USING_XID
 
-#include <stdint.h>
 #include <Arduino.h>
-#include "PluggableUSB.h"
+#include <PluggableUSB.h>
 
 #define XID_INTERFACECLASS 88
 #define XID_INTERFACESUBCLASS 66
@@ -302,4 +301,4 @@ private:
 
 XID_ &XID();
 
-#endif // XID_h
+#endif // _XID_h

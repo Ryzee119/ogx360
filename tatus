@@ -1,0 +1,1059 @@
+[33mcommit 0bb473748c9ebe0510b96c6408c0a3a9070c15a0[m[33m ([m[1;36mHEAD -> [m[1;32mdev-v2[m[33m, [m[1;31morigin/dev-v2[m[33m)[m
+Author: Ryzee119 <wendland@live.com.au>
+Date:   Wed Jun 9 15:05:51 2021 +0930
+
+    Main: cleanup
+
+[33mcommit 73a4fdbb18c384fa74cf92cccbfbdec7d3638e90[m
+Author: Ryan Wendland <wendland@live.com.au>
+Date:   Tue Jun 8 22:03:44 2021 +0930
+
+    Main: WIP
+
+[33mcommit 0d907ece9eb4824b511abaac70caff46c7d83f39[m
+Author: Ryan Wendland <wendland@live.com.au>
+Date:   Tue Jun 8 22:03:08 2021 +0930
+
+    USBH: WIP
+
+[33mcommit eff93379aa148f8fdfb70bccc2bf30116f9b4f21[m
+Author: Ryan Wendland <wendland@live.com.au>
+Date:   Tue Jun 8 22:02:57 2021 +0930
+
+    USBD: WIP
+
+[33mcommit 91aa39e85734a85157f0c873875190c0b23ca256[m
+Author: Ryan Wendland <wendland@live.com.au>
+Date:   Tue Jun 8 13:52:07 2021 +0930
+
+    USBD: Fix out pipe reading, formatting
+
+[33mcommit 4110df422cbdd47fbaa4069e79f30d48ea0b48f1[m
+Author: Ryan Wendland <wendland@live.com.au>
+Date:   Tue Jun 8 13:50:55 2021 +0930
+
+    XINPUT: Power off if holding xbox button
+
+[33mcommit ba08898c9bd48d97033ebaf8b1007823a6b8817f[m
+Author: Ryan Wendland <wendland@live.com.au>
+Date:   Tue Jun 8 13:50:29 2021 +0930
+
+    Build: Define UHS serial
+
+[33mcommit 324640a1d86dc25a806ee56e92cfa166c0a09558[m
+Author: Ryan Wendland <wendland@live.com.au>
+Date:   Tue Jun 8 13:10:52 2021 +0930
+
+    XINPUT: driver updates
+
+[33mcommit 53bea5fcef14baaeacd09af9d34189d18c99c5f8[m
+Author: Ryzee119 <wendland@live.com.au>
+Date:   Mon Jun 7 12:55:47 2021 +0930
+
+    XINPUT: Fix out timer and cleaner chatpad led
+
+[33mcommit 302ddcd04a7ed94f36ace99504baac0e48652f37[m
+Author: Ryzee119 <wendland@live.com.au>
+Date:   Mon Jun 7 12:44:38 2021 +0930
+
+    XINPUT: Fix string printing
+
+[33mcommit 48b79838ed9a2df1d69d143e6a0ce5d8e437d2a6[m
+Author: Ryzee119 <wendland@live.com.au>
+Date:   Mon Jun 7 11:48:32 2021 +0930
+
+    Build: Single file build
+
+[33mcommit d6b490f2799b868050c096eb3faa14bdf14893a3[m
+Author: Ryzee119 <wendland@live.com.au>
+Date:   Mon Jun 7 11:45:12 2021 +0930
+
+    XINPUTS: Oops
+
+[33mcommit 6f6ece13a24da2a2414f413b0c7afd4502021313[m
+Author: Ryzee119 <wendland@live.com.au>
+Date:   Mon Jun 7 11:43:07 2021 +0930
+
+    XINPUT: Use global buffer
+
+[33mcommit e707fb0005fc83ceba64f4a2eb614f9fb318b38e[m
+Author: Ryzee119 <wendland@live.com.au>
+Date:   Mon Jun 7 11:40:48 2021 +0930
+
+    XINPUT: Simplify Rumble and LED commands
+
+[33mcommit f7ec921800e1d1c9b4e0b9062116e0c62a85ffb6[m
+Author: Ryzee119 <wendland@live.com.au>
+Date:   Mon Jun 7 11:39:22 2021 +0930
+
+    XINPUT: Simplify LED and Rumble commands
+
+[33mcommit 9c80a4c39550a06182b677f89e14d796680705f2[m
+Author: Ryzee119 <wendland@live.com.au>
+Date:   Mon Jun 7 11:24:12 2021 +0930
+
+    XINPUT: Should actually return NULL on Poll
+
+[33mcommit dcc395d3b8fbf8a30f0b72e8235cfdbfab8cf005[m
+Author: Ryzee119 <wendland@live.com.au>
+Date:   Mon Jun 7 09:53:19 2021 +0930
+
+    XINPUT: Clean up polling
+
+[33mcommit 801fde707faeaa09fea710c58b50110d355e859e[m
+Author: Ryzee119 <wendland@live.com.au>
+Date:   Mon Jun 7 09:37:12 2021 +0930
+
+    XINPUT: Fix chatpad keepalive toggle
+
+[33mcommit 8c4b912e35855e1347de4da30df5ef1b2f7e39d1[m
+Author: Ryzee119 <wendland@live.com.au>
+Date:   Mon Jun 7 09:36:12 2021 +0930
+
+    XINPUT: Add chatpad_keepalive_toggle
+
+[33mcommit 69d6860a5d4ab0b5c90c202dcc30a7c170391ea4[m
+Author: Ryzee119 <wendland@live.com.au>
+Date:   Mon Jun 7 09:35:40 2021 +0930
+
+    XINPUT: Dont spam output pipes
+
+[33mcommit 847f0ad227d8a07ab4919d832c638e8a69ce7926[m
+Author: Ryzee119 <wendland@live.com.au>
+Date:   Mon Jun 7 08:55:06 2021 +0930
+
+    XINPUT: Cleanup header
+
+[33mcommit e4c9d3c4a199505448a239d81c40c196f034a651[m
+Author: Ryzee119 <wendland@live.com.au>
+Date:   Mon Jun 7 08:48:18 2021 +0930
+
+    XINPUT: Enumeration cleanup
+
+[33mcommit e8fb3500f20d3b9902c4f2b2e6b474309a242b03[m
+Author: Ryzee119 <wendland@live.com.au>
+Date:   Mon Jun 7 08:20:40 2021 +0930
+
+    USBH: Fix missing bracket
+
+[33mcommit 114867b5c85d45490f0d9617e5c75e45e1c34889[m
+Author: Ryzee119 <wendland@live.com.au>
+Date:   Mon Jun 7 08:18:44 2021 +0930
+
+    USBH: Remove unused buffer
+
+[33mcommit 1b33e6841b5024006f8f5dc30cade36477eccac3[m
+Author: Ryzee119 <wendland@live.com.au>
+Date:   Mon Jun 7 08:18:08 2021 +0930
+
+    USBH: Use single buffer
+
+[33mcommit b7b382a55eb5956315429202d280d93b48da67a2[m
+Author: Ryan Wendland <wendland@live.com.au>
+Date:   Sun Jun 6 19:34:03 2021 +0930
+
+    Disable usb interface if disconnected
+
+[33mcommit 611b9ecc585ba3280afb8805895592bff4217585[m
+Author: Ryan Wendland <wendland@live.com.au>
+Date:   Sun Jun 6 19:33:39 2021 +0930
+
+    USBD: Add steelbattalion fixme
+
+[33mcommit 318ac28f9c61c60cf9171b12c20622ad32916fb4[m
+Author: Ryan Wendland <wendland@live.com.au>
+Date:   Sun Jun 6 19:16:55 2021 +0930
+
+    Master: add slave communications
+
+[33mcommit c9a393ed1e8296ade6e664106000b54f3d096968[m
+Author: Ryan Wendland <wendland@live.com.au>
+Date:   Sun Jun 6 18:32:45 2021 +0930
+
+    Build: Recursive checkout
+
+[33mcommit d65aec5a040a1339311d7ee24b7d529a475c7ece[m
+Author: Ryan Wendland <wendland@live.com.au>
+Date:   Sun Jun 6 18:30:05 2021 +0930
+
+    Master: Update for v2
+
+[33mcommit ff1777b11b4661d5a46f9377e41d58a646baa183[m
+Author: Ryan Wendland <wendland@live.com.au>
+Date:   Sun Jun 6 18:29:36 2021 +0930
+
+    Main: Update for v2
+
+[33mcommit a4e545843a6dded44c278d69c6cb16264e0b3461[m
+Author: Ryan Wendland <wendland@live.com.au>
+Date:   Sun Jun 6 18:29:19 2021 +0930
+
+    USBD: Driver cleanup
+
+[33mcommit fdd0879756ecfdb75c61e338160a23954a35834e[m
+Author: Ryan Wendland <wendland@live.com.au>
+Date:   Sun Jun 6 18:28:58 2021 +0930
+
+    USBH: Driver additions
+
+[33mcommit 91718bc89306b96ce47e6e6d4cb440d5680c0826[m
+Author: Ryan Wendland <wendland@live.com.au>
+Date:   Sun Jun 6 18:28:13 2021 +0930
+
+    Build: disable UHS debugging
+
+[33mcommit 10637b9581179b96b5436a6c269529761c54e697[m
+Author: Ryan Wendland <wendland@live.com.au>
+Date:   Sat Jun 5 18:02:25 2021 +0930
+
+    Build: Update for v2 structure
+
+[33mcommit 4bc1f1c19d5bee81975e17c7cd8df1c04044e528[m
+Author: Ryan Wendland <wendland@live.com.au>
+Date:   Sat Jun 5 18:01:48 2021 +0930
+
+    Main: start master handler
+
+[33mcommit 33ef4ec25bf91412ecd9f9bc43997dbe8fa285f0[m
+Author: Ryan Wendland <wendland@live.com.au>
+Date:   Sat Jun 5 18:01:29 2021 +0930
+
+    USBH: Driver additions
+
+[33mcommit a2db5b4e8eacfc9ebf5b26f214bd6990c6584472[m
+Author: Ryan Wendland <wendland@live.com.au>
+Date:   Fri Jun 4 19:14:00 2021 +0930
+
+    USBD: Update licensing
+
+[33mcommit 4649df41336a44466bbeb5accac88b3b78d9dbd1[m
+Author: Ryan Wendland <wendland@live.com.au>
+Date:   Fri Jun 4 19:13:42 2021 +0930
+
+    USBH: Update licensing
+
+[33mcommit de0a0842abf0b385f8127f5c9a28e7e05dbf22cb[m
+Author: Ryan Wendland <wendland@live.com.au>
+Date:   Fri Jun 4 19:08:56 2021 +0930
+
+    USBH: Add initial XINPUT driver
+
+[33mcommit 4230b98a9d5951583c3f7782e57c171306bca904[m
+Author: Ryan Wendland <wendland@live.com.au>
+Date:   Fri Jun 4 19:08:12 2021 +0930
+
+    USBH: Add initial XINPUT driver
+
+[33mcommit 4ada698e2eb9d01084534ea11b039dffd65fb7ca[m
+Author: Ryan Wendland <wendland@live.com.au>
+Date:   Fri Jun 4 16:15:14 2021 +0930
+
+    USBD: Move device driver to folder
+
+[33mcommit 32a8666b919057183f027bbaeb977ee0b06d53ca[m
+Author: Ryan Wendland <wendland@live.com.au>
+Date:   Fri Jun 4 16:03:57 2021 +0930
+
+    USBD: Rename XID driver
+
+[33mcommit 50f577fbd82e4287ab6d8f621930b91a14abf17a[m
+Author: Ryan Wendland <wendland@live.com.au>
+Date:   Fri Jun 4 16:01:30 2021 +0930
+
+    USBD: Remove legacy LUFA XID drivers
+
+[33mcommit e92a48eac50bebd2e8069977f9908271e059f7a6[m
+Author: Ryan Wendland <wendland@live.com.au>
+Date:   Fri Jun 4 16:00:31 2021 +0930
+
+    USBD: Add initial XID pluggable USB driver
+
+[33mcommit 7b22a28c87d0aee3f61fbdc0f44f2027dbae98f0[m
+Author: Ryan Wendland <wendland@live.com.au>
+Date:   Fri Jun 4 15:59:36 2021 +0930
+
+    USBH: Remove legacy UHS
+
+[33mcommit 2bb96eccb589973ffba9db459cffa730183c68c4[m
+Author: Ryan Wendland <wendland@live.com.au>
+Date:   Fri Jun 4 15:58:51 2021 +0930
+
+    USBH: Add UHS2 as submodule
+
+[33mcommit 77dd4c5484a50c340bcc7bd62e41a2fd064c8aaa[m[33m ([m[1;32mmaster[m[33m)[m
+Author: Ryan Wendland <wendland@live.com.au>
+Date:   Fri Jun 4 15:56:16 2021 +0930
+
+    Core: Add ArduinoCore as a submodule
+
+[33mcommit d748bb49c6317cf17efebc94da4a9a380325e56e[m
+Author: Ryan Wendland <wendland@live.com.au>
+Date:   Fri Jun 4 15:55:48 2021 +0930
+
+    USBD: Remove LUFA
+
+[33mcommit 5cb9bc15a7915d6f6c600da23da503c08fb43925[m[33m ([m[1;33mtag: V1.62[m[33m, [m[1;31morigin/master[m[33m, [m[1;31morigin/HEAD[m[33m)[m
+Author: praypraynohate <55568980+praypraynohate@users.noreply.github.com>
+Date:   Mon Feb 15 17:21:24 2021 -0600
+
+    Input: Allow inverstion of X and Y axis on right stick.
+    
+    Co-authored-by: jfoshee900lbs <67333974+jfoshee900lbs@users.noreply.github.com>
+
+[33mcommit 7a0391668aebb93e688de981509bd2258a6d7ba6[m
+Author: Ryzee119 <wendland@live.com.au>
+Date:   Sat Feb 13 09:05:54 2021 +1030
+
+    CI: Create artifact
+
+[33mcommit 531306c3ce4c9e2089eed7cbcfc241484e55d397[m
+Author: Ryzee119 <wendland@live.com.au>
+Date:   Sat Feb 13 09:02:26 2021 +1030
+
+    XBOXONE: Add Xbox S/X PID 0x0B12 support
+
+[33mcommit b8fa86224f76d68ea4439f99e7c945e058d802ca[m
+Author: Ryzee119 <wendland@live.com.au>
+Date:   Sat Feb 13 08:55:09 2021 +1030
+
+    XBOXONE: Format code
+
+[33mcommit 3c8cdbdc67dfb97554b2dc584dbefda3d08c103b[m
+Author: Ryzee119 <wendland@live.com.au>
+Date:   Sun Jan 10 12:55:56 2021 +1030
+
+    Readme: Missing a word
+
+[33mcommit 82ac78560c1111fda567cb0db26d33a3c5fb2d35[m[33m ([m[1;33mtag: V1.61[m[33m)[m
+Author: Ryzee119 <wendland@live.com.au>
+Date:   Sun Jan 10 10:10:29 2021 +1030
+
+    Main: Add ability to invert right stick Y-axis
+
+[33mcommit 73a1a9be35e1146757e6c1803a8bf36d2acedd24[m
+Author: Ryzee119 <wendland@live.com.au>
+Date:   Sat Jan 9 20:57:33 2021 +1030
+
+    README: Fix image link for self test
+
+[33mcommit 2eec6a6bd8f0b5200043fb53a52f310010f542e5[m[33m ([m[1;33mtag: V1.6[m[33m)[m
+Author: Ryzee119 <wendland@live.com.au>
+Date:   Sat Jan 9 19:37:53 2021 +1030
+
+    HW: Update schematic image
+
+[33mcommit 38ef529c0220802c5e180d55a3d6ce6a43fc84fb[m
+Author: Ryzee119 <wendland@live.com.au>
+Date:   Sat Jan 9 19:35:05 2021 +1030
+
+    README: Update image to latest PCB
+
+[33mcommit 5fcd4560b1f87cb8cab553bbaa2dda743f573442[m
+Author: Ryzee119 <wendland@live.com.au>
+Date:   Sat Jan 9 19:33:27 2021 +1030
+
+    Images: Add revised PCB photo
+
+[33mcommit 5cb76c78ca5dd9c35600a561882c6cbb3ef704df[m
+Author: Ryzee119 <wendland@live.com.au>
+Date:   Sat Jan 9 19:33:10 2021 +1030
+
+    Images: Delete unused images
+
+[33mcommit 6f00488b34c8f7b42dc6a2fc3121d537a53d5c4f[m
+Author: Ryzee119 <wendland@live.com.au>
+Date:   Sat Jan 9 18:43:11 2021 +1030
+
+    HW: Route reset trace
+
+[33mcommit 1da0ef683482ae47375fbfee7d745a66cb1e2186[m
+Author: Ryzee119 <wendland@live.com.au>
+Date:   Sat Jan 9 18:40:11 2021 +1030
+
+    XBOXUSB: Properly parse config descriptor
+
+[33mcommit 2877771d6dfcaf1f3503caef7120cfdf5dd7d385[m
+Author: Ryzee119 <wendland@live.com.au>
+Date:   Sat Jan 9 15:36:50 2021 +1030
+
+    README: Add paypal link
+
+[33mcommit 9cca7a8509b5f1a4b00f64c34d65a76aa4ebcf7c[m
+Author: Ryzee119 <wendland@live.com.au>
+Date:   Mon Dec 14 20:22:45 2020 +1030
+
+    README: Simplify text
+
+[33mcommit 4325a738bd607d88aab3ee09c027ae1ebe1654d5[m
+Author: Ryzee119 <wendland@live.com.au>
+Date:   Mon Dec 14 20:17:34 2020 +1030
+
+    FW: Link the xboxdevwiki
+
+[33mcommit b660baa9151504e098f4880f3be7ee3df79fbc36[m
+Author: Ryzee119 <wendland@live.com.au>
+Date:   Mon Dec 14 19:56:32 2020 +1030
+
+    GH: Remove editorconfig
+
+[33mcommit 821f02e04cbc0c3e4096b0d1b165504c45698b28[m
+Author: Ryzee119 <wendland@live.com.au>
+Date:   Mon Dec 14 19:49:47 2020 +1030
+
+    BOM: Remove Arduino link
+
+[33mcommit b70680646d6e19f57c4ea9977c5aca5e2e7c5caa[m
+Author: Ryzee119 <wendland@live.com.au>
+Date:   Mon Dec 14 19:49:22 2020 +1030
+
+    BOM: Fix unknown characters
+
+[33mcommit a60fa1067418c54b13f7147a69e3dee7a63dd91c[m
+Author: Ryzee119 <wendland@live.com.au>
+Date:   Mon Dec 14 19:40:45 2020 +1030
+
+    HW: Move cases to Hardware readme
+
+[33mcommit bdebf42042ff9470c29c1bc36d35c7331df0cbde[m
+Author: Ryzee119 <wendland@live.com.au>
+Date:   Mon Dec 14 19:25:43 2020 +1030
+
+    HW: Migrate to kitspace
+
+[33mcommit 33e54edcf84d9482ab29647185de43d5e8d614b5[m
+Author: Ryzee119 <wendland@live.com.au>
+Date:   Mon Dec 14 19:25:28 2020 +1030
+
+    HW: PCB to revision 1
+
+[33mcommit 4ca560ee891af992e6eee105a37c6758a537e22f[m
+Author: phantom-8 <fatpetsmith@gmail.com>
+Date:   Sat Dec 26 17:42:02 2020 +0800
+
+    Rumble fix for Steel Battalion
+
+[33mcommit 23d41be66c4cced16f3415cca0018c9d64b26a04[m
+Author: phantom-8 <fatpetsmith@gmail.com>
+Date:   Sun Dec 13 14:18:48 2020 +0800
+
+    XBOXUSB Add support to v1.14 wired controller & minor bug fix
+
+[33mcommit 2ee01908ee34c75e994f849d71992a5f71eef1a9[m
+Author: Ryzee119 <wendland@live.com.au>
+Date:   Wed Dec 9 09:01:31 2020 +1030
+
+    XBOXRECV: Increase Keep Alive Packet Frequency
+
+[33mcommit 6656c9e022eff85e7a16b1e87bc470fed5e222aa[m
+Author: Ryzee119 <wendland@live.com.au>
+Date:   Tue Dec 8 17:36:35 2020 +1030
+
+    XBOXRECV: Check if no input before clearing buffer
+
+[33mcommit bfcf5ea2f893075dfe20483822fdd86e691c9b23[m
+Author: Ryzee119 <wendland@live.com.au>
+Date:   Tue Dec 8 14:19:23 2020 +1030
+
+    XBOXUSB: Improve output command reliability
+
+[33mcommit 326d84472255ea064aa2f4cff89696e62f5ce0f8[m
+Author: Ryzee119 <wendland@live.com.au>
+Date:   Tue Dec 8 13:28:33 2020 +1030
+
+    XBOXUSB: Reformat header
+
+[33mcommit 6fac58ab79ab2ae26575c1a10b3b2e3af8e3d2ae[m
+Author: Ryzee119 <wendland@live.com.au>
+Date:   Tue Dec 8 13:27:43 2020 +1030
+
+    XBOXUSB: Reformat code
+
+[33mcommit d166c5234824db02a936eb7a08ce836bcb068a85[m
+Author: Ryzee119 <wendland@live.com.au>
+Date:   Tue Dec 8 13:27:05 2020 +1030
+
+    XBOXRECV: Out pipe timer should be static
+
+[33mcommit 04e476df855b1050f715440bd0106b75157cd746[m
+Author: Ryzee119 <wendland@live.com.au>
+Date:   Tue Dec 8 12:30:51 2020 +1030
+
+    XBOXRECV: Add timeouts and enumerate based on interface
+
+[33mcommit f8998ae5bcf99516b1200b69bff391987e8257e0[m
+Author: Ryzee119 <wendland@live.com.au>
+Date:   Tue Dec 8 11:23:35 2020 +1030
+
+    Main: Fix order of USBTask. Slight improvment in input lag
+
+[33mcommit f00fd1ea69e4d3e98f4ef1c3f88abce025e9ab12[m
+Author: Ryzee119 <wendland@live.com.au>
+Date:   Tue Dec 8 10:42:33 2020 +1030
+
+    XBOXRECV: Reset idle only on controller press
+
+[33mcommit ced97f64a9fb222d4c9fd5587c9c29c40e1c3156[m
+Author: Ryzee119 <wendland@live.com.au>
+Date:   Tue Dec 8 10:32:18 2020 +1030
+
+    XBOXRECV: Correctly limit out pipe to 8ms
+
+[33mcommit e938887b446d8fce098b0ee3f5dfd461c11a61bf[m
+Author: Ryzee119 <wendland@live.com.au>
+Date:   Tue Dec 8 09:37:01 2020 +1030
+
+    PlatformIO: Update CI
+
+[33mcommit b36348d597e5053962379bf824abfafc2eabf4d8[m
+Author: Ryzee119 <wendland@live.com.au>
+Date:   Tue Dec 8 09:31:25 2020 +1030
+
+    PlatformIO: Setup build environments
+
+[33mcommit 66e4d4fc633c6abb73f7fddf53250f77cd35d5a0[m
+Author: Ryzee119 <wendland@live.com.au>
+Date:   Tue Dec 8 09:30:49 2020 +1030
+
+    PlatformIO: Update build instructions
+
+[33mcommit 1e5704554dc0cacf37d3bc63ea006dd07971d8c0[m
+Author: Ryzee119 <wendland@live.com.au>
+Date:   Tue Dec 8 08:37:57 2020 +1030
+
+    Main: Reformat code
+
+[33mcommit 97d113ea24e3865d63f77f763a55a382935dac43[m
+Author: Ryzee119 <wendland@live.com.au>
+Date:   Tue Dec 8 08:27:52 2020 +1030
+
+    USBD: Reformat code
+
+[33mcommit f60b4951e597e411d3892738256cb3ef091f673e[m
+Author: Ryzee119 <wendland@live.com.au>
+Date:   Tue Dec 8 08:06:25 2020 +1030
+
+    PlatformIO: Migrate build system
+
+[33mcommit 353481e384f164cb4ba6a3810abe4befcd2f7f6d[m
+Author: Ryzee119 <wendland@live.com.au>
+Date:   Tue Dec 8 07:51:41 2020 +1030
+
+    XBOXRECV: Reformat header
+
+[33mcommit b96d6beb6183d2728de8c9798890c6bb72966958[m
+Author: Ryzee119 <wendland@live.com.au>
+Date:   Tue Dec 8 07:51:20 2020 +1030
+
+    XBOXRECV: Check controller presence only when idle
+
+[33mcommit e4f4e880a8f59c6495b0f49762d1c46b2cfea736[m
+Author: Ryzee119 <wendland@live.com.au>
+Date:   Sat Dec 5 17:50:23 2020 +1030
+
+    XBOXRECV: Refresh LED periodically
+
+[33mcommit 8ef64a124a8948a4e1d0916c0700566675ed6390[m
+Author: Ryzee119 <wendland@live.com.au>
+Date:   Sat Dec 5 15:38:11 2020 +1030
+
+    XBOXRECV: Reformat code
+
+[33mcommit 59ac3cf1a096a602064339233ba29b2efe6ec9d7[m
+Author: Ryzee119 <wendland@live.com.au>
+Date:   Sat Dec 5 14:20:22 2020 +1030
+
+    XBOXRECV: Fix incorrect chatpad button states
+
+[33mcommit 76dccf0ab9e91700f72d87870038bfdd544ea4db[m
+Author: Ryzee119 <wendland@live.com.au>
+Date:   Sat Dec 5 10:19:39 2020 +1030
+
+    XBOXRECV: Rework to reduce missed presses with chatpad
+
+[33mcommit 27942f1965dc4b0a7e773592d668ba88c2513541[m
+Author: Ryzee119 <wendland@live.com.au>
+Date:   Mon Sep 28 18:30:59 2020 +0930
+
+    XBOXONE: Add Hyperkin Duke v1.01
+
+[33mcommit 74a12a085fc44647db9afb5726fbe0ab6892c1a1[m[33m ([m[1;33mtag: V1.5[m[33m)[m
+Author: Ryzee119 <wendland@live.com.au>
+Date:   Sun Sep 27 16:37:39 2020 +0930
+
+    ci: correctly creates hex from elf
+
+[33mcommit 1c7e83621c63dc5c2a0e16be284d3a79480a3918[m
+Author: Ryzee119 <wendland@live.com.au>
+Date:   Sun Aug 23 16:11:18 2020 +0930
+
+    Add build status badge
+
+[33mcommit 556cf6814e09095e42dccc078c598f578ab935ce[m
+Merge: e287015 c89383f
+Author: Ryzee119 <wendland@live.com.au>
+Date:   Sun Aug 23 11:44:06 2020 +0930
+
+    CMake build setup for avr-gcc and GitHub Actions CI Workflow for auto-building
+    
+    Added GitHub Actions CI Workflow to auto-build
+
+[33mcommit c89383f491d19ed43789d98735d35563b4d1aefc[m
+Author: Ben Baron <ben@einsteinx2.com>
+Date:   Sat Aug 22 21:09:37 2020 -0500
+
+    Split CMAKE compile flags to multiple lines
+
+[33mcommit 5b33eaffcebfc1018cc3ade6ccf30b424deb2774[m
+Author: Ben Baron <ben@einsteinx2.com>
+Date:   Sat Aug 22 21:07:26 2020 -0500
+
+    Fixed comment spacing in XBOXRECV.h
+
+[33mcommit 2d8d3582aacd2ad8be251793f97b56fd1674d704[m
+Author: Ben Baron <ben@einsteinx2.com>
+Date:   Sat Aug 22 20:53:13 2020 -0500
+
+    Upload build artifacts when pushing to master
+
+[33mcommit 66cac86fbaf2641d32d62e6217ee4d6e8bf3b3f4[m
+Author: Ben Baron <ben@einsteinx2.com>
+Date:   Sat Aug 22 19:44:43 2020 -0500
+
+    Removed extra lib files from main firmware files
+    
+    Originally I was building the libs as part of the main build, but then I split them out into separate libraries. I forgot to remove some of the library files from the main firmware files list, so it was compiling them multiple times unnecessarily.
+
+[33mcommit 69583fb3c158fd4a77b034f43ffbff5c2a3ac376[m
+Author: Ben Baron <ben@einsteinx2.com>
+Date:   Sat Aug 22 12:22:33 2020 -0500
+
+    Added GitHub Actions CI Workflow to auto-build
+
+[33mcommit a54fafeb4dd89f69d21ca2657f99488e18bbbfc7[m
+Author: Ben Baron <ben@einsteinx2.com>
+Date:   Sat Aug 22 12:09:11 2020 -0500
+
+    Working CMake config for master and slave builds
+
+[33mcommit e2870157b289e26de66901e9071732d9817a975b[m
+Author: Ryzee119 <wendland@live.com.au>
+Date:   Fri Aug 21 14:53:02 2020 +0930
+
+    Allow defines to be passed via make
+
+[33mcommit f5b7ef724f30868125d32f0f0870f629b05c24a7[m
+Author: Ryzee119 <wendland@live.com.au>
+Date:   Fri Aug 21 14:33:50 2020 +0930
+
+    README: Simplify
+
+[33mcommit 66798839f0ae17b1c86643b0c27c5be061ac742d[m
+Author: Ryzee119 <wendland@live.com.au>
+Date:   Fri Aug 21 14:31:16 2020 +0930
+
+    README: Simplify
+
+[33mcommit 179aab3eca2cd5ec92ee4b393ffd53303c16fcb3[m
+Author: Ryzee119 <wendland@live.com.au>
+Date:   Fri Aug 21 14:18:10 2020 +0930
+
+    README: Simplify
+
+[33mcommit 41620bbc0c49a74e70f8687d36797a768228a0fc[m
+Author: Ryzee119 <wendland@live.com.au>
+Date:   Fri Aug 21 14:16:59 2020 +0930
+
+    README: Simplify
+
+[33mcommit e3f5509716710ae862c201fd43fb8348d5130836[m
+Author: Ryzee119 <wendland@live.com.au>
+Date:   Sat Jul 4 15:29:38 2020 +0930
+
+    Refactor Xbox
+
+[33mcommit 2de55f8fcfc74dc46b12b5f2afbbf1ee9516a7f9[m
+Author: Ryzee119 <wendland@live.com.au>
+Date:   Sat Jul 4 15:05:12 2020 +0930
+
+    GH: Update gitignore
+
+[33mcommit 989fef7a6bd09cf18479a3407d55a404f466fb51[m
+Author: Ryzee119 <wendland@live.com.au>
+Date:   Fri Jul 3 14:23:50 2020 +0930
+
+    USBD: Add MADCATZ_BEAT_PAD and KONAMI_DANCE_PAD
+
+[33mcommit 284df6fa356c29dadef4a318fd28e7250db50647[m
+Merge: 048c89f 84a670f
+Author: Ryzee119 <wendland@live.com.au>
+Date:   Mon Jun 8 15:58:44 2020 +0930
+
+    Merge pull request #25 from emanzanoaxa/add_nonofficial_controllers
+    
+    Added support for more non official xbox360 controllers
+
+[33mcommit 84a670fa9bc873bfa7ac32f7daefd6df81832a60[m
+Author: Emilio Manzano Marcos <emanzanomarcos@gmail.com>
+Date:   Sun Jun 7 16:49:01 2020 +0200
+
+    Added support for:
+     - Street Figter 4 Fight Pad (Xbox 360)
+     - Hori Rap VX-SA Arcade Stick (Xbox 360)
+
+[33mcommit 048c89f8b39626ad2e730bddd15472b124ba581b[m
+Merge: 0a64456 9e67dcf
+Author: Ryzee119 <wendland@live.com.au>
+Date:   Wed May 27 07:54:31 2020 +0930
+
+    Merge pull request #23 from emanzanoaxa/gamestop_afterglow_vid_pid_fix
+    
+    Update and fix GameStop and Afterglow wired controllers VID/PID values.
+
+[33mcommit 9e67dcff1250144a526289c9b67a98d385d48c3d[m
+Author: Emilio Manzano Marcos <emanzanomarcos@gmail.com>
+Date:   Tue May 26 23:34:30 2020 +0200
+
+    Added madcatz wired controller vid/pid, thrustmaster wired controller vid/pid and thrustmaster wheel vid/pid. All three tested and working.
+
+[33mcommit eca68e1b2019c900c81940388544c3a0424aadfd[m
+Author: Emilio Manzano Marcos <emanzanomarcos@gmail.com>
+Date:   Sun May 24 14:39:26 2020 +0200
+
+    Keep gamestop and afterglow PIDs and add new ones to keep compatibility.
+
+[33mcommit 376f3cb5e3b3b46e98d1af868a2c27e83853d6cb[m
+Author: Emilio Manzano Marcos <emanzanomarcos@gmail.com>
+Date:   Sun May 24 14:10:56 2020 +0200
+
+    Update and fix GameStop and Afterglow wired controllers VID/PID values.
+
+[33mcommit 0a64456fc08f6377502e9531cb6cf445b48bd829[m[33m ([m[1;33mtag: 1.4[m[33m)[m
+Author: Ryzee119 <Ryzee119>
+Date:   Sun Mar 15 17:01:53 2020 +1030
+
+    Added hyperkin duke, alot of code refactoring, fixed bug in xbox one driver
+
+[33mcommit 62e2ce37b39ec8c2c9ed6ffe167784d86ab42a6a[m
+Merge: d1f2b4c 647920a
+Author: Ryzee119 <wendland@live.com.au>
+Date:   Fri Nov 29 18:10:50 2019 +0800
+
+    Merge pull request #18 from LoveMHz/patch-1
+    
+    Fix controller documentation link
+
+[33mcommit 647920a933538752c0bc34fd01a182f6673f7724[m
+Author: Dustin Holden <dustin@devholden.com>
+Date:   Fri Nov 15 09:50:58 2019 -0500
+
+    Fix controller documentation link
+    
+    Looks like the link on xboxdevwiki.net was changed.
+
+[33mcommit d1f2b4c952919489ec67a4b006be3a4175e582f2[m[33m ([m[1;33mtag: V1.3[m[33m)[m
+Author: Ryzee119 <wendland@live.com.au>
+Date:   Thu Oct 24 21:06:24 2019 +1030
+
+    added VID=0x0738 PID=0x4738
+
+[33mcommit 426220bdf1f8f4e99e9b878f81745ba92430617d[m[33m ([m[1;33mtag: V1.2[m[33m)[m
+Author: Ryzee119 <wendland@live.com.au>
+Date:   Sun Sep 22 08:59:16 2019 +0930
+
+    Added PID 0x02A9
+
+[33mcommit 8ecbaf9df5454a973ad1c68702daa0e1b1991790[m
+Author: Ryzee119 <wendland@live.com.au>
+Date:   Wed Aug 28 19:17:48 2019 +0930
+
+    Moved compiled binaries to releases
+
+[33mcommit dd7d544bfb2359e922d684cec2a76bb617dd86a1[m[33m ([m[1;33mtag: release[m[33m)[m
+Author: Ryzee119 <wendland@live.com.au>
+Date:   Wed Aug 28 18:54:50 2019 +0930
+
+    Fixed issue #12, Fixed THPS 2X rumble issue, Fixed XblastOS hotplug issue
+
+[33mcommit 30f6a3b1dbd78e2cd5a9a7c12b284c631bcf6019[m
+Author: Ryzee119 <wendland@live.com.au>
+Date:   Sat Aug 24 12:16:25 2019 +0930
+
+    Code clean up, fixed some back end stuff. Xbox 360 wireless init sequence closer to genuine, polls slaves on power up to confirm they're presetn
+
+[33mcommit 9fa276da8a8b96f39f10eb6005c470c3dfb621b7[m
+Author: Ryzee119 <wendland@live.com.au>
+Date:   Sat Aug 3 09:29:40 2019 +0930
+
+    Updated part for LED. Refer Issue #9
+
+[33mcommit 54a6767aecac5c89495022da7fa9d3d25dbef195[m
+Author: Ryzee119 <wendland@live.com.au>
+Date:   Thu Jul 4 17:56:26 2019 +0930
+
+    Fixed rumble pipe for 8btido controllers, gitinore and editorconfig added, formatting etc.
+
+[33mcommit 2d6ab8aa83520e2786a02dfe59b6f21a7d8a6ea7[m
+Author: Ryzee119 <wendland@live.com.au>
+Date:   Thu Jun 20 17:58:01 2019 +0930
+
+    Added PID 0x2AA for a new wireless receiver found by users
+
+[33mcommit 2846542f51bc1cc4546359e45a9bd23adbed6b69[m
+Author: Ryzee119 <wendland@live.com.au>
+Date:   Wed May 29 19:58:18 2019 +0930
+
+    Fixed issue#2
+
+[33mcommit a7b2420ace5b00d294adeca6a61302b18189174f[m
+Author: Ryzee119 <wendland@live.com.au>
+Date:   Tue Apr 16 07:40:30 2019 +0930
+
+    Update README.md
+
+[33mcommit 5eb346287676eade86948b4736ef7a8997f783c5[m
+Author: Ryzee119 <wendland@live.com.au>
+Date:   Tue Apr 16 07:40:03 2019 +0930
+
+    Update README.md
+
+[33mcommit ce39540718ebcd1e8daa4b8d0cc7a84dea8b5bdf[m
+Author: Ryzee119 <wendland@live.com.au>
+Date:   Tue Apr 9 21:24:02 2019 +0930
+
+    8bitdo adaptor support, tweak SB controller mapping, added SB ssensitivity adjust, Wired 360 in main firmware now
+
+[33mcommit 69db19fe3cac76ae79da981c686eec4832c81c99[m
+Author: Ryzee119 <wendland@live.com.au>
+Date:   Sat Mar 23 08:43:17 2019 +1030
+
+    Added another case
+
+[33mcommit d3c237777ea042c6f435a7dd739e3b17abe985e1[m
+Author: Ryzee119 <wendland@live.com.au>
+Date:   Thu Mar 21 19:07:15 2019 +1030
+
+    Added Cases and other minor text changes
+
+[33mcommit 7f2864acb29603aa609eac77ef40765e69b6649d[m
+Author: Ryzee119 <wendland@live.com.au>
+Date:   Sat Mar 16 14:34:38 2019 +1030
+
+    stocked
+
+[33mcommit 28ec5027a55f6901c279cda2907234a56dd478cf[m
+Author: Ryzee119 <wendland@live.com.au>
+Date:   Sat Mar 16 14:33:35 2019 +1030
+
+    Fix
+
+[33mcommit faba4182e45c90bfbdbd417b6f09f0bf61252d01[m
+Author: Ryzee119 <wendland@live.com.au>
+Date:   Mon Mar 11 14:42:59 2019 +1030
+
+    Added Rumble Feedback to SB, Tweaked SB Button Mapping, bug Fixes, Optimizations. SB Protocol Notes
+
+[33mcommit c6cb97ee6acadbab71aafe4f503a2d78478eb92b[m
+Author: Ryzee119 <wendland@live.com.au>
+Date:   Mon Mar 11 14:41:47 2019 +1030
+
+    Added Rumble Feedback to SB, Tweaked SB Button Mapping, bug Fixes, Optimizations. SB Protocol Notes
+
+[33mcommit 840a4e48355eaf24afc654f18101fae77e977c88[m
+Author: Ryzee119 <wendland@live.com.au>
+Date:   Mon Mar 11 14:41:10 2019 +1030
+
+    Added Rumble Feedback to SB, Tweaked SB Button Mapping, bug Fixes, Optimizations. SB Protocol Notes
+
+[33mcommit 6683a881b61f76f3423ae764bddc6c114cf4a411[m
+Author: Ryzee119 <wendland@live.com.au>
+Date:   Mon Mar 11 14:35:42 2019 +1030
+
+    Added Rumble Feedback to SB, Tweaked SB Button Mapping, bug Fixes, Optimizations. SB Protocol Notes
+
+[33mcommit 16b111369f5e9d978d67f7c6d85d8a7637514583[m
+Author: Ryzee119 <wendland@live.com.au>
+Date:   Mon Feb 25 17:24:49 2019 +1030
+
+    Typos
+
+[33mcommit c2f6e4f2f5764556551d5b3c16c823d572a23e7a[m
+Author: Ryzee119 <wendland@live.com.au>
+Date:   Mon Feb 25 17:18:19 2019 +1030
+
+    Added SB Controller Support
+
+[33mcommit d57b375c2bfc685b6a30a81930d16bb11cf20802[m
+Author: Ryzee119 <wendland@live.com.au>
+Date:   Thu Feb 14 07:28:12 2019 +1030
+
+    Update README.md
+
+[33mcommit edd7d4753b077ab3fdc9188502950656c8190f19[m
+Author: Ryzee119 <wendland@live.com.au>
+Date:   Mon Feb 11 17:22:50 2019 +1030
+
+    Update README.md
+
+[33mcommit aad785eaab9abb958ff9bb6a33b67cbd99cd0478[m
+Author: Ryzee119 <wendland@live.com.au>
+Date:   Sun Feb 10 09:31:30 2019 +1030
+
+    Update README.md
+
+[33mcommit 00478887b8de2685012ff7f0b907fc2985a6abec[m
+Author: Ryzee119 <wendland@live.com.au>
+Date:   Sat Feb 9 06:18:11 2019 +1030
+
+    Update README.md
+
+[33mcommit 73c8e574d7396c9db6adafda770a0e2f2c5651ae[m
+Author: Ryzee119 <wendland@live.com.au>
+Date:   Sat Feb 2 16:50:28 2019 +1030
+
+    Fixed link
+
+[33mcommit 93e3b2875eef16ba63f030b9734972c66b43b2a7[m
+Author: Ryzee119 <wendland@live.com.au>
+Date:   Sat Feb 2 16:48:30 2019 +1030
+
+    Add self test script
+
+[33mcommit 3bb6ff728366c4b6720e33885dcf0df7197056a6[m
+Author: Ryzee119 <wendland@live.com.au>
+Date:   Sat Feb 2 16:44:46 2019 +1030
+
+    Add self-test script
+
+[33mcommit 0752a67f6523fafaeff0cd6f11e23938a2f75172[m
+Author: Ryzee119 <wendland@live.com.au>
+Date:   Mon Jan 28 19:42:37 2019 +1030
+
+    Added Arduino clone ref
+
+[33mcommit 411088d3abbed482ccb3b35f441c5bf7af64206a[m
+Author: Ryzee119 <wendland@live.com.au>
+Date:   Mon Jan 28 08:57:05 2019 +1030
+
+    Swapped black and white buttons
+
+[33mcommit c7edeb62f1bc3f97ca7ae15f600d103295786019[m
+Author: Ryzee119 <wendland@live.com.au>
+Date:   Mon Jan 28 08:47:13 2019 +1030
+
+    Swapped black and white buttons
+
+[33mcommit e21ab441857a1d3d9ac40ae8d05d9a372d0db8c5[m
+Author: Ryzee119 <wendland@live.com.au>
+Date:   Wed Jan 23 20:04:38 2019 +1030
+
+    Minor fixes
+
+[33mcommit 5a542560e0cdc3fe7a507fadd2263747c30b6ae9[m
+Author: Ryzee119 <wendland@live.com.au>
+Date:   Mon Jan 21 19:05:37 2019 +1030
+
+    General optimizations, experimental build added
+
+[33mcommit e8faed22d172be2ebd19ae90b13469772aacdecb[m
+Author: Ryzee119 <wendland@live.com.au>
+Date:   Thu Jan 10 09:42:59 2019 +1030
+
+    Update README.md
+
+[33mcommit e495e3b54eacf75688e935507360354fcda8c3e9[m
+Author: Ryzee119 <wendland@live.com.au>
+Date:   Sun Jan 6 20:01:04 2019 +1030
+
+    Update README.md
+
+[33mcommit 9ede63b045012bf1358d3f94080ee03adff609ad[m
+Author: Ryzee119 <wendland@live.com.au>
+Date:   Sun Jan 6 17:15:14 2019 +1030
+
+    Update README.md
+
+[33mcommit d6dff79decc79778e28d80b6334e05f32eb898e5[m
+Author: Ryzee119 <wendland@live.com.au>
+Date:   Sun Jan 6 12:36:57 2019 +1030
+
+    Fixed rare rumble bug and soft reset bug
+
+[33mcommit a7daa2e526c762a610cbfbc4c3afceeb0bfd78c4[m
+Author: Ryzee119 <wendland@live.com.au>
+Date:   Sun Jan 6 12:28:07 2019 +1030
+
+    Fixed rare rumble bug and soft reset bug
+
+[33mcommit e25be229f8b08863d97cc066ff680bd8617f487b[m
+Author: Ryzee119 <wendland@live.com.au>
+Date:   Sat Jan 5 08:45:36 2019 +1030
+
+    Update README.md
+
+[33mcommit b5fa08cbf5a6fa26647ff9b4449ec25522da74de[m
+Author: Ryzee119 <wendland@live.com.au>
+Date:   Thu Jan 3 22:36:23 2019 +1030
+
+    Update README.md
+
+[33mcommit 478711668c6121faa7ac64008587884ef184b851[m
+Author: Ryzee119 <wendland@live.com.au>
+Date:   Thu Jan 3 22:11:00 2019 +1030
+
+    Update README.md
+
+[33mcommit 223733560b026236bc2d5c4c540768015c02a80d[m
+Author: Ryzee119 <wendland@live.com.au>
+Date:   Sat Dec 22 13:34:17 2018 +1030
+
+    Optimizations and cleanup
+
+[33mcommit 6700f9fb0d4947cbaaa0e4fb415cd06b5549cd0e[m
+Author: Ryzee119 <wendland@live.com.au>
+Date:   Sun Dec 16 11:11:04 2018 +1030
+
+    Update README.md
+
+[33mcommit a485a4762ddce8519fd0bd958834bf1c9f79913f[m
+Author: Ryzee119 <wendland@live.com.au>
+Date:   Sat Dec 15 18:25:43 2018 +1030
+
+    Update README.md
+    
+    spelling
+
+[33mcommit 0cfdd56700904e473bc0ef7cef69f1054db721dc[m
+Author: Ryzee119 <wendland@live.com.au>
+Date:   Sat Dec 15 18:04:19 2018 +1030
+
+    Formatting
+
+[33mcommit 6fcc0f388b198df6bef8066ac05868df45e2b856[m
+Author: Ryzee119 <wendland@live.com.au>
+Date:   Sat Dec 15 18:02:04 2018 +1030
+
+    Delete .atsuo
+
+[33mcommit 7914e3193b6f285c041cda0e5b8baa87c101d5ef[m
+Author: Ryzee119 <wendland@live.com.au>
+Date:   Sat Dec 15 18:01:16 2018 +1030
+
+    Formatting
+
+[33mcommit d92caa2b88886c3a82e37e77b58e0bac3209d4fe[m
+Author: Ryzee119 <wendland@live.com.au>
+Date:   Sat Dec 15 17:56:51 2018 +1030
+
+    Initial commit
+
+[33mcommit 04e1e561fc5a740f3890d6f57cf79ab2d0523725[m
+Author: Ryzee119 <wendland@live.com.au>
+Date:   Sat Dec 15 17:55:23 2018 +1030
+
+    Initial commit
+
+[33mcommit f10f5b32990b1dd19a2682f1da412e01eaff766b[m
+Author: Ryzee119 <wendland@live.com.au>
+Date:   Sat Dec 15 17:41:21 2018 +1030
+
+    Initial commit

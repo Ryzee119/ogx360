@@ -3,7 +3,7 @@
 
 #include "usbh_xinput.h"
 
-#define ENABLE_USBH_XINPUT_DEBUG
+//#define ENABLE_USBH_XINPUT_DEBUG
 #ifdef ENABLE_USBH_XINPUT_DEBUG
 #define USBH_XINPUT_DEBUG(a) Serial1.print(a)
 #else
@@ -66,8 +66,8 @@ usbh_xinput_t *XINPUT::alloc_xinput_device(uint8_t bAddress, EpInfo *in, EpInfo 
         memcpy_P(xdata, xbox360w_inquire_present, sizeof(xbox360w_inquire_present));
         pUsb->outTransfer(bAddress, out->epAddr, sizeof(xbox360w_inquire_present), xdata);
 
-        memcpy_P(xdata, xbox360w_controller_info, sizeof(xbox360w_controller_info));
-        pUsb->outTransfer(bAddress, out->epAddr, sizeof(xbox360w_controller_info), xdata);
+        //memcpy_P(xdata, xbox360w_controller_info, sizeof(xbox360w_controller_info));
+        //pUsb->outTransfer(bAddress, out->epAddr, sizeof(xbox360w_controller_info), xdata);
     }
     else if (xinput_type == XBOXONE)
     {
@@ -422,6 +422,7 @@ uint8_t XINPUT::Init(uint8_t parent __attribute__((unused)), uint8_t port __attr
     }
     else
     {
+        //For the wireless controller send an inquire packet to each endpoint
         memcpy_P(xdata, xbox360w_inquire_present, sizeof(xbox360w_inquire_present));
         for (uint8_t i = 2; i < 9; i+= 2)
             pUsb->outTransfer(bAddress, epInfo[i].epAddr, sizeof(xbox360w_inquire_present), xdata);
@@ -597,22 +598,26 @@ uint8_t XINPUT::Poll()
             USBH_XINPUT_DEBUG(F("USBH XINPUT: BACKGROUND POLL\n"));
             if(xinput_type == XBOX360_WIRELESS)
             {
+                memset(xdata, 0, 12);
                 memcpy_P(xdata, xbox360w_inquire_present, sizeof(xbox360w_inquire_present));
-                pUsb->outTransfer(bAddress, epInfo[i].epAddr, sizeof(xbox360w_inquire_present), xdata);
+                pUsb->outTransfer(bAddress, epInfo[i].epAddr, 12, xdata);
 
-                memcpy_P(xdata, xbox360w_controller_info, sizeof(xbox360w_controller_info));
-                pUsb->outTransfer(bAddress, epInfo[i].epAddr, sizeof(xbox360w_controller_info), xdata);
+                //memcpy_P(xdata, xbox360w_controller_info, sizeof(xbox360w_controller_info));
+                //pUsb->outTransfer(bAddress, epInfo[i].epAddr, 12, xdata);
+
+                SetLed(xinput, xinput->led_requested);
 
                 (xinput->chatpad_keepalive_toggle ^= 1) ? \
                     memcpy_P(xdata, xbox360w_chatpad_keepalive1, sizeof(xbox360w_chatpad_keepalive1)) :
                     memcpy_P(xdata, xbox360w_chatpad_keepalive2, sizeof(xbox360w_chatpad_keepalive2));
                 
-                pUsb->outTransfer(bAddress, epInfo[i].epAddr, sizeof(xbox360w_chatpad_keepalive1), xdata);
+                pUsb->outTransfer(bAddress, epInfo[i].epAddr, 12, xdata);
                 xinput->timer_out = millis();
             }
             xinput->timer_periodic = millis();
         }
     }
+
     return 0;
 }
 
@@ -841,10 +846,11 @@ uint8_t XINPUT::SetRumble(usbh_xinput_t *xpad, uint8_t lValue, uint8_t rValue)
     switch (xinput_type)
     {
     case XBOX360_WIRELESS:
-        memcpy_P(xdata, xbox360_wireless_rumble, sizeof(xbox360_wireless_rumble));
+        memset(xdata, 0x00, 12);
+        memcpy_P(xdata, xbox360w_rumble, sizeof(xbox360w_rumble));
         xdata[5] = lValue;
         xdata[6] = rValue;
-        len = sizeof(xbox360_wireless_rumble);
+        len = 12;
         break;
     case XBOX360_WIRED:
         memcpy_P(xdata, xbox360_wired_rumble, sizeof(xbox360_wired_rumble));
@@ -853,10 +859,10 @@ uint8_t XINPUT::SetRumble(usbh_xinput_t *xpad, uint8_t lValue, uint8_t rValue)
         len = sizeof(xbox360_wired_rumble);
         break;
     case XBOXONE:
-        memcpy_P(xdata, xbox_one_rumble, sizeof(xbox_one_rumble));
-        xdata[8] = lValue / 2.6f;  //Scale is 0 to 100
+        memcpy_P(xdata, xboxone_rumble, sizeof(xboxone_rumble));
+        xdata[8] = lValue / 2.6f; //Scale is 0 to 100
         xdata[9] = rValue / 2.6f; //Scale is 0 to 100
-        len = sizeof(xbox_one_rumble);
+        len = sizeof(xboxone_rumble);
         break;
     default:
         return hrSUCCESS;
@@ -872,9 +878,10 @@ uint8_t XINPUT::SetLed(usbh_xinput_t *xpad, uint8_t quadrant)
     switch (xinput_type)
     {
     case XBOX360_WIRELESS:
-        memcpy_P(xdata, xbox360_wireless_led, sizeof(xbox360_wireless_led));
+        memset(xdata, 0x00, 12);
+        memcpy_P(xdata, xbox360w_led, sizeof(xbox360w_led));
         xdata[3] = (quadrant == 0) ? 0 : (0x40 | (quadrant + 5));
-        len = sizeof(xbox360_wireless_led);
+        len = 12;
         break;
     case XBOX360_WIRED:
         memcpy_P(xdata, xbox360_wired_led, sizeof(xbox360_wired_led));

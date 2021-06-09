@@ -1,26 +1,5 @@
-/*
-This sketch is used for the ogx360 PCB (See https://github.com/Ryzee119/ogx360).
-This program incorporates the USB Host Shield Library for the MAX3421 IC See https://github.com/felis/USB_Host_Shield_2.0.
-The USB Host Shield Library is an Arduino library, consequently I have imported to necessary Arduino libs into this project.
-This program also incorporates the AVR LUFA USB Library, See http://www.fourwalledcubicle.com/LUFA.php for the USB HID support.
-
-This program is free software: you can redistribute it and/or modify
-it under the terms of the GNU General Public License as published by
-the Free Software Foundation, either version 3 of the License, or
-(at your option) any later version.
-This program is distributed in the hope that it will be useful,
-but WITHOUT ANY WARRANTY; without even the implied warranty of
-MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the
-GNU General Public License for more details.
-You should have received a copy of the GNU General Public License
-along with this program. If not, see <https://www.gnu.org/licenses/>.
-
-In settings.h you can configure the following options:
-1. Compile for MASTER of SLAVE (comment out #define MASTER) (Host is default)
-2. Enable or disable Steel Battalion Controller Support via Wireless Xbox 360 Chatpad (Enabled by Default)
-3. Enable or disable Xbox 360 Wired Support (Enabled by default)
-4. Enable or disable Xbox One Wired Support (Disabled by default)
-*/
+// Copyright 2020, Ryan Wendland, ogx360
+// SPDX-License-Identifier: GPL-3.0-or-later
 
 #include <Arduino.h>
 #include <Wire.h>
@@ -28,8 +7,6 @@ In settings.h you can configure the following options:
 #include <UHS2/Usb.h>
 #include <UHS2/usbhub.h>
 
-#include "usbd/usbd_xid.h"
-#include "usbh/usbh_xinput.h"
 #include "main.h"
 
 USB UsbHost;
@@ -106,30 +83,37 @@ void master_task()
     for (int i = 0; i < MAX_GAMEPADS; i++)
     {
         usbh_xinput_t *_usbh_xinput = &usbh_head[i];
-        usbd_duke_t *_usbd_duke = &usbd_c[i].duke;
-        usbd_steelbattalion_t *_usbd_sbattalion = & usbd_c[i].sb;
+        usbd_controller_t *_usbd_c = &usbd_c[i];
+        usbd_duke_t *_usbd_duke = &_usbd_c->duke;
+        usbd_steelbattalion_t *_usbd_sbattalion = &_usbd_c->sb;
 
-        if (_usbh_xinput->bAddress == 0 && millis() > 5000)
+        if (_usbh_xinput->bAddress == 0)
         {
-            usbd_c[i].type = DISCONNECTED;
+            _usbd_c->type = DISCONNECTED;
+        }
+
+        //Must be connected, set a default device
+        if (_usbh_xinput->bAddress && _usbd_c->type == DISCONNECTED)
+        {
+            _usbd_c->type = DUKE;
         }
 
         if (usbh_xinput_is_chatpad_pressed(_usbh_xinput, XINPUT_CHATPAD_GREEN))
         {
-            usbd_c[i].type = DUKE;
+            _usbd_c->type = DUKE;
             _usbh_xinput->chatpad_led_requested = XINPUT_CHATPAD_GREEN;
         }
         else if (usbh_xinput_is_chatpad_pressed(_usbh_xinput, XINPUT_CHATPAD_ORANGE))
         {
-            usbd_c[i].type = STEELBATTALTION;
+            _usbd_c->type = STEELBATTALTION;
             _usbh_xinput->chatpad_led_requested = CHATPAD_ORANGE;
         }
 
-        if (usbd_c[i].type == DUKE)
+        if (_usbd_c->type == DUKE)
         {
             handle_duke(_usbh_xinput, _usbd_duke);
         }
-        else if (usbd_c[i].type == STEELBATTALTION)
+        else if (_usbd_c->type == STEELBATTALTION)
         {
             handle_sbattalion(_usbh_xinput, _usbd_sbattalion);
         }
@@ -141,14 +125,14 @@ void master_task()
         uint8_t rx_len, tx_len;
         uint8_t *rx_buff, *tx_buff;
 
-        if (usbd_c[i].type == DUKE)
+        if (_usbd_c->type == DUKE)
         {
             tx_len = sizeof(usbd_duke_in_t);
             tx_buff = (uint8_t *)&_usbd_duke->in;
             rx_len = sizeof(usbd_duke_out_t);
             rx_buff = (uint8_t *)&_usbd_duke->out;
         }
-        else if (usbd_c[i].type == STEELBATTALTION)
+        else if (_usbd_c->type == STEELBATTALTION)
         {
             tx_len = sizeof(usbd_sbattalion_in_t);
             tx_buff = (uint8_t *)&_usbd_sbattalion->in;
@@ -156,17 +140,20 @@ void master_task()
             rx_buff = (uint8_t *)&_usbd_sbattalion->out;
         }
 
-/*
         Wire.beginTransmission(i);
 
-        uint8_t status = 0xF0 | usbd_c[i].type;
+        uint8_t status = 0xF0 | _usbd_c->type;
         Wire.write(&status, 1);
+
+        if (_usbd_c->type == DISCONNECTED)
+        {
+            Wire.endTransmission(true);
+            continue;
+        }
+
         Wire.write(tx_buff, tx_len);
         Wire.endTransmission(true);
-
-        if (usbd_c[i].type == DISCONNECTED)
-            continue;
-        
+        /*
         if (Wire.requestFrom(i, (int)rx_len) == rx_len)
         {
             while (Wire.available())
