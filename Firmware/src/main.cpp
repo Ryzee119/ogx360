@@ -16,7 +16,6 @@ usbd_controller_t usbd_c[MAX_GAMEPADS];
 
 void setup()
 {
-    //Init IO
     pinMode(ARDUINO_LED_PIN, OUTPUT);
     pinMode(PLAYER_ID1_PIN, INPUT_PULLUP);
     pinMode(PLAYER_ID2_PIN, INPUT_PULLUP);
@@ -52,6 +51,20 @@ void setup()
 
 void loop()
 {
+
+    static uint32_t loop_cnt = 0;
+    static uint32_t loop_timer = 0;
+
+    if (loop_cnt > 100)
+    {
+        Serial1.print("Loop time: (ms) ");
+        Serial1.println(millis() - loop_timer);
+        loop_cnt = 0;
+        loop_timer = millis();
+    }
+    loop_cnt++;
+
+    //Handle Master tasks (USB Host controller side)
     if (player_id == 0)
     {
         master_task();
@@ -64,8 +77,6 @@ void loop()
     //Handle OG Xbox side (OG Xbox)
     if (usbd_xid.getType() != usbd_c[0].type)
     {
-        Serial1.print("CHANGED CONTROLLER TYPE TO ");
-        Serial1.println(usbd_c[0].type);
         usbd_xid.setType(usbd_c[0].type);
     }
 
@@ -74,7 +85,7 @@ void loop()
     {
         if(usbd_xid.getType() == DUKE)
         {
-            UDCON &= ~(1 << DETACH);
+            //UDCON &= ~(1 << DETACH);
             usbd_xid.sendReport(&usbd_c[0].duke.in, sizeof(usbd_duke_in_t));
             usbd_xid.getReport(&usbd_c[0].duke.out, sizeof(usbd_duke_out_t));
         }
