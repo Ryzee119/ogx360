@@ -10,6 +10,9 @@
 #define USBH_XINPUT_DEBUG(...)
 #endif
 
+//FIXME: Outtransfer function
+
+//FIXME: This causes cast warnings.
 #define GET_USHORT(a,b) *((uint16_t *)a[b])
 #define GET_SHORT(a,b) *((int16_t *)a[b])
 #define GET_UINT(a,b) *((uint32_t *)a[b])
@@ -134,9 +137,6 @@ uint8_t usbh_xinput_is_chatpad_pressed(usbh_xinput_t *xinput, uint16_t code)
 
 uint8_t usbh_xinput_was_chatpad_pressed(usbh_xinput_t *xinput, uint16_t code)
 {
-    if (xinput->bAddress == 0)
-        return 0;
-
     //Button isnt pressed anymore, Clear it from the history
     if (usbh_xinput_is_chatpad_pressed(xinput, code) == 0)
     {
@@ -167,6 +167,9 @@ uint8_t usbh_xinput_was_chatpad_pressed(usbh_xinput_t *xinput, uint16_t code)
 
 uint8_t usbh_xinput_is_gamepad_pressed(usbh_xinput_t *xinput, uint16_t button_mask)
 {
+    if (xinput->bAddress == 0)
+        return 0;
+
     return xinput->pad_state.wButtons & button_mask;
 }
 
@@ -415,16 +418,16 @@ uint8_t XINPUT::Init(uint8_t parent __attribute__((unused)), uint8_t port __attr
     }
 #endif
 
-    //Wired we can allocated immediately.
+    //Wired we can allocate immediately.
     if (xinput_type != XBOX360_WIRELESS)
     {
         alloc_xinput_device(bAddress, &epInfo[XBOX_INPUT_PIPE], &epInfo[XBOX_OUTPUT_PIPE]);
     }
     else
     {
-        //For the wireless controller send an inquire packet to each endpoint
+        //For the wireless controller send an inquire packet to each endpoint (Even endpoints only)
         memcpy_P(xdata, xbox360w_inquire_present, sizeof(xbox360w_inquire_present));
-        for (uint8_t i = 2; i < 9; i+= 2)
+        for (uint8_t i = 2; i < 9; i += 2)
             pUsb->outTransfer(bAddress, epInfo[i].epAddr, sizeof(xbox360w_inquire_present), xdata);
     }
 
@@ -440,7 +443,7 @@ uint8_t XINPUT::Release()
     {
         if (bAddress && xinput_devices[index].bAddress == bAddress)
         {
-            memset(&xinput_devices[index], 0, sizeof(usbh_xinput_t));
+            memset(&xinput_devices[index], 0x00, sizeof(usbh_xinput_t));
             USBH_XINPUT_DEBUG(F("USBH XINPUT: FREED XINPUT\n"));
         }
     }
@@ -587,7 +590,9 @@ uint8_t XINPUT::Poll()
                 xinput->timer_poweroff = millis();
             }
         }
-        else if (xinput_type == XBOX360_WIRELESS && !(xinput->pad_state.wButtons & XINPUT_GAMEPAD_XBOX_BUTTON))
+
+        //Reset xbox button hold timer (Wireless 360 only)
+        if (xinput_type == XBOX360_WIRELESS && !(xinput->pad_state.wButtons & XINPUT_GAMEPAD_XBOX_BUTTON))
         {
             xinput->timer_poweroff = millis();
         }
