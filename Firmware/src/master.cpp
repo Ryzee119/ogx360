@@ -101,7 +101,7 @@ void master_task()
         if (usbh_xinput_is_chatpad_pressed(_usbh_xinput, XINPUT_CHATPAD_GREEN))
         {
             _usbd_c->type = DUKE;
-            _usbh_xinput->chatpad_led_requested = XINPUT_CHATPAD_GREEN;
+            _usbh_xinput->chatpad_led_requested = CHATPAD_GREEN;
         }
         else if (usbh_xinput_is_chatpad_pressed(_usbh_xinput, XINPUT_CHATPAD_ORANGE))
         {
