@@ -55,9 +55,9 @@ void loop()
     static uint32_t loop_cnt = 0;
     static uint32_t loop_timer = 0;
 
-    if (loop_cnt > 100)
+    if (loop_cnt > 1000)
     {
-        Serial1.print("Loop time: (ms) ");
+        Serial1.print("Loop time: (us) ");
         Serial1.println(millis() - loop_timer);
         loop_cnt = 0;
         loop_timer = millis();
