@@ -25,28 +25,20 @@ void i2c_get_data(int len)
     //Controller state packet 0xFx, where 'x' is the controller type.
     if (start & 0xF0 == 0xF0)
     {
-        usbd_c.type = start & 0x0F;
-        if (usbd_c.type == DISCONNECTED)
+        usbd_c[0].type = start & 0x0F;
+
+        uint8_t *rxbuf = (usbd_c[0].type == DUKE) ? ((uint8_t*)&usbd_c[0].duke.in) :
+                         (usbd_c[0].type == STEELBATTALTION) ? ((uint8_t*)&usbd_c[0].sb.in) :
+                         NULL;
+        uint8_t  rxlen = (usbd_c[0].type == DUKE) ? sizeof(usbd_c[0].duke.in) :
+                         (usbd_c[0].type == STEELBATTALTION) ? sizeof(usbd_c[0].sb.in) :
+                         0;
+
+        if (len != rxlen + 1 || rxbuf == NULL || rxlen == 0)
         {
             goto flush;
         }
 
-        uint8_t *rxbuf = NULL;
-        uint8_t rxlen = 0;
-        if (usbd_c.type == DUKE)
-        {
-            if (len != usbd_c.duke.in + 1)
-                goto flush;
-            rxbuf = (uint8_t*)&usbd_c.duke.in;
-            rxlen = sizeof(usbd_c.duke.in);
-        }
-        else if (usbd_c.type == STEELBATTALTION)
-        {
-            if (len != usbd_c.sb.in + 1)
-                goto flush;
-            rxbuf = (uint8_t*)&usbd_c.sb.in;
-            rxlen = sizeof(usbd_c.sb.in);
-        }
         for (uint8_t i = 0; i < rxlen; i++)
         {
             rxbuf[i] = Wire.read();
