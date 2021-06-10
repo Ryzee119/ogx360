@@ -77,8 +77,12 @@ usbh_xinput_t *XINPUT::alloc_xinput_device(uint8_t bAddress, EpInfo *in, EpInfo 
         memcpy_P(xdata, xboxone_start_input, sizeof(xboxone_start_input));
         pUsb->outTransfer(bAddress, out->epAddr, sizeof(xboxone_start_input), xdata);
 
-        memcpy_P(xdata, xboxone_s_init, sizeof(xboxone_s_init));
-        pUsb->outTransfer(bAddress, out->epAddr, sizeof(xboxone_s_init), xdata);
+        //Init packet for XBONE S/Elite controllers (return from bluetooth mode)
+        if (VID == 0x045e && (PID == 0x02ea || PID == 0x0b00))
+        {
+            memcpy_P(xdata, xboxone_s_init, sizeof(xboxone_s_init));
+            pUsb->outTransfer(bAddress, out->epAddr, sizeof(xboxone_s_init), xdata);
+        }
 
         //Required for PDP aftermarket controllers
         if (VID == 0x0e6f)
