@@ -62,6 +62,12 @@ void i2c_send_data(void)
     {
         Wire.write((uint8_t *)&usbd_c[0].sb.out, sizeof(usbd_c[0].sb.out));
     }
+    else
+    {
+        //Just send something back to master isnt waiting
+        uint8_t dummy = 0x00;
+        Wire.write(&dummy, 1);
+    }
 }
 
 void slave_init(void)
