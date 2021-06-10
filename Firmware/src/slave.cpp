@@ -14,7 +14,7 @@ void i2c_get_data(int len)
 
     //0xAA is a ping to see if the slave module is connected
     //Flash the LED to confirm receipt.
-    if (start[0] == 0xAA)
+    if (start == 0xAA)
     {
         digitalWrite(ARDUINO_LED_PIN, LOW);
         delay(250);
