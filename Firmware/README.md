@@ -3,10 +3,9 @@
 ## Programming (Platform IO IDE - Recommended)
 * Download and install [Arduino IDE](https://www.arduino.cc/en/software) for the required drivers.
 * Setup Visual Studio Code as per the Compiling instructions.
-* Prepare to press the RESET button on the ogx360 PCB.
+* Press the RESET button on the ogx360 PCB.
 * Hit the program button on the Platform IO toolbar (`→`).
 * When the console window says `Waiting for the new upload port...` hit the RESET button again.
-* It can help to hold the RESET button while compiling then release when it is waiting for the upload port.
 * Repeat the process for any other modules you need to update.
 
 ## Programming (from HEX file)
