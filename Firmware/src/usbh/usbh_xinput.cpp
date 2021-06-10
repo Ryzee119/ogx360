@@ -810,6 +810,11 @@ bool XINPUT::ParseInputData(usbh_xinput_t **xpad, EpInfo *ep_in)
 
         return true;
     case XBOXONE:
+        if (xdata[0] != 0x20)
+        {
+            break;
+        }
+
         wButtons = GET_USHORT(&xdata, 4);
 
         //Map digital buttons
