@@ -64,9 +64,8 @@ void i2c_send_data(void)
     }
     else
     {
-        //Just send something back to master isnt waiting
-        uint8_t dummy = 0x00;
-        Wire.write(&dummy, 1);
+        //Just send something back so master isnt waiting
+        Wire.write(0x00);
     }
 }
 
