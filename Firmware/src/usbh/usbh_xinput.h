@@ -210,7 +210,6 @@ private:
     xinput_type_t xinput_type;
     usbh_xinput_t *alloc_xinput_device(uint8_t bAddress, EpInfo *in, EpInfo *out);
     uint8_t free_xinput_device(usbh_xinput_t *xinput_dev);
-    int8_t get_xinput_device_index(usbh_xinput_t *xinput);
     bool ParseInputData(usbh_xinput_t **xpad, EpInfo *ep_in);
 };
 #endif
