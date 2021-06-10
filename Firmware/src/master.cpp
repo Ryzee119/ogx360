@@ -21,13 +21,6 @@ extern usbd_controller_t usbd_c[MAX_GAMEPADS];
 static void handle_duke(usbh_xinput_t *_usbh_xinput, usbd_duke_t* _usbd_duke);
 static void handle_sbattalion(usbh_xinput_t *_usbh_xinput, usbd_steelbattalion_t* _usbd_sbattalion);
 
-void wire_send(uint8_t addr, const uint8_t *data, uint8_t len)
-{
-    Wire.beginTransmission(addr);
-    Wire.write(data, len);
-    Wire.endTransmission(true);
-}
-
 void master_init(void)
 {
     pinMode(USB_HOST_RESET_PIN, OUTPUT);
@@ -36,6 +29,7 @@ void master_init(void)
     Serial1.begin(115200);
     Wire.begin();
     Wire.setClock(400000);
+    Wire.setWireTimeout(4000, true);
 
     //Init Usb Host Controller
     digitalWrite(USB_HOST_RESET_PIN, LOW);
@@ -74,7 +68,7 @@ void PrintHex8(uint8_t *data, uint8_t length, bool lf) // prints 8-bit data in h
         Serial1.print(" ");
 }
 
-void master_task()
+void master_task(void)
 {
     UsbHost.Task();
     UsbHost.IntHandler();
