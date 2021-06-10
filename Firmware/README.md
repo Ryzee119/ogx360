@@ -1,6 +1,6 @@
 # ogx360 - Firmware
 
-## Programming (Platform IO IDE)
+## Programming (Platform IO IDE - Recommended)
 * Download and install [Arduino IDE](https://www.arduino.cc/en/software) for the required drivers.
 * Setup Visual Studio Code as per the Compiling instructions.
 * Prepare to press the RESET button on the ogx360 PCB.
