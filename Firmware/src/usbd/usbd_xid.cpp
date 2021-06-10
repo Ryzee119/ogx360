@@ -32,7 +32,7 @@ int XID_::getInterface(uint8_t *interfaceCount)
 
 int XID_::getDescriptor(USBSetup &setup)
 {
-    //FIXME FOR STEELBATTALION? OR IS XID DESC ENOUGH
+    //Device descriptor for duke, seems to work fine for Steel Battalion. Keep constant.
     USB_SendControl(TRANSFER_PGM, &xid_dev_descriptor, sizeof(xid_dev_descriptor));
     return sizeof(xid_dev_descriptor);
 }
@@ -43,7 +43,6 @@ int XID_::sendReport(const void *data, int len)
     if (memcmp(xid_in_data, data, capped_len) != 0)
     {
         //Update local copy, then send
-        
         if (USB_Send(XID_EP_IN | TRANSFER_RELEASE, data, capped_len) == len)
             memcpy(xid_in_data, data, capped_len);
     }
@@ -53,8 +52,6 @@ int XID_::sendReport(const void *data, int len)
 int XID_::getReport(void *data, int len)
 {
     int capped_len = min((uint32_t)len, sizeof(xid_out_data));
-
-    //Attempt to read data from interrupt pipe
     uint8_t r[capped_len] = {0};
     if (USB_Recv(XID_EP_OUT | TRANSFER_RELEASE, r, capped_len) == capped_len)
     {
@@ -110,7 +107,7 @@ bool XID_::setup(USBSetup &setup)
 
     if (requestType == (REQUEST_DEVICETOHOST | REQUEST_CLASS | REQUEST_INTERFACE))
     {
-        if (request == HID_GET_REPORT && wValue == 0x0100)
+        if (request == HID_GET_REPORT && setup.wValueH == HID_REPORT_TYPE_INPUT)
         {
             USBD_XID_DEBUG("USBD XID: SENDING HID REPORT IN\n");
             USB_SendControl(0, xid_in_data, sizeof(xid_in_data));
@@ -120,7 +117,7 @@ bool XID_::setup(USBSetup &setup)
 
     if (requestType == (REQUEST_HOSTTODEVICE | REQUEST_CLASS | REQUEST_INTERFACE))
     {
-        if (request == HID_SET_REPORT && wValue == 0x0200)
+        if (request == HID_SET_REPORT && setup.wValueH == HID_REPORT_TYPE_OUTPUT)
         {
             USBD_XID_DEBUG("USBD XID: GETTING HID REPORT OUT\n");
             uint16_t length = min(sizeof(xid_out_data), setup.wLength);
