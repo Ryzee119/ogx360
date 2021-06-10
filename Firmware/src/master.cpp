@@ -137,7 +137,7 @@ void master_task(void)
         Wire.beginTransmission(i);
 
         uint8_t status = 0xF0 | _usbd_c->type;
-        Wire.write(&status, 1);
+        Wire.write(status);
 
         if (_usbd_c->type == DISCONNECTED)
         {
@@ -147,20 +147,19 @@ void master_task(void)
 
         Wire.write(tx_buff, tx_len);
         Wire.endTransmission(true);
-        /*
+
         if (Wire.requestFrom(i, (int)rx_len) == rx_len)
         {
             while (Wire.available())
             {
-                // *rx_buff = Wire.read();
-                //rx_buff++;
+                *rx_buff = Wire.read();
+                rx_buff++;
             }
         }
         else
         {
-            Wire.flush();
+            while (Wire.available()) Wire.read();
         }
-*/
     }
 }
 
