@@ -15,6 +15,8 @@
 #ifndef _USING_HID
 #define HID_GET_REPORT 0x01
 #define HID_SET_REPORT 0x09
+#define HID_REPORT_TYPE_INPUT 1
+#define HID_REPORT_TYPE_OUTPUT 2
 #endif
 
 #define XID_EP_IN (pluggedEndpoint)
