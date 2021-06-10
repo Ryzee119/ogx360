@@ -7,9 +7,6 @@
 #include "usbd/usbd_xid.h"
 #include "usbh/usbh_xinput.h"
 
-void master_init();
-void master_task();
-
 uint8_t player_id;
 XID_ usbd_xid;
 usbd_controller_t usbd_c[MAX_GAMEPADS];
@@ -45,7 +42,7 @@ void setup()
     }
     else
     {
-        //slave_init();
+        slave_init();
     }
 }
 
@@ -71,7 +68,7 @@ void loop()
     }
     else
     {
-        //slave_task();
+        slave_task();
     }
 
     //Handle OG Xbox side (OG Xbox)
