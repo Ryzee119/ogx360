@@ -25,7 +25,7 @@ void slave_init(void)
     Wire.setClock(400000);
     Wire.onRequest(i2c_send_data);
     Wire.onReceive(i2c_get_data);
-    setWireTimeout(4000, true);
+    Wire.setWireTimeout(4000, true);
 }
 
 void slave_task(void)
