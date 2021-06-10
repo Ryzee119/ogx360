@@ -23,4 +23,9 @@ typedef struct
    usbd_steelbattalion_t sb;
 } usbd_controller_t;
 
+void master_init();
+void master_task();
+void slave_init();
+void slave_task();
+
 #endif 
