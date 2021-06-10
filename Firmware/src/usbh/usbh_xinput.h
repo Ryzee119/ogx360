@@ -4,7 +4,7 @@
 #ifndef _XINPUT_H_
 #define _XINPUT_H_
 
-#include "UHS2/Usb.h"
+#include <UHS2/Usb.h>
 
 #define XBOX_CONTROL_PIPE 0
 #define XBOX_INPUT_PIPE 1
