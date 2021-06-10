@@ -46,12 +46,22 @@ void i2c_get_data(int len)
     }
 
 flush:
-    Wire.flush();
+    while(Wire.available())
+    {
+        Wire.read();
+    }
 }
 
 void i2c_send_data(void)
 {
-
+    if (usbd_c[0].type == DUKE)
+    {
+        Wire.write((uint8_t *)&usbd_c[0].duke.out, sizeof(usbd_c[0].duke.out));
+    }
+    else if (usbd_c[0].type == STEELBATTALTION)
+    {
+        Wire.write((uint8_t *)&usbd_c[0].sb.out, sizeof(usbd_c[0].sb.out));
+    }
 }
 
 void slave_init(void)
