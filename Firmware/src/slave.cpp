@@ -10,11 +10,11 @@ extern usbd_controller_t usbd_c[MAX_GAMEPADS];
 
 void i2c_get_data(int len)
 {
-    uint8_t start = Wire.read();
+    uint8_t packet_id = Wire.read();
 
     //0xAA is a ping to see if the slave module is connected
     //Flash the LED to confirm receipt.
-    if (start == 0xAA)
+    if (packet_id == 0xAA)
     {
         digitalWrite(ARDUINO_LED_PIN, LOW);
         delay(250);
@@ -23,9 +23,9 @@ void i2c_get_data(int len)
     }
 
     //Controller state packet 0xFx, where 'x' is the controller type.
-    if (start & 0xF0 == 0xF0)
+    if (packet_id & 0xF0 == 0xF0)
     {
-        usbd_c[0].type = start & 0x0F;
+        usbd_c[0].type = packet_id & 0x0F;
 
         uint8_t *rxbuf = (usbd_c[0].type == DUKE) ? ((uint8_t*)&usbd_c[0].duke.in) :
                          (usbd_c[0].type == STEELBATTALTION) ? ((uint8_t*)&usbd_c[0].sb.in) :
