@@ -13,6 +13,8 @@ usbd_controller_t usbd_c[MAX_GAMEPADS];
 
 void setup()
 {
+    Serial1.begin(115200);
+
     pinMode(ARDUINO_LED_PIN, OUTPUT);
     pinMode(PLAYER_ID1_PIN, INPUT_PULLUP);
     pinMode(PLAYER_ID2_PIN, INPUT_PULLUP);
@@ -48,10 +50,9 @@ void setup()
 
 void loop()
 {
-
+#if (1)
     static uint32_t loop_cnt = 0;
     static uint32_t loop_timer = 0;
-
     if (loop_cnt > 1000)
     {
         Serial1.print("Loop time: (us) ");
@@ -60,6 +61,7 @@ void loop()
         loop_timer = millis();
     }
     loop_cnt++;
+#endif
 
     //Handle Master tasks (USB Host controller side)
     if (player_id == 0)
@@ -80,23 +82,23 @@ void loop()
     static uint32_t poll_timer = 0;
     if (millis() - poll_timer > 4)
     {
-        if(usbd_xid.getType() == DUKE)
+        if (usbd_xid.getType() == DUKE)
         {
-            //UDCON &= ~(1 << DETACH);
+            UDCON &= ~(1 << DETACH);
             usbd_xid.sendReport(&usbd_c[0].duke.in, sizeof(usbd_duke_in_t));
             usbd_xid.getReport(&usbd_c[0].duke.out, sizeof(usbd_duke_out_t));
         }
-        else if(usbd_xid.getType() == STEELBATTALTION)
+        else if (usbd_xid.getType() == STEELBATTALTION)
         {
             UDCON &= ~(1 << DETACH);
             usbd_xid.sendReport(&usbd_c[0].sb.in, sizeof(usbd_sbattalion_in_t));
             usbd_xid.getReport(&usbd_c[0].sb.out, sizeof(usbd_sbattalion_out_t));
         }
-        else if(usbd_xid.getType() == DISCONNECTED)
+        else if (usbd_xid.getType() == DISCONNECTED)
         {
             UDCON |= (1 << DETACH);
         }
-        
+
         poll_timer = millis();
     }
 }

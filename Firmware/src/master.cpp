@@ -53,21 +53,6 @@ void master_init(void)
     }
 }
 
-void PrintHex8(uint8_t *data, uint8_t length, bool lf) // prints 8-bit data in hex with leading zeroes
-{
-    char tmp[16];
-    for (int i = 0; i < length; i++)
-    {
-        sprintf(tmp, "0x%.2X", data[i]);
-        Serial1.print(tmp);
-        Serial1.print(" ");
-    }
-    if (lf)
-        Serial1.print("\n");
-    else
-        Serial1.print(" ");
-}
-
 void master_task(void)
 {
     UsbHost.Task();
@@ -589,38 +574,6 @@ static void handle_sbattalion(usbh_xinput_t *_usbh_xinput, usbd_steelbattalion_t
     }
 
     //Apply analog sticks
-    static int32_t sensitivity = 400;
-    EEPROM.get(0x00, sensitivity);
-    if (usbh_xinput_is_chatpad_pressed(_usbh_xinput, XINPUT_CHATPAD_ORANGE))
-    {
-        if (usbh_xinput_is_chatpad_pressed(_usbh_xinput, XINPUT_CHATPAD_9))
-            sensitivity = 200;
-        if (usbh_xinput_is_chatpad_pressed(_usbh_xinput, XINPUT_CHATPAD_8))
-            sensitivity = 250;
-        if (usbh_xinput_is_chatpad_pressed(_usbh_xinput, XINPUT_CHATPAD_7))
-            sensitivity = 300;
-        if (usbh_xinput_is_chatpad_pressed(_usbh_xinput, XINPUT_CHATPAD_6))
-            sensitivity = 350;
-        if (usbh_xinput_is_chatpad_pressed(_usbh_xinput, XINPUT_CHATPAD_5))
-            sensitivity = 400;
-        if (usbh_xinput_is_chatpad_pressed(_usbh_xinput, XINPUT_CHATPAD_4))
-            sensitivity = 650;
-        if (usbh_xinput_is_chatpad_pressed(_usbh_xinput, XINPUT_CHATPAD_3))
-            sensitivity = 800;
-        if (usbh_xinput_is_chatpad_pressed(_usbh_xinput, XINPUT_CHATPAD_2))
-            sensitivity = 1000;
-        if (usbh_xinput_is_chatpad_pressed(_usbh_xinput, XINPUT_CHATPAD_1))
-            sensitivity = 1200;
-        int32_t temp = 0;
-        EEPROM.get(0x00, temp);
-        if (temp != sensitivity)
-        {
-            EEPROM.put(0x00, sensitivity);
-            digitalWrite(ARDUINO_LED_PIN, !digitalRead(ARDUINO_LED_PIN));
-            delay(100);
-        }
-    }
-
     _usbd_sbattalion->in.sightChangeX = _usbh_xinput->pad_state.sThumbLX;
     _usbd_sbattalion->in.sightChangeY = -_usbh_xinput->pad_state.sThumbLY - 1;
 
@@ -631,13 +584,13 @@ static void handle_sbattalion(usbh_xinput_t *_usbh_xinput, usbd_steelbattalion_t
         int32_t axisVal = _usbh_xinput->pad_state.sThumbRX;
         if (axisVal > 7500 || axisVal < -7500)
         {
-            virtualMouseX += axisVal / sensitivity;
+            virtualMouseX += axisVal / 400;
         }
 
         axisVal = _usbh_xinput->pad_state.sThumbRY;
         if (axisVal > 7500 || axisVal < -7500)
         {
-            virtualMouseY -= axisVal / sensitivity;
+            virtualMouseY -= axisVal / 400;
         }
 
         if (virtualMouseX < 0)

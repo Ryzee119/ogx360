@@ -23,9 +23,9 @@ void i2c_get_data(int len)
     }
 
     //Controller state packet 0xFx, where 'x' is the controller type.
-    if (packet_id & 0xF0 == 0xF0)
+    if ((packet_id & 0xF0) == 0xF0)
     {
-        usbd_c[0].type = packet_id & 0x0F;
+        usbd_c[0].type = (xid_type_t)(packet_id & 0x0F);
 
         uint8_t *rxbuf = (usbd_c[0].type == DUKE) ? ((uint8_t*)&usbd_c[0].duke.in) :
                          (usbd_c[0].type == STEELBATTALTION) ? ((uint8_t*)&usbd_c[0].sb.in) :

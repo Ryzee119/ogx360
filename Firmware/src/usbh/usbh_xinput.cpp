@@ -223,8 +223,9 @@ uint8_t XINPUT::ConfigureDevice(uint8_t parent, uint8_t port, bool lowspeed)
         return USB_ERROR_ADDRESS_NOT_FOUND_IN_POOL;
     }
 
+    EpInfo *oldep_ptr = p->epinfo;
+    p->epinfo = epInfo;
     p->lowspeed = lowspeed;
-
     //Get the device descriptor now, and check its not a standard class driver
     USB_DEVICE_DESCRIPTOR *udd = reinterpret_cast<USB_DEVICE_DESCRIPTOR *>(xdata);
     rcode = pUsb->getDevDescr(0, 0, sizeof(USB_DEVICE_DESCRIPTOR), (uint8_t *)udd);
@@ -233,6 +234,7 @@ uint8_t XINPUT::ConfigureDevice(uint8_t parent, uint8_t port, bool lowspeed)
         USBH_XINPUT_DEBUG(F("USBH XINPUT: COULD NOT GET DEVICE DESRIPTOR\n"));
         return rcode;
     }
+    p->epinfo = oldep_ptr;
 
     //Check the device descriptor here. Interface class is checked later.
     if (udd->bDeviceClass != USB_CLASS_VENDOR_SPECIFIC && udd->bDeviceClass != USB_CLASS_USE_CLASS_INFO)
@@ -259,8 +261,8 @@ uint8_t XINPUT::ConfigureDevice(uint8_t parent, uint8_t port, bool lowspeed)
     USBH_XINPUT_DEBUG(F("USBH XINPUT: 2ND RESET\n"));
 
     //So far so good, lets issue a reset again, then finish everything off in Init
-    //USB_ERROR_CONFIG_REQUIRES_ADDITIONAL_RESET if second descriptor request
-    return 0;
+    // if second descriptor request
+    return USB_ERROR_CONFIG_REQUIRES_ADDITIONAL_RESET;
 };
 
 uint8_t XINPUT::Init(uint8_t parent __attribute__((unused)), uint8_t port __attribute__((unused)), bool lowspeed)
