@@ -66,35 +66,25 @@ usbh_xinput_t *XINPUT::alloc_xinput_device(uint8_t bAddress, EpInfo *in, EpInfo 
 
     if (xinput_type == XBOX360_WIRELESS)
     {
-        memcpy_P(xdata, xbox360w_inquire_present, sizeof(xbox360w_inquire_present));
-        pUsb->outTransfer(bAddress, out->epAddr, sizeof(xbox360w_inquire_present), xdata);
-
-        //memcpy_P(xdata, xbox360w_controller_info, sizeof(xbox360w_controller_info));
-        //pUsb->outTransfer(bAddress, out->epAddr, sizeof(xbox360w_controller_info), xdata);
+        WritePacket(new_xinput, xbox360w_inquire_present, sizeof(xbox360w_inquire_present), TRANSFER_PGM);
+        WritePacket(new_xinput, xbox360w_controller_info, sizeof(xbox360w_controller_info), TRANSFER_PGM);
     }
     else if (xinput_type == XBOXONE)
     {
-        memcpy_P(xdata, xboxone_start_input, sizeof(xboxone_start_input));
-        pUsb->outTransfer(bAddress, out->epAddr, sizeof(xboxone_start_input), xdata);
+        WritePacket(new_xinput, xboxone_start_input, sizeof(xboxone_start_input), TRANSFER_PGM);
 
         //Init packet for XBONE S/Elite controllers (return from bluetooth mode)
         if (VID == 0x045e && (PID == 0x02ea || PID == 0x0b00))
         {
-            memcpy_P(xdata, xboxone_s_init, sizeof(xboxone_s_init));
-            pUsb->outTransfer(bAddress, out->epAddr, sizeof(xboxone_s_init), xdata);
+            WritePacket(new_xinput, xboxone_s_init, sizeof(xboxone_s_init), TRANSFER_PGM);
         }
 
         //Required for PDP aftermarket controllers
         if (VID == 0x0e6f)
         {
-            memcpy_P(xdata, xboxone_pdp_init1, sizeof(xboxone_pdp_init1));
-            pUsb->outTransfer(bAddress, out->epAddr, sizeof(xboxone_pdp_init1), xdata);
-
-            memcpy_P(xdata, xboxone_pdp_init2, sizeof(xboxone_pdp_init2));
-            pUsb->outTransfer(bAddress, out->epAddr, sizeof(xboxone_pdp_init2), xdata);
-
-            memcpy_P(xdata, xboxone_pdp_init3, sizeof(xboxone_pdp_init3));
-            pUsb->outTransfer(bAddress, out->epAddr, sizeof(xboxone_pdp_init3), xdata);
+            WritePacket(new_xinput, xboxone_pdp_init1, sizeof(xboxone_pdp_init1), TRANSFER_PGM);
+            WritePacket(new_xinput, xboxone_pdp_init2, sizeof(xboxone_pdp_init2), TRANSFER_PGM);
+            WritePacket(new_xinput, xboxone_pdp_init3, sizeof(xboxone_pdp_init3), TRANSFER_PGM);
         }
     }
 
@@ -548,8 +538,7 @@ uint8_t XINPUT::Poll()
         else if (xinput_type == XBOX360_WIRELESS && xinput->chatpad_initialised == 0)
         {
             USBH_XINPUT_DEBUG(F("USBH XINPUT: SENDING CHATPAD INIT PACKET\n"));
-            memcpy_P(xdata, xbox360w_chatpad_init, sizeof(xbox360w_chatpad_init));
-            pUsb->outTransfer(bAddress, epInfo[i].epAddr, sizeof(xbox360w_chatpad_init), xdata);
+            WritePacket(xinput, xbox360w_chatpad_init, sizeof(xbox360w_chatpad_init), TRANSFER_PGM);
             xinput->chatpad_initialised = 1;
         }
 
@@ -591,8 +580,7 @@ uint8_t XINPUT::Poll()
             if((millis() - xinput->timer_poweroff) > 1000)
             {
                 USBH_XINPUT_DEBUG(F("USBH XINPUT: POWERING OFF CONTROLLER\n"));
-                memcpy_P(xdata, xbox360w_power_off, sizeof(xbox360w_power_off));
-                pUsb->outTransfer(bAddress, epInfo[i].epAddr, sizeof(xbox360w_power_off), xdata);
+                WritePacket(xinput, xbox360w_power_off, sizeof(xbox360w_power_off), TRANSFER_PGM);
                 xinput->timer_poweroff = millis();
             }
         }
@@ -609,20 +597,14 @@ uint8_t XINPUT::Poll()
             USBH_XINPUT_DEBUG(F("USBH XINPUT: BACKGROUND POLL\n"));
             if(xinput_type == XBOX360_WIRELESS)
             {
-                memset(xdata, 0, 12);
-                memcpy_P(xdata, xbox360w_inquire_present, sizeof(xbox360w_inquire_present));
-                pUsb->outTransfer(bAddress, epInfo[i].epAddr, 12, xdata);
-
-                //memcpy_P(xdata, xbox360w_controller_info, sizeof(xbox360w_controller_info));
-                //pUsb->outTransfer(bAddress, epInfo[i].epAddr, 12, xdata);
-
+                WritePacket(xinput, xbox360w_inquire_present, sizeof(xbox360w_inquire_present), TRANSFER_PGM);
+                WritePacket(xinput, xbox360w_controller_info, sizeof(xbox360w_controller_info), TRANSFER_PGM);
                 SetLed(xinput, xinput->led_requested);
 
                 (xinput->chatpad_keepalive_toggle ^= 1) ? \
-                    memcpy_P(xdata, xbox360w_chatpad_keepalive1, sizeof(xbox360w_chatpad_keepalive1)) :
-                    memcpy_P(xdata, xbox360w_chatpad_keepalive2, sizeof(xbox360w_chatpad_keepalive2));
-                
-                pUsb->outTransfer(bAddress, epInfo[i].epAddr, 12, xdata);
+                    WritePacket(xinput, xbox360w_chatpad_keepalive1, sizeof(xbox360w_chatpad_keepalive1), TRANSFER_PGM) :
+                    WritePacket(xinput, xbox360w_chatpad_keepalive2, sizeof(xbox360w_chatpad_keepalive2), TRANSFER_PGM);;
+
                 xinput->timer_out = millis();
             }
             xinput->timer_periodic = millis();
@@ -728,6 +710,7 @@ bool XINPUT::ParseInputData(usbh_xinput_t **xpad, EpInfo *ep_in)
     case XBOX360_WIRELESS:
         if (xdata[0] & 0x08)
         {
+            //Connected packet
             if (xdata[1] != 0x00 && _xpad == NULL)
             {
                 USBH_XINPUT_DEBUG(F("USBH XINPUT: WIRELESS CONTROLLER CONNECTED\n"));
@@ -735,13 +718,21 @@ bool XINPUT::ParseInputData(usbh_xinput_t **xpad, EpInfo *ep_in)
                 if (_xpad == NULL)
                     break;
             }
+            //Disconnected packet
             else if (xdata[1] == 0x00 && _xpad != NULL)
             {
                 free_xinput_device(_xpad);
+                _xpad = NULL;
             }
         }
 
-        //Some peripheral is connected to the controller and needs attention. (Should be chatpad)
+        //If you get to here and the controller still isnt allocated, leave!
+        if (_xpad == NULL)
+        {
+            break;
+        }
+
+        //Not sure, seems like I need to send chatpad init packets
         if (xdata[1] == 0xF8)
         {
             USBH_XINPUT_DEBUG("USBH XINPUT: CHATPAD INIT NEEDED1\n");
@@ -853,6 +844,20 @@ bool XINPUT::ParseInputData(usbh_xinput_t **xpad, EpInfo *ep_in)
     }
 #pragma GCC diagnostic pop
     return false;
+}
+
+uint8_t XINPUT::WritePacket(usbh_xinput_t *xpad, uint8_t *data, uint8_t len, uint8_t flags)
+{
+    if (flags & TRANSFER_PGM)
+    {
+        memcpy_P(xdata, data, len);
+    }
+    else
+    {
+        memcpy(xdata, data, len);
+    }
+
+    pUsb->outTransfer(bAddress, xpad->usbh_outPipe->epAddr, len, xdata);
 }
 
 uint8_t XINPUT::SetRumble(usbh_xinput_t *xpad, uint8_t lValue, uint8_t rValue)
