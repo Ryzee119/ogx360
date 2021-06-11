@@ -169,16 +169,18 @@ static const uint8_t xbox360w_power_off[] PROGMEM = {0x00, 0x00, 0x08, 0xC0};
 static const uint8_t xbox360w_chatpad_init[] PROGMEM = {0x00, 0x00, 0x0C, 0x1B};
 static const uint8_t xbox360w_chatpad_keepalive1[] PROGMEM = {0x00, 0x00, 0x0C, 0x1F};
 static const uint8_t xbox360w_chatpad_keepalive2[] PROGMEM = {0x00, 0x00, 0x0C, 0x1E};
-static const uint8_t xbox360w_chatpad_led_ctrl[] PROGMEM = {0x00, 0x00, 0x0C, 0x00};
 
 #define CHATPAD_CAPSLOCK 0x20
 #define CHATPAD_GREEN 0x08
 #define CHATPAD_ORANGE 0x10
 #define CHATPAD_MESSENGER 0x01
-//caps, green, orange, messenger
-static const uint8_t chatpad_mod[] PROGMEM = {CHATPAD_CAPSLOCK, CHATPAD_GREEN, CHATPAD_ORANGE, CHATPAD_MESSENGER};
-static const uint8_t chatpad_led_on[] PROGMEM = {0x08, 0x09, 0x0A, 0x0B}; //Commands byte to turn on the led
-static const uint8_t chatpad_led_off[] PROGMEM = {0x00, 0x01, 0x02, 0x03}; //Command byte to turn off the led
+//The controller feedbacks the currently set leds. The bitmask for these are in chatpad_mod.
+//xbox360w_chatpad_led_ctrl is used to turn on/off a chatpad led. Byte 3 is set to chatpad_led_on[x] 
+//or chatpad_led_off[x] to turn that respective led on or off.
+static const uint8_t xbox360w_chatpad_led_ctrl[] PROGMEM = {0x00, 0x00, 0x0C, 0x00};
+static const uint8_t chatpad_mod[] PROGMEM =     {CHATPAD_CAPSLOCK, CHATPAD_GREEN, CHATPAD_ORANGE, CHATPAD_MESSENGER};
+static const uint8_t chatpad_led_on[] PROGMEM =  {0x08,             0x09,          0x0A,           0x0B};
+static const uint8_t chatpad_led_off[] PROGMEM = {0x00,             0x01,          0x02,           0x03};
 
 class XINPUT : public USBDeviceConfig
 {
