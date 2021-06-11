@@ -172,7 +172,7 @@ static const uint8_t xbox360w_chatpad_keepalive1[] PROGMEM = {0x00, 0x00, 0x0C, 
 static const uint8_t xbox360w_chatpad_keepalive2[] PROGMEM = {0x00, 0x00, 0x0C, 0x1E};
 
 //Original Xbox
-static const uint8_t xbox360og_rumble[] PROGMEM = {0x00, 0x06, 0x00, 0x00, 0x00, 0x00};
+static const uint8_t xboxog_rumble[] PROGMEM = {0x00, 0x06, 0x00, 0x00, 0x00, 0x00};
 
 #define CHATPAD_CAPSLOCK 0x20
 #define CHATPAD_GREEN 0x08
