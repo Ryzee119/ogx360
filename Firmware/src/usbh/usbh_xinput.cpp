@@ -866,7 +866,7 @@ bool XINPUT::ParseInputData(usbh_xinput_t **xpad, EpInfo *ep_in)
         if (xdata[6] > 0x20) _xpad->pad_state.wButtons |= XINPUT_GAMEPAD_X;
         if (xdata[7] > 0x20) _xpad->pad_state.wButtons |= XINPUT_GAMEPAD_Y;
         if (xdata[8] > 0x20) _xpad->pad_state.wButtons |= XINPUT_GAMEPAD_RIGHT_SHOULDER;
-        if (xdata[9] > 0x20) _xpad->pad_state.wButtons |= XINPUT_GAMEPAD_LET_SHOULDER;
+        if (xdata[9] > 0x20) _xpad->pad_state.wButtons |= XINPUT_GAMEPAD_LEFT_SHOULDER;
 
         //Map the left and right triggers
         _xpad->pad_state.bLeftTrigger = xdata[10];
