@@ -316,6 +316,9 @@ uint8_t XINPUT::Init(uint8_t parent __attribute__((unused)), uint8_t port __attr
     else if (uid->bInterfaceSubClass == 0x47 && //Xbone and SX bInterfaceSubClass
              uid->bInterfaceProtocol == 0xD0)   //Xbone and SX bInterfaceProtocol
         xinput_type = XBOXONE;
+    else if (uid->bInterfaceClass == 0x58 &&    //XboxOG bInterfaceClass
+             uid->bInterfaceSubClass == 0x42)   //XboxOG bInterfaceSubClass
+        xinput_type = XBOXOG;
 
     if (xinput_type == XINPUT_UNKNOWN)
     {
@@ -839,6 +842,42 @@ bool XINPUT::ParseInputData(usbh_xinput_t **xpad, EpInfo *ep_in)
         _xpad->pad_state.sThumbRX = GET_SHORT(&xdata, 14);
         _xpad->pad_state.sThumbRY = GET_SHORT(&xdata, 16);
         return true;
+    case XBOXOG:
+        if (xdata[1] != 0x14)
+        {
+            break;
+        }
+  
+        wButtons = GET_USHORT(&xdata, 2);
+
+        //Map digital buttons
+        _xpad->pad_state.wButtons = 0x0000;
+        if (wButtons & (1 << 0)) _xpad->pad_state.wButtons |= XINPUT_GAMEPAD_DPAD_UP;
+        if (wButtons & (1 << 1)) _xpad->pad_state.wButtons |= XINPUT_GAMEPAD_DPAD_DOWN;
+        if (wButtons & (1 << 2)) _xpad->pad_state.wButtons |= XINPUT_GAMEPAD_DPAD_LEFT;
+        if (wButtons & (1 << 3)) _xpad->pad_state.wButtons |= XINPUT_GAMEPAD_DPAD_RIGHT;
+        if (wButtons & (1 << 4)) _xpad->pad_state.wButtons |= XINPUT_GAMEPAD_START;
+        if (wButtons & (1 << 5)) _xpad->pad_state.wButtons |= XINPUT_GAMEPAD_BACK;
+        if (wButtons & (1 << 6)) _xpad->pad_state.wButtons |= XINPUT_GAMEPAD_LEFT_THUMB;
+        if (wButtons & (1 << 7)) _xpad->pad_state.wButtons |= XINPUT_GAMEPAD_RIGHT_THUMB;
+
+        if (xdata[4] > 0x20) _xpad->pad_state.wButtons |= XINPUT_GAMEPAD_A;
+        if (xdata[5] > 0x20) _xpad->pad_state.wButtons |= XINPUT_GAMEPAD_B;
+        if (xdata[6] > 0x20) _xpad->pad_state.wButtons |= XINPUT_GAMEPAD_X;
+        if (xdata[7] > 0x20) _xpad->pad_state.wButtons |= XINPUT_GAMEPAD_Y;
+        if (xdata[8] > 0x20) _xpad->pad_state.wButtons |= XINPUT_GAMEPAD_RIGHT_SHOULDER;
+        if (xdata[9] > 0x20) _xpad->pad_state.wButtons |= XINPUT_GAMEPAD_LET_SHOULDER;
+
+        //Map the left and right triggers
+        _xpad->pad_state.bLeftTrigger = xdata[10];
+        _xpad->pad_state.bRightTrigger = xdata[11];
+
+        //Map analog sticks
+        _xpad->pad_state.sThumbLX = GET_SHORT(&xdata, 12);
+        _xpad->pad_state.sThumbLY = GET_SHORT(&xdata, 14);
+        _xpad->pad_state.sThumbRX = GET_SHORT(&xdata, 16);
+        _xpad->pad_state.sThumbRY = GET_SHORT(&xdata, 18);   
+        return true;
     default:
         return false;
     }
@@ -884,6 +923,12 @@ uint8_t XINPUT::SetRumble(usbh_xinput_t *xpad, uint8_t lValue, uint8_t rValue)
         xdata[8] = lValue / 2.6f; //Scale is 0 to 100
         xdata[9] = rValue / 2.6f; //Scale is 0 to 100
         len = sizeof(xboxone_rumble);
+        break;
+    case XBOXOG:
+        memcpy_P(xdata, xboxog_rumble, sizeof(xboxog_rumble));
+        xdata[2] = lValue;
+        xdata[4] = rValue;
+        len = sizeof(xboxog_rumble);
         break;
     default:
         return hrSUCCESS;
