@@ -857,7 +857,7 @@ uint8_t XINPUT::WritePacket(usbh_xinput_t *xpad, const uint8_t *data, uint8_t le
         memcpy(xdata, data, len);
     }
 
-    pUsb->outTransfer(bAddress, xpad->usbh_outPipe->epAddr, len, xdata);
+    return pUsb->outTransfer(bAddress, xpad->usbh_outPipe->epAddr, len, xdata);
 }
 
 uint8_t XINPUT::SetRumble(usbh_xinput_t *xpad, uint8_t lValue, uint8_t rValue)
