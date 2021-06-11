@@ -17,6 +17,10 @@
 #define XINPUT_MAXGAMEPADS 4
 #endif
 
+#ifndef TRANSFER_PGM //Defined in Arduino USB Core normally
+#define TRANSFER_PGM 0x80
+#endif
+
 //https://docs.microsoft.com/en-us/windows/win32/api/xinput/ns-xinput-xinput_gamepad
 #define XINPUT_GAMEPAD_DPAD_UP 0x0001
 #define XINPUT_GAMEPAD_DPAD_DOWN 0x0002
