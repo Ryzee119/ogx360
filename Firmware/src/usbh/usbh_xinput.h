@@ -199,7 +199,7 @@ public:
     };
     uint8_t SetRumble(usbh_xinput_t *xpad, uint8_t lValue, uint8_t rValue);
     uint8_t SetLed(usbh_xinput_t *xpad, uint8_t quadrant);
-    uint8_t WritePacket(usbh_xinput_t *xpad, uint8_t *data, uint8_t len, uint8_t flags);
+    uint8_t WritePacket(usbh_xinput_t *xpad, const uint8_t *data, uint8_t len, uint8_t flags);
 
 protected:
     USB *pUsb;
