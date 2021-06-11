@@ -846,7 +846,7 @@ bool XINPUT::ParseInputData(usbh_xinput_t **xpad, EpInfo *ep_in)
     return false;
 }
 
-uint8_t XINPUT::WritePacket(usbh_xinput_t *xpad, uint8_t *data, uint8_t len, uint8_t flags)
+uint8_t XINPUT::WritePacket(usbh_xinput_t *xpad, const uint8_t *data, uint8_t len, uint8_t flags)
 {
     if (flags & TRANSFER_PGM)
     {
