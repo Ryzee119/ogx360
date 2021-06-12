@@ -1,4 +1,4 @@
-// Copyright 2020, Ryan Wendland, ogx360
+// Copyright 2021, Ryan Wendland, ogx360
 // SPDX-License-Identifier: GPL-3.0-or-later
 
 #ifndef _XID_h

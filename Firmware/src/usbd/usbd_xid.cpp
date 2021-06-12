@@ -1,9 +1,7 @@
-// Copyright 2020, Ryan Wendland, ogx360
+// Copyright 2021, Ryan Wendland, ogx360
 // SPDX-License-Identifier: GPL-3.0-or-later
 
 #include "usbd_xid.h"
-
-#if defined(USBCON)
 
 //#define ENABLE_USBD_XID_DEBUG
 #ifdef ENABLE_USBD_XID_DEBUG
@@ -169,5 +167,3 @@ int XID_::begin(void)
 {
     return 0;
 }
-
-#endif /* if defined(USBCON) */

@@ -1,4 +1,4 @@
-// Copyright 2020, Ryan Wendland, ogx360
+// Copyright 2021, Ryan Wendland, ogx360
 // SPDX-License-Identifier: GPL-3.0-or-later
 
 #include "usbh_xinput.h"
@@ -9,8 +9,6 @@
 #else
 #define USBH_XINPUT_DEBUG(...)
 #endif
-
-//FIXME: Outtransfer function
 
 //FIXME: This causes cast warnings.
 #define GET_USHORT(a, b) *((uint16_t *)a[b])

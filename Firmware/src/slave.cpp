@@ -1,4 +1,4 @@
-// Copyright 2020, Ryan Wendland, ogx360
+// Copyright 2021, Ryan Wendland, ogx360
 // SPDX-License-Identifier: GPL-3.0-or-later
 
 #include <Arduino.h>
@@ -19,7 +19,7 @@ void i2c_get_data(int len)
         digitalWrite(ARDUINO_LED_PIN, LOW);
         delay(250);
         digitalWrite(ARDUINO_LED_PIN, HIGH);
-        goto flush;
+        goto flush_and_leave;
     }
 
     //Controller state packet 0xFx, where 'x' is the controller type.
@@ -34,9 +34,9 @@ void i2c_get_data(int len)
                          (usbd_c[0].type == STEELBATTALTION) ? sizeof(usbd_c[0].sb.in) :
                          0;
 
-        if (len != rxlen + 1 || rxbuf == NULL || rxlen == 0)
+        if (len != rxlen + 1 /* because of status byte */ || rxbuf == NULL || rxlen == 0)
         {
-            goto flush;
+            goto flush_and_leave;
         }
 
         for (uint8_t i = 0; i < rxlen; i++)
@@ -45,8 +45,8 @@ void i2c_get_data(int len)
         }
     }
 
-flush:
-    while(Wire.available())
+flush_and_leave:
+    while (Wire.available())
     {
         Wire.read();
     }
