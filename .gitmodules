@@ -1,3 +1,6 @@
 [submodule "Firmware/src/lib/ArduinoCore-avr"]
 	path = Firmware/src/lib/ArduinoCore-avr
 	url = https://github.com/Ryzee119/ArduinoCore-avr.git
+[submodule "Firmware/src/lib/UHS2"]
+	path = Firmware/src/lib/UHS2
+	url = https://github.com/felis/USB_Host_Shield_2.0.git
