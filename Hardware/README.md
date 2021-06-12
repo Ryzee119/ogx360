@@ -4,6 +4,7 @@ This folder contains the schematic and PCB layout files and the PCB Gerber files
 * The PCB Gerbers and BOM are located [here](../.kitspace/).
 * These can easily be ordered via [kitspace](https://kitspace.org/boards/github.com/ryzee119/ogx360).
 * 3D model of the PCB is [here](https://a360.co/3aavAXA) (Fusion360).
+* Note: On the corner of the Arduino modules there is a solder jumper labelled J1. It is recommended you bridge this with a solder blob.
 
 ## Some other needed items
 | Qty | Value/Model | Link|
