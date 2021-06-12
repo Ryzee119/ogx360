@@ -1,0 +1,3 @@
+[submodule "Firmware/src/lib/ArduinoCore-avr"]
+	path = Firmware/src/lib/ArduinoCore-avr
+	url = https://github.com/Ryzee119/ArduinoCore-avr.git
