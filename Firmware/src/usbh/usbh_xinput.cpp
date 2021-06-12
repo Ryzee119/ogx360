@@ -13,9 +13,9 @@
 //FIXME: Outtransfer function
 
 //FIXME: This causes cast warnings.
-#define GET_USHORT(a,b) *((uint16_t *)a[b])
-#define GET_SHORT(a,b) *((int16_t *)a[b])
-#define GET_UINT(a,b) *((uint32_t *)a[b])
+#define GET_USHORT(a, b) *((uint16_t *)a[b])
+#define GET_SHORT(a, b) *((int16_t *)a[b])
+#define GET_UINT(a, b) *((uint32_t *)a[b])
 
 static usbh_xinput_t xinput_devices[XINPUT_MAXGAMEPADS];
 static uint8_t xdata[96];
@@ -34,7 +34,8 @@ static void PrintHex8(uint8_t *data, uint8_t length) // prints 8-bit data in hex
 }
 #endif
 
-usbh_xinput_t *XINPUT::alloc_xinput_device(uint8_t bAddress, EpInfo *in, EpInfo *out) {
+usbh_xinput_t *XINPUT::alloc_xinput_device(uint8_t bAddress, EpInfo *in, EpInfo *out)
+{
     usbh_xinput_t *new_xinput = NULL;
     uint8_t index;
     for (index = 0; index < XINPUT_MAXGAMEPADS; index++)
@@ -60,14 +61,11 @@ usbh_xinput_t *XINPUT::alloc_xinput_device(uint8_t bAddress, EpInfo *in, EpInfo 
     new_xinput->led_requested = index + 1;
     new_xinput->chatpad_led_requested = CHATPAD_GREEN;
 
-    SetRumble(new_xinput, 0, 0);
-    SetLed(new_xinput, 0);
-    SetLed(new_xinput, index + 1);
-
     if (xinput_type == XBOX360_WIRELESS)
     {
-        WritePacket(new_xinput, xbox360w_inquire_present, sizeof(xbox360w_inquire_present), TRANSFER_PGM);
         WritePacket(new_xinput, xbox360w_controller_info, sizeof(xbox360w_controller_info), TRANSFER_PGM);
+        WritePacket(new_xinput, xbox360w_unknown, sizeof(xbox360w_unknown), TRANSFER_PGM);
+        WritePacket(new_xinput, xbox360w_rumble_enable, sizeof(xbox360w_rumble_enable), TRANSFER_PGM);
     }
     else if (xinput_type == XBOXONE)
     {
@@ -88,10 +86,15 @@ usbh_xinput_t *XINPUT::alloc_xinput_device(uint8_t bAddress, EpInfo *in, EpInfo 
         }
     }
 
+    SetRumble(new_xinput, 0, 0);
+    SetLed(new_xinput, 0);
+    SetLed(new_xinput, index + 1);
+
     return new_xinput;
 }
 
-uint8_t XINPUT::free_xinput_device(usbh_xinput_t *xinput) {
+uint8_t XINPUT::free_xinput_device(usbh_xinput_t *xinput)
+{
     uint8_t index;
     for (index = 0; index < XINPUT_MAXGAMEPADS; index++)
     {
@@ -105,7 +108,8 @@ uint8_t XINPUT::free_xinput_device(usbh_xinput_t *xinput) {
     return 0;
 }
 
-usbh_xinput_t *usbh_xinput_get_device_list(void) {
+usbh_xinput_t *usbh_xinput_get_device_list(void)
+{
     return xinput_devices;
 }
 
@@ -187,7 +191,7 @@ uint8_t usbh_xinput_was_gamepad_pressed(usbh_xinput_t *xinput, uint16_t button_m
 XINPUT::XINPUT(USB *p) : pUsb(p),
                          bAddress(0),
                          bIsReady(false),
-                         PID(0),VID(0),
+                         PID(0), VID(0),
                          xinput_type(XINPUT_UNKNOWN)
 {
     memset(xdata, 0x00, sizeof(xdata));
@@ -316,8 +320,8 @@ uint8_t XINPUT::Init(uint8_t parent __attribute__((unused)), uint8_t port __attr
     else if (uid->bInterfaceSubClass == 0x47 && //Xbone and SX bInterfaceSubClass
              uid->bInterfaceProtocol == 0xD0)   //Xbone and SX bInterfaceProtocol
         xinput_type = XBOXONE;
-    else if (uid->bInterfaceClass == 0x58 &&    //XboxOG bInterfaceClass
-             uid->bInterfaceSubClass == 0x42)   //XboxOG bInterfaceSubClass
+    else if (uid->bInterfaceClass == 0x58 &&  //XboxOG bInterfaceClass
+             uid->bInterfaceSubClass == 0x42) //XboxOG bInterfaceSubClass
         xinput_type = XBOXOG;
 
     if (xinput_type == XINPUT_UNKNOWN)
@@ -448,7 +452,7 @@ uint8_t XINPUT::Release()
     }
 
     pUsb->GetAddressPool().FreeAddress(bAddress);
-    memset(epInfo, 0x00, sizeof(EpInfo)*XBOX_MAX_ENDPOINTS);
+    memset(epInfo, 0x00, sizeof(EpInfo) * XBOX_MAX_ENDPOINTS);
     bAddress = 0;
     bIsReady = false;
     return 0;
@@ -471,7 +475,7 @@ uint8_t XINPUT::Poll()
         {
             if (xinput_devices[index].bAddress == 0)
             {
-                continue;   
+                continue;
             }
 
             if (xinput_devices[index].usbh_inPipe == &epInfo[i] || xinput_devices[index].usbh_outPipe == &epInfo[i])
@@ -495,9 +499,9 @@ uint8_t XINPUT::Poll()
         }
 
         //Controller isn't connected
-        if(xinput == NULL)
+        if (xinput == NULL)
         {
-            continue;   
+            continue;
         }
 
         //Don't spam output. 20ms is ok for now. (FIXME: Should be bInterval)
@@ -510,31 +514,14 @@ uint8_t XINPUT::Poll()
         if (xinput->lValue_requested != xinput->lValue_actual || xinput->rValue_requested != xinput->rValue_actual)
         {
             USBH_XINPUT_DEBUG(F("SET RUMBLE\n"));
-            if (SetRumble(xinput, xinput->lValue_requested, xinput->rValue_requested) == hrSUCCESS)
-            {
-                xinput->lValue_actual = xinput->lValue_requested;
-                xinput->rValue_actual = xinput->rValue_requested;
-                xinput->timer_out = millis();
-            }
-            else
-            {
-                USBH_XINPUT_DEBUG(F("XINPUT ERROR SENDING RUMBLE COMMAND\n"));
-            }
+            SetRumble(xinput, xinput->lValue_requested, xinput->rValue_requested);
         }
 
         //Send LED commands
         else if (xinput->led_requested != xinput->led_actual)
         {
             USBH_XINPUT_DEBUG(F("USBH XINPUT: SET LED\n"));
-            if (SetLed(xinput, xinput->led_requested) == hrSUCCESS)
-            {
-                xinput->led_actual = xinput->led_requested;
-                xinput->timer_out = millis();
-            }
-            else
-            {
-                USBH_XINPUT_DEBUG(F("USBH XINPUT: ERROR SENDING LED COMMAND\n"));
-            }
+            SetLed(xinput, xinput->led_requested);
         }
 
         //Handle chatpad initialisation (Wireless 360 controller only)
@@ -548,11 +535,11 @@ uint8_t XINPUT::Poll()
         //Handle chatpad leds (Wireless 360 controller only)
         else if (xinput_type == XBOX360_WIRELESS && xinput->chatpad_led_requested != xinput->chatpad_led_actual)
         {
-            memcpy_P(xdata, xbox360w_chatpad_led_ctrl, sizeof(xbox360w_chatpad_led_ctrl));            
+            memcpy_P(xdata, xbox360w_chatpad_led_ctrl, sizeof(xbox360w_chatpad_led_ctrl));
             for (uint8_t led = 0; led < 4; led++)
             {
-                uint8_t actual = xinput->chatpad_led_actual    & pgm_read_byte(&chatpad_mod[led]);
-                uint8_t want   = xinput->chatpad_led_requested & pgm_read_byte(&chatpad_mod[led]);
+                uint8_t actual = xinput->chatpad_led_actual & pgm_read_byte(&chatpad_mod[led]);
+                uint8_t want = xinput->chatpad_led_requested & pgm_read_byte(&chatpad_mod[led]);
                 //The user has requested a led to turn on that isnt already on
                 if (!actual && want)
                 {
@@ -572,15 +559,15 @@ uint8_t XINPUT::Poll()
                 }
                 USBH_XINPUT_DEBUG(F("USBH XINPUT: SET CHATPAD LED\n"));
                 pUsb->outTransfer(bAddress, epInfo[i].epAddr, sizeof(xbox360w_chatpad_led_ctrl), xdata);
-                xinput->timer_periodic -= 2000; //Force chatpad keep alive packet check
                 xinput->timer_out = millis();
+                xinput->timer_periodic -= 2000; //Force chatpad keep alive packet check
             }
         }
 
         //Handle controller power off, Hold Xbox button. (Wireless 360 controller only)
         else if (xinput_type == XBOX360_WIRELESS && xinput->pad_state.wButtons & XINPUT_GAMEPAD_XBOX_BUTTON)
         {
-            if((millis() - xinput->timer_poweroff) > 1000)
+            if ((millis() - xinput->timer_poweroff) > 1000)
             {
                 USBH_XINPUT_DEBUG(F("USBH XINPUT: POWERING OFF CONTROLLER\n"));
                 WritePacket(xinput, xbox360w_power_off, sizeof(xbox360w_power_off), TRANSFER_PGM);
@@ -595,20 +582,17 @@ uint8_t XINPUT::Poll()
         }
 
         //Handle background periodic writes
-        if (millis() - xinput->timer_periodic > 1000)
+        if (millis() - xinput->timer_periodic > 4000)
         {
             USBH_XINPUT_DEBUG(F("USBH XINPUT: BACKGROUND POLL\n"));
-            if(xinput_type == XBOX360_WIRELESS)
+            if (xinput_type == XBOX360_WIRELESS)
             {
                 WritePacket(xinput, xbox360w_inquire_present, sizeof(xbox360w_inquire_present), TRANSFER_PGM);
                 WritePacket(xinput, xbox360w_controller_info, sizeof(xbox360w_controller_info), TRANSFER_PGM);
                 SetLed(xinput, xinput->led_requested);
-
                 (xinput->chatpad_keepalive_toggle ^= 1) ? \
                     WritePacket(xinput, xbox360w_chatpad_keepalive1, sizeof(xbox360w_chatpad_keepalive1), TRANSFER_PGM) :
-                    WritePacket(xinput, xbox360w_chatpad_keepalive2, sizeof(xbox360w_chatpad_keepalive2), TRANSFER_PGM);;
-
-                xinput->timer_out = millis();
+                    WritePacket(xinput, xbox360w_chatpad_keepalive2, sizeof(xbox360w_chatpad_keepalive2), TRANSFER_PGM);
             }
             xinput->timer_periodic = millis();
         }
@@ -623,17 +607,7 @@ bool XINPUT::ParseInputData(usbh_xinput_t **xpad, EpInfo *ep_in)
 #pragma GCC diagnostic ignored "-Wstrict-aliasing"
 
     uint16_t wButtons;
-
     usbh_xinput_t *_xpad = *xpad;
-
-    //If the wired controller inst allocated (failed on init, try again)
-    if (xinput_type != XBOX360_WIRELESS && _xpad == NULL)
-    {
-        USBH_XINPUT_DEBUG(F("XINPUT WIRED NOT ALLOCATED YET. DOING IT NOW\n"));
-        _xpad = alloc_xinput_device(bAddress, &ep_in[0], &ep_in[1]);
-        if (_xpad == NULL)
-            return false;
-    }
 
     switch(xinput_type)
     {
@@ -887,6 +861,7 @@ bool XINPUT::ParseInputData(usbh_xinput_t **xpad, EpInfo *ep_in)
 
 uint8_t XINPUT::WritePacket(usbh_xinput_t *xpad, const uint8_t *data, uint8_t len, uint8_t flags)
 {
+    xpad->timer_out = millis();
     if (flags & TRANSFER_PGM)
     {
         memcpy_P(xdata, data, len);
@@ -901,8 +876,10 @@ uint8_t XINPUT::WritePacket(usbh_xinput_t *xpad, const uint8_t *data, uint8_t le
 
 uint8_t XINPUT::SetRumble(usbh_xinput_t *xpad, uint8_t lValue, uint8_t rValue)
 {
+    xpad->lValue_actual = xpad->lValue_requested;
+    xpad->rValue_actual = xpad->rValue_requested;
+    xpad->timer_out = millis();
     uint16_t len;
-    //Rumble commands for known controllers
     switch (xinput_type)
     {
     case XBOX360_WIRELESS:
@@ -927,7 +904,9 @@ uint8_t XINPUT::SetRumble(usbh_xinput_t *xpad, uint8_t lValue, uint8_t rValue)
     case XBOXOG:
         memcpy_P(xdata, xboxog_rumble, sizeof(xboxog_rumble));
         xdata[2] = lValue;
+        xdata[3] = lValue;
         xdata[4] = rValue;
+        xdata[5] = rValue;
         len = sizeof(xboxog_rumble);
         break;
     default:
@@ -939,14 +918,15 @@ uint8_t XINPUT::SetRumble(usbh_xinput_t *xpad, uint8_t lValue, uint8_t rValue)
 
 uint8_t XINPUT::SetLed(usbh_xinput_t *xpad, uint8_t quadrant)
 {
+    xpad->led_actual = xpad->led_requested;
+    xpad->timer_out = millis();
     uint16_t len;
-    //Rumble commands for known controllers
     switch (xinput_type)
     {
     case XBOX360_WIRELESS:
         memset(xdata, 0x00, 12);
         memcpy_P(xdata, xbox360w_led, sizeof(xbox360w_led));
-        xdata[3] = (quadrant == 0) ? 0 : (0x40 | (quadrant + 5));
+        xdata[3] = (quadrant == 0) ? 0x40 : (0x40 | (quadrant + 5));
         len = 12;
         break;
     case XBOX360_WIRED:
@@ -957,6 +937,6 @@ uint8_t XINPUT::SetLed(usbh_xinput_t *xpad, uint8_t quadrant)
     default:
         return hrSUCCESS;
     }
-    
+
     return pUsb->outTransfer(bAddress, xpad->usbh_outPipe->epAddr, len, xdata);
 }

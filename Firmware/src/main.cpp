@@ -50,7 +50,10 @@ void setup()
 
 void loop()
 {
-#if (1)
+#if (0)
+    //Performance loop timing.
+    //Four slaves, four wireless controllers is about 4000us per loop
+    //Perfect!
     static uint32_t loop_cnt = 0;
     static uint32_t loop_timer = 0;
     if (loop_cnt > 1000)
@@ -63,7 +66,6 @@ void loop()
     loop_cnt++;
 #endif
 
-    //Handle Master tasks (USB Host controller side)
     if (player_id == 0)
     {
         master_task();

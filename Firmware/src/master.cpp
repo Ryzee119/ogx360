@@ -26,7 +26,6 @@ void master_init(void)
     pinMode(USB_HOST_RESET_PIN, OUTPUT);
     digitalWrite(USB_HOST_RESET_PIN, LOW);
 
-    Serial1.begin(115200);
     Wire.begin();
     Wire.setClock(400000);
     Wire.setWireTimeout(4000, true);
@@ -98,52 +97,48 @@ void master_task(void)
         }
 
         if (i == 0)
-            continue; //We're done on this loop
-
-        //Now send data to slaves
-        uint8_t rx_len, tx_len;
-        uint8_t *rx_buff, *tx_buff;
-
-        if (_usbd_c->type == DUKE)
         {
-            tx_len = sizeof(usbd_duke_in_t);
-            tx_buff = (uint8_t *)&_usbd_duke->in;
-            rx_len = sizeof(usbd_duke_out_t);
-            rx_buff = (uint8_t *)&_usbd_duke->out;
-        }
-        else if (_usbd_c->type == STEELBATTALTION)
-        {
-            tx_len = sizeof(usbd_sbattalion_in_t);
-            tx_buff = (uint8_t *)&_usbd_sbattalion->in;
-            rx_len = sizeof(usbd_sbattalion_out_t);
-            rx_buff = (uint8_t *)&_usbd_sbattalion->out;
-        }
-
-        Wire.beginTransmission(i);
-
-        uint8_t status = 0xF0 | _usbd_c->type;
-        Wire.write(status);
-
-        if (_usbd_c->type == DISCONNECTED)
-        {
-            Wire.endTransmission(true);
             continue;
         }
 
-        Wire.write(tx_buff, tx_len);
+        //Now send data to slaves
+        uint8_t *tx_buff = (_usbd_c->type == DUKE)            ? ((uint8_t *)&_usbd_duke->in) :
+                           (_usbd_c->type == STEELBATTALTION) ? ((uint8_t *)&_usbd_sbattalion->in) :
+                           NULL;
+        uint8_t  tx_len =  (_usbd_c->type == DUKE)            ? sizeof(usbd_duke_in_t) :
+                           (_usbd_c->type == STEELBATTALTION) ? sizeof(usbd_sbattalion_in_t) :
+                           0;
+        uint8_t *rx_buff = (_usbd_c->type == DUKE)            ? ((uint8_t *)&_usbd_duke->out) :
+                           (_usbd_c->type == STEELBATTALTION) ? ((uint8_t *)&_usbd_sbattalion->out) :
+                           NULL;
+        uint8_t  rx_len =  (_usbd_c->type == DUKE)            ? sizeof(usbd_duke_out_t) :
+                           (_usbd_c->type == STEELBATTALTION) ? sizeof(usbd_sbattalion_out_t) :
+                           0;
+        uint8_t status = 0xF0 | _usbd_c->type;
+
+        Wire.beginTransmission(i);
+        Wire.write(status);
+        if (tx_buff != NULL && tx_len != 0)
+        {
+            Wire.write(tx_buff, tx_len);
+        }
         Wire.endTransmission(true);
 
-        if (Wire.requestFrom(i, (int)rx_len) == rx_len)
+        if (rx_buff != NULL && rx_len != 0)
         {
-            while (Wire.available())
+            if (Wire.requestFrom(i, (int)rx_len) == rx_len)
             {
-                *rx_buff = Wire.read();
-                rx_buff++;
+                while (Wire.available())
+                {
+                    *rx_buff = Wire.read();
+                    rx_buff++;
+                }
             }
         }
-        else
+        //Flush
+        while (Wire.available())
         {
-            while (Wire.available()) Wire.read();
+            Wire.read();
         }
     }
 }
@@ -151,7 +146,7 @@ void master_task(void)
 static void handle_duke(usbh_xinput_t *_usbh_xinput, usbd_duke_t* _usbd_duke)
 {
     xinput_padstate_t *usbh_xstate = &_usbh_xinput->pad_state;
-    memset(&_usbd_duke->in.wButtons, 0x00, 10);
+    memset(&_usbd_duke->in.wButtons, 0x00, 8); //Also clears A/B/X/Y,BLACK,WHITE
 
     if (usbh_xstate->wButtons & XINPUT_GAMEPAD_DPAD_UP) _usbd_duke->in.wButtons |= DUKE_DUP;
     if (usbh_xstate->wButtons & XINPUT_GAMEPAD_DPAD_DOWN) _usbd_duke->in.wButtons |= DUKE_DDOWN;

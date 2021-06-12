@@ -163,9 +163,12 @@ static const uint8_t xboxone_rumble[] PROGMEM = {0x09, 0x00, 0x00, 0x09, 0x00, 0
 
 //Wireless 360 commands
 static const uint8_t xbox360w_led[] PROGMEM = {0x00, 0x00, 0x08, 0x40};
+//Sending 0x00, 0x00, 0x08, 0x00 will permanently disable rumble until you do this:
+static const uint8_t xbox360w_rumble_enable[] PROGMEM = {0x00, 0x00, 0x08, 0x01};
 static const uint8_t xbox360w_rumble[] PROGMEM = {0x00, 0x01, 0x0F, 0xC0};
 static const uint8_t xbox360w_inquire_present[] PROGMEM = {0x08, 0x00, 0x0F, 0xC0};
 static const uint8_t xbox360w_controller_info[] PROGMEM = {0x00, 0x00, 0x00, 0x40};
+static const uint8_t xbox360w_unknown[] PROGMEM = {0x00, 0x00, 0x02, 0x80};
 static const uint8_t xbox360w_power_off[] PROGMEM = {0x00, 0x00, 0x08, 0xC0};
 static const uint8_t xbox360w_chatpad_init[] PROGMEM = {0x00, 0x00, 0x0C, 0x1B};
 static const uint8_t xbox360w_chatpad_keepalive1[] PROGMEM = {0x00, 0x00, 0x0C, 0x1F};
