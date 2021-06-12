@@ -176,6 +176,27 @@ static void handle_duke(usbh_xinput_t *_usbh_xinput, usbd_duke_t* _usbd_duke)
     _usbh_xinput->chatpad_led_requested = CHATPAD_GREEN;
     _usbh_xinput->lValue_requested = _usbd_duke->out.lValue >> 8;
     _usbh_xinput->rValue_requested = _usbd_duke->out.hValue >> 8;
+
+#define XINPUT_MOD_RSX_INVERT (1 << 0)
+#define XINPUT_MOD_RSY_INVERT (1 << 1)
+    if (_usbh_xinput->modifiers & XINPUT_MOD_RSY_INVERT) _usbd_duke->in.rightStickY = -usbh_xstate->sThumbRY - 1;
+    if (_usbh_xinput->modifiers & XINPUT_MOD_RSX_INVERT) _usbd_duke->in.rightStickX = -usbh_xstate->sThumbRX - 1;
+
+    if (usbh_xinput_is_gamepad_pressed(_usbh_xinput, XINPUT_GAMEPAD_RIGHT_THUMB))
+    {
+        if(usbh_xinput_was_gamepad_pressed(_usbh_xinput, XINPUT_GAMEPAD_DPAD_UP) ||
+           usbh_xinput_was_gamepad_pressed(_usbh_xinput, XINPUT_GAMEPAD_DPAD_DOWN))
+        {
+            (_usbh_xinput->modifiers & XINPUT_MOD_RSY_INVERT) ? _usbh_xinput->modifiers &= ~XINPUT_MOD_RSY_INVERT :
+                                                                _usbh_xinput->modifiers |=  XINPUT_MOD_RSY_INVERT;
+        }
+        if(usbh_xinput_was_gamepad_pressed(_usbh_xinput, XINPUT_GAMEPAD_DPAD_RIGHT) ||
+           usbh_xinput_was_gamepad_pressed(_usbh_xinput, XINPUT_GAMEPAD_DPAD_LEFT))
+        {
+            (_usbh_xinput->modifiers & XINPUT_MOD_RSX_INVERT) ? _usbh_xinput->modifiers &= ~XINPUT_MOD_RSX_INVERT :
+                                                                _usbh_xinput->modifiers |=  XINPUT_MOD_RSX_INVERT;
+        }
+    }
 }
 
 #define ONGAMEPAD 0
