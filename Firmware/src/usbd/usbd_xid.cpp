@@ -56,7 +56,15 @@ int XID_::getReport(void *data, int len)
         USBD_XID_DEBUG("USBD XID: GOT HID REPORT OUT FROM ENDPOINT\n");
         memcpy(xid_out_data, r, capped_len);
         memcpy(data, r, capped_len);
+        xid_out_expired = millis();
         return capped_len;
+    }
+    //No new data on interrupt pipe, if its been a while since last update,
+    //Treat it as expired. Prevents rumble locking on old values.
+    if(millis() - xid_out_expired > 500)
+    {
+        memset(data, 0x00, capped_len);
+        return 0;
     }
     //No new data on interrupt pipe, return previous data
     memcpy(data, xid_out_data, capped_len);
@@ -120,6 +128,7 @@ bool XID_::setup(USBSetup &setup)
             USBD_XID_DEBUG("USBD XID: GETTING HID REPORT OUT\n");
             uint16_t length = min(sizeof(xid_out_data), setup.wLength);
             USB_RecvControl(xid_out_data, length);
+            xid_out_expired = millis();
             return true;
         }
     }

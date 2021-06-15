@@ -299,6 +299,7 @@ private:
     uint8_t epType[2];
     uint8_t xid_in_data[32];
     uint8_t xid_out_data[32];
+    uint32_t xid_out_expired;
 };
 
 XID_ &XID();
