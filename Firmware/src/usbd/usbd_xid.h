@@ -85,6 +85,15 @@
 #define SBC_AXIS_TUNER   0x0100
 #define SBC_AXIS_GEAR    0x0200
 
+#define SBC_GEAR_R 7
+#define SBC_GEAR_N 8
+#define SBC_GEAR_1 9
+#define SBC_GEAR_2 10
+#define SBC_GEAR_3 11
+#define SBC_GEAR_4 12
+#define SBC_GEAR_5 13
+
+#define SBC_AIMING_MID 32768
 
 static const DeviceDescriptor xid_dev_descriptor PROGMEM =
     D_DEVICE(0x00, 0x00, 0x00, USB_EP_SIZE, USB_VID, USB_PID, 0x0121, 0, 0, 0, 1);
@@ -187,83 +196,26 @@ typedef struct __attribute__((packed))
 {
     uint8_t startByte;
     uint8_t bLength;
-    union {
-        uint8_t CockpitHatch : 4;
-        uint8_t EmergencyEject : 4;
-    };
-    union {
-    uint8_t Start : 4;
-    uint8_t Ignition : 4;
-    };
-    union {
-    uint8_t MapZoomInOut: 4;
-    uint8_t OpenClose: 4;
-    };
-    union {
-    uint8_t SubMonitorModeSelect: 4;
-    uint8_t ModeSelect: 4;
-    };
-    union {
-    uint8_t MainMonitorZoomOut: 4;
-    uint8_t MainMonitorZoomIn: 4;
-    };
-    union {
-    uint8_t Manipulator: 4;
-    uint8_t ForecastShootingSystem: 4;
-    };
-    union {
-    uint8_t Washing: 4;
-    uint8_t LineColorChange: 4;
-    };
-    union {
-    uint8_t Chaff: 4;
-    uint8_t Extinguisher: 4;
-    };
-    union {
-    uint8_t Override: 4;
-    uint8_t TankDetach: 4;
-    };
-    union {
-    uint8_t F1: 4;
-    uint8_t NightScope: 4;
-    };
-    union {
-    uint8_t F3: 4;
-    uint8_t F2: 4;
-    };
-    union {
-    uint8_t SubWeaponControl: 4;
-    uint8_t MainWeaponControl: 4;
-    };
-    union {
-    uint8_t Comm1: 4;
-    uint8_t MagazineChange: 4;
-    };
-    union {
-    uint8_t Comm3: 4;
-    uint8_t Comm2: 4;
-    };
-    union {
-    uint8_t Comm5: 4;
-    uint8_t Comm4: 4;
-    };
-    union {
-    uint8_t GearR: 4;
-    uint8_t unused1: 4;
-    };
-    union {
-    uint8_t Gear1: 4;
-    uint8_t GearN: 4;
-    };
-    union {
-    uint8_t Gear3: 4;
-    uint8_t Gear2: 4;
-    };
-    union {
-    uint8_t Gear5: 4;
-    uint8_t Gear4: 4;
-    };
-    uint8_t unused2;
+    uint8_t CockpitHatch_EmergencyEject;
+    uint8_t Start_Ignition;
+    uint8_t MapZoomInOut_OpenClose;
+    uint8_t SubMonitorModeSelect_ModeSelect;
+    uint8_t MainMonitorZoomOut_MainMonitorZoomIn;
+    uint8_t Manipulator_ForecastShootingSystem;
+    uint8_t Washing_LineColorChange;
+    uint8_t Chaff_Extinguisher;
+    uint8_t Override_TankDetach;
+    uint8_t F1_NightScope;
+    uint8_t F3_F2;
+    uint8_t SubWeaponControl_MainWeaponControl;
+    uint8_t Comm1_MagazineChange;
+    uint8_t Comm3_Comm2;
+    uint8_t Comm5_Comm4;
+    uint8_t GearR_;
+    uint8_t Gear1_GearN;
+    uint8_t Gear3_Gear2;
+    uint8_t Gear5_Gear4;
+    uint8_t dummy;
 } usbd_sbattalion_out_t;
 
 typedef struct __attribute__((packed))
