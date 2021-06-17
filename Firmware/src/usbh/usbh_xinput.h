@@ -142,7 +142,7 @@ typedef struct usbh_xinput_t
     uint32_t timer_out;
     uint32_t timer_poweroff;
 
-    uint8_t modifiers; //User modifiers
+    void *user_data;
 } usbh_xinput_t;
 
 usbh_xinput_t *usbh_xinput_get_device_list(void);
