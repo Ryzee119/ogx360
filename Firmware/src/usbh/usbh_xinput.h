@@ -220,9 +220,7 @@ protected:
 private:
     bool bIsReady;
     uint16_t PID,VID;
-#ifdef ENABLE_XINPUT_STRINGS
     uint8_t iProduct, iManuf, iSerial;
-#endif
     xinput_type_t xinput_type;
     usbh_xinput_t *alloc_xinput_device(uint8_t bAddress, EpInfo *in, EpInfo *out);
     uint8_t free_xinput_device(usbh_xinput_t *xinput_dev);

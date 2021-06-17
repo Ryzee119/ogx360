@@ -307,11 +307,9 @@ uint8_t XINPUT::Init(uint8_t parent __attribute__((unused)), uint8_t port __attr
     PID = udd->idProduct;
     VID = udd->idVendor;
 
-#ifdef ENABLE_XINPUT_STRINGS
     iProduct = udd->iProduct;
     iManuf = udd->iManufacturer;
     iSerial = udd->iSerialNumber;
-#endif
 
     //Request the configuration descriptor to determine what xinput device it is and get endpoint info etc.
     rcode = pUsb->getConfDescr(bAddress, XBOX_CONTROL_PIPE, sizeof(xdata), 0, xdata);
@@ -415,29 +413,12 @@ uint8_t XINPUT::Init(uint8_t parent __attribute__((unused)), uint8_t port __attr
         return rcode;
     }
 
-#ifdef ENABLE_XINPUT_STRINGS
-    uint8_t strings[3] = {iManuf, iProduct, iSerial};
-    for (uint8_t i = 0; i < sizeof(strings); i++)
+    //Hack, Retroflag controller needs a product string request on enumeration to work. 
+    rcode = pUsb->getStrDescr(bAddress, epInfo[XBOX_CONTROL_PIPE].epAddr, 2, iProduct, 0x0409, xdata);
+    if (rcode == hrSUCCESS && xdata[1] == USB_DESCRIPTOR_STRING)
     {
-        if (strings[i] > 0)
-        {
-            //First get the length of the string. Its the first byte. Windows seems to get the first two bytes
-            //Then get the full string.
-            rcode = pUsb->getStrDescr(bAddress, epInfo[XBOX_CONTROL_PIPE].epAddr, 2, strings[i], 0x0409, xdata);
-            rcode = pUsb->getStrDescr(bAddress, epInfo[XBOX_CONTROL_PIPE].epAddr, min(xdata[0], EP_MAXPKTSIZE), strings[i], 0x0409, xdata);
-            if (rcode != hrSUCCESS)
-            {
-                continue;
-            }
-            //String starts at byte 2, and is every second byte.
-            for (int i = 2; i < xdata[0]; i += 2)
-            {
-                Serial1.write(xdata[i]);
-            }
-            Serial1.print("\n");
-        }
+        pUsb->getStrDescr(bAddress, epInfo[XBOX_CONTROL_PIPE].epAddr, min(xdata[0], sizeof(xdata)), iProduct, 0x0409, xdata);
     }
-#endif
 
     //Wired we can allocate immediately.
     if (xinput_type != XBOX360_WIRELESS)
