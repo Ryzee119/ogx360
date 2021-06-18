@@ -10,6 +10,10 @@
 
 USB UsbHost;
 USBHub Hub(&UsbHost);
+USBHub Hub1(&UsbHost);
+USBHub Hub2(&UsbHost);
+USBHub Hub3(&UsbHost);
+USBHub Hub4(&UsbHost);
 XINPUT xinput1(&UsbHost);
 XINPUT xinput2(&UsbHost);
 XINPUT xinput3(&UsbHost);
