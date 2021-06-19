@@ -29,7 +29,6 @@ void setup()
         usbd_c[i].duke.out.bLength = sizeof(usbd_duke_out_t);
 
         usbd_c[i].sb.in.bLength = sizeof(usbd_sbattalion_in_t);
-        usbd_c[i].sb.in.gearLever = SBC_GEAR_N;
         usbd_c[i].sb.out.bLength = sizeof(usbd_sbattalion_out_t);
     }
 
