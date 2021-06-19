@@ -3,6 +3,7 @@
 
 #include <Arduino.h>
 #include <Wire.h>
+#include <EEPROM.h>
 #include <UHS2/Usb.h>
 #include <UHS2/usbhub.h>
 
@@ -29,6 +30,7 @@ typedef struct xinput_user_data
 
 extern usbd_controller_t usbd_c[MAX_GAMEPADS];
 xinput_user_data_t user_data[MAX_GAMEPADS];
+uint16_t sb_sensitivity = SB_DEFAULT_SENSITIVITY;
 
 static void handle_duke(usbh_xinput_t *_usbh_xinput, usbd_duke_t* _usbd_duke, xinput_user_data_t *_user_data);
 static void handle_sbattalion(usbh_xinput_t *_usbh_xinput, usbd_steelbattalion_t* _usbd_sbattalion, xinput_user_data_t *_user_data);
@@ -63,11 +65,24 @@ void master_init(void)
         delay(100);
     }
 
+    //Setup initial steel battalion state
     for (uint8_t i = 0; i < MAX_GAMEPADS; i++)
     {
         usbd_c[i].sb.in.gearLever = SBC_GEAR_N;
         user_data[i].vmouse_x = SBC_AIMING_MID;
         user_data[i].vmouse_y = SBC_AIMING_MID;
+    }
+
+    //Setup EEPROM for non-volatile settings
+    static const uint8_t magic = 0xAB;
+    if (EEPROM.read(0x00) != magic)
+    {
+        EEPROM.write(0, magic);
+        EEPROM.put(1, sb_sensitivity);
+    }
+    else
+    {
+        EEPROM.get(1, sb_sensitivity);
     }
 }
 
@@ -401,18 +416,17 @@ static void handle_sbattalion(usbh_xinput_t *_usbh_xinput, usbd_steelbattalion_t
 
     //Moving aiming stick like a mouse cursor
     static const int16_t DEADZONE = 7500;
-    static const int16_t sensitivity = 400;
     int32_t axisVal;
     axisVal = _usbh_xinput->pad_state.sThumbRX;
     if (abs(axisVal) > DEADZONE)
     {
-        _user_data->vmouse_x += axisVal / sensitivity;
+        _user_data->vmouse_x += axisVal / sb_sensitivity;
     }
 
     axisVal = _usbh_xinput->pad_state.sThumbRY;
     if (abs(axisVal) > DEADZONE)
     {
-        _user_data->vmouse_y -= axisVal / sensitivity;
+        _user_data->vmouse_y -= axisVal / sb_sensitivity;
     }
 
     if (_user_data->vmouse_x < 0)          _user_data->vmouse_x = 0;
@@ -443,6 +457,35 @@ static void handle_sbattalion(usbh_xinput_t *_usbh_xinput, usbd_steelbattalion_t
     _usbh_xinput->lValue_requested |= _usbd_sbattalion->out.Comm1_MagazineChange << 4;
     _usbh_xinput->lValue_requested |= _usbd_sbattalion->out.CockpitHatch_EmergencyEject << 4;
     _usbh_xinput->rValue_requested = _usbh_xinput->lValue_requested;
+
+    if (usbh_xinput_is_chatpad_pressed(_usbh_xinput, XINPUT_CHATPAD_ORANGE))
+    {
+        uint16_t new_sensitivity = 0;
+        if (usbh_xinput_was_chatpad_pressed(_usbh_xinput, XINPUT_CHATPAD_9))
+            new_sensitivity = 200;
+        else if (usbh_xinput_was_chatpad_pressed(_usbh_xinput, XINPUT_CHATPAD_8))
+            new_sensitivity = 250;
+        else if (usbh_xinput_was_chatpad_pressed(_usbh_xinput, XINPUT_CHATPAD_7))
+            new_sensitivity = 300;
+        else if (usbh_xinput_was_chatpad_pressed(_usbh_xinput, XINPUT_CHATPAD_6))
+            new_sensitivity = 350;
+        else if (usbh_xinput_was_chatpad_pressed(_usbh_xinput, XINPUT_CHATPAD_5))
+            new_sensitivity = 400;
+        else if (usbh_xinput_was_chatpad_pressed(_usbh_xinput, XINPUT_CHATPAD_4))
+            new_sensitivity = 650;
+        else if (usbh_xinput_was_chatpad_pressed(_usbh_xinput, XINPUT_CHATPAD_3))
+            new_sensitivity = 800;
+        else if (usbh_xinput_was_chatpad_pressed(_usbh_xinput, XINPUT_CHATPAD_2))
+            new_sensitivity = 1000;
+        else if (usbh_xinput_was_chatpad_pressed(_usbh_xinput, XINPUT_CHATPAD_1))
+            new_sensitivity = 1200;
+
+        if (new_sensitivity != 0 && sb_sensitivity != new_sensitivity)
+        {
+            EEPROM.put(1, new_sensitivity);
+            sb_sensitivity = new_sensitivity;
+        }
+    }
 
     //Hack: Cannot have SBC_W0_COCKPITHATCH and SBC_W0_IGNITION or aiming stick non zeros at the same time
     //or we trigger an IGR or shutdown with some Scene Bioses.
