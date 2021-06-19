@@ -16,6 +16,10 @@
 #define PLAYER_ID1_PIN 19
 #define PLAYER_ID2_PIN 20
 
+#ifndef SB_DEFAULT_SENSITIVITY
+#define SB_DEFAULT_SENSITIVITY 400
+#endif
+
 typedef struct
 {
    xid_type_t type;
