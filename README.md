@@ -14,18 +14,21 @@ The ogx360 is a small circuit board which allows you to use a range of modern US
 
 ## Features include:
 * Full rumble support on all controllers.
-* Steel Battalion controller support on Player 1 with an Xbox 360 Chatpad using Xbox 360 Wireless Controllers.
+* Steel Battalion controller support with an Xbox 360 Chatpad using Xbox 360 Wireless Controllers.
 * Low level programming with minimal input lag. Less than 4ms over an original controller. (See https://youtu.be/V7Pnba7Y12Y)
 * Firmware can be updated over USB. No programming hardware is required. See [Firmware](./Firmware).
 * One ogx360 mutliple Xboxes, just plug the other Arduino modules into nearby OG Xbox consoles.
+* Flip the axis on the right stick for those games missing axis inversion settings. (Hold the right stick in then D-PAD to invert that direction).
 
 ## Supported controllers
 * Supports 4 players with Genuine and Third Party Microsoft Xbox 360 Wireless Receivers.
 * Wired Xbox 360 Controllers.
-* 8bitdo Wireless Adaptor (See http://www.8bitdo.com/wireless-usb-adapter/ for supported controllers). One controller per 8bitdo adaptor.
-* ChronusMAX (See https://cronusmax.com/ for supported devices). Ensure it is configured to appear as an Xbox 360 Controller. One controller per adaptor.
-* Genuine Wired Xbox One Controllers.
-* **NOTE** - When connecting multiple USB bus powered devices, a USB2.0 hub is required.
+* 8bitdo Wireless Bluetooth Adaptor (See http://www.8bitdo.com/wireless-usb-adapter/ for supported controllers). One controller per 8bitdo adaptor.
+* ChronusMAX/ChronusZen (See https://cronusmax.com/ for supported devices). Ensure it is configured to appear as an Xbox 360 Controller. One controller per adaptor.
+* Most/all? controllers that are xinput compatible.
+* Genuine and PDP Wired Xbox One Controllers.
+* Hyperkin Duke Xbox One Controller.
+* **NOTE** - When connecting multiple USB bus powered devices, a USB2.0 hub is required. A externally powered hub is recommended.
 
 ## Steel Battalion controller emulation
 * You need a wireless Xbox 360 controller with a chatpad peripheral.
