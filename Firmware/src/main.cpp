@@ -87,18 +87,21 @@ void loop()
         if (usbd_xid.getType() == DUKE)
         {
             UDCON &= ~(1 << DETACH);
+            RXLED1;
             usbd_xid.sendReport(&usbd_c[0].duke.in, sizeof(usbd_duke_in_t));
             usbd_xid.getReport(&usbd_c[0].duke.out, sizeof(usbd_duke_out_t));
         }
         else if (usbd_xid.getType() == STEELBATTALION)
         {
             UDCON &= ~(1 << DETACH);
+            RXLED1;
             usbd_xid.sendReport(&usbd_c[0].sb.in, sizeof(usbd_sbattalion_in_t));
             usbd_xid.getReport(&usbd_c[0].sb.out, sizeof(usbd_sbattalion_out_t));
         }
         else if (usbd_xid.getType() == DISCONNECTED)
         {
             UDCON |= (1 << DETACH);
+            RXLED0;
         }
 
         poll_timer = millis();
