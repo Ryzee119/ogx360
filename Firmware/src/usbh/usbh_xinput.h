@@ -110,7 +110,7 @@ typedef enum
     XBOXONE,
     XBOX360_WIRELESS,
     XBOX360_WIRED,
-    XBOXOG
+    XBOXOG,
 } xinput_type_t;
 
 typedef struct usbh_xinput_t
@@ -119,6 +119,7 @@ typedef struct usbh_xinput_t
     uint8_t bAddress;
     EpInfo *usbh_inPipe;  //Pipe specific to this pad
     EpInfo *usbh_outPipe; //Pipe specific to this pad
+    xinput_type_t type;
     //xinput controller state
     xinput_padstate_t pad_state; //Current pad button/stick state
     uint16_t pad_state_wButtons_old; //Prev pad state buttons
@@ -219,8 +220,9 @@ private:
     bool bIsReady;
     uint16_t PID,VID;
     uint8_t iProduct, iManuf, iSerial;
-    xinput_type_t xinput_type;
-    usbh_xinput_t *alloc_xinput_device(uint8_t bAddress, EpInfo *in, EpInfo *out);
+    uint8_t dev_num_eps;
+    xinput_type_t dev_type;
+    usbh_xinput_t *alloc_xinput_device(uint8_t bAddress, EpInfo *in, EpInfo *out, xinput_type_t type);
     uint8_t free_xinput_device(usbh_xinput_t *xinput_dev);
     bool ParseInputData(usbh_xinput_t **xpad, EpInfo *ep_in);
 };
