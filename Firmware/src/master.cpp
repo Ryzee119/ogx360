@@ -90,6 +90,7 @@ void master_task(void)
 {
     UsbHost.Task();
     UsbHost.IntHandler();
+    UsbHost.busprobe();
 
     usbh_xinput_t *usbh_head = usbh_xinput_get_device_list();
     for (int i = 0; i < MAX_GAMEPADS; i++)
