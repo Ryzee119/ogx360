@@ -16,7 +16,7 @@
 #define GET_UINT(a, b) *((uint32_t *)a[b])
 
 static usbh_xinput_t xinput_devices[XINPUT_MAXGAMEPADS];
-static uint8_t xdata[96];
+static uint8_t xdata[384];
 
 #ifdef ENABLE_USBH_XINPUT_DEBUG
 static void PrintHex8(uint8_t *data, uint8_t length) // prints 8-bit data in hex with leading zeroes
@@ -32,7 +32,7 @@ static void PrintHex8(uint8_t *data, uint8_t length) // prints 8-bit data in hex
 }
 #endif
 
-usbh_xinput_t *XINPUT::alloc_xinput_device(uint8_t bAddress, EpInfo *in, EpInfo *out)
+usbh_xinput_t *XINPUT::alloc_xinput_device(uint8_t bAddress, EpInfo *in, EpInfo *out, xinput_type_t type)
 {
     usbh_xinput_t *new_xinput = NULL;
     uint8_t index;
@@ -54,24 +54,26 @@ usbh_xinput_t *XINPUT::alloc_xinput_device(uint8_t bAddress, EpInfo *in, EpInfo 
 
     memset(new_xinput, 0, sizeof(usbh_xinput_t));
     new_xinput->bAddress = bAddress;
+    new_xinput->type = type;
     new_xinput->usbh_inPipe = in;
     new_xinput->usbh_outPipe = out;
     new_xinput->led_requested = index + 1;
     new_xinput->chatpad_led_requested = CHATPAD_GREEN;
 
-    if (xinput_type == XBOX360_WIRELESS)
+    if (new_xinput->type == XBOX360_WIRELESS)
     {
         WritePacket(new_xinput, xbox360w_controller_info, sizeof(xbox360w_controller_info), TRANSFER_PGM);
         WritePacket(new_xinput, xbox360w_unknown, sizeof(xbox360w_unknown), TRANSFER_PGM);
         WritePacket(new_xinput, xbox360w_rumble_enable, sizeof(xbox360w_rumble_enable), TRANSFER_PGM);
     }
-    else if (xinput_type == XBOX360_WIRED)
+    else if (new_xinput->type == XBOX360_WIRED)
     {
-        memcpy_P(xdata, xbox360_wired_led, sizeof(xbox360_wired_led));
-        xdata[2] = index + 2;
-        pUsb->outTransfer(bAddress, out->epAddr, sizeof(xbox360_wired_led), xdata);
+        uint8_t cmd[sizeof(xbox360_wired_led)];
+        memcpy(cmd, xbox360_wired_led, sizeof(xbox360_wired_led));
+        cmd[2] = index + 2;
+        pUsb->outTransfer(bAddress, out->epAddr, sizeof(xbox360_wired_led), cmd);
     }
-    else if (xinput_type == XBOXONE)
+    else if (new_xinput->type == XBOXONE)
     {
         WritePacket(new_xinput, xboxone_start_input, sizeof(xboxone_start_input), TRANSFER_PGM);
 
@@ -192,7 +194,7 @@ XINPUT::XINPUT(USB *p) : pUsb(p),
                          bAddress(0),
                          bIsReady(false),
                          PID(0), VID(0),
-                         xinput_type(XINPUT_UNKNOWN)
+                         dev_num_eps(1)
 {
     memset(xdata, 0x00, sizeof(xdata));
     if (pUsb)
@@ -233,6 +235,8 @@ uint8_t XINPUT::ConfigureDevice(uint8_t parent, uint8_t port, bool lowspeed)
 
     //Now we know the control pipe max packet size.
     epInfo[XBOX_CONTROL_PIPE].maxPktSize = udd->bMaxPacketSize0;
+    dev_num_eps = 1;
+    dev_type = XINPUT_UNKNOWN;
 
     //In the early days of USB some USB devices would become confused by a second request for
     //the Device Descriptor if they did not return the complete Device Descriptor for the first request.
@@ -247,6 +251,14 @@ uint8_t XINPUT::Init(uint8_t parent __attribute__((unused)), uint8_t port __attr
     AddressPool &addrPool = pUsb->GetAddressPool();
     UsbDevice *p;
     USB_DEVICE_DESCRIPTOR *udd;
+
+    for (uint8_t i = 1; i < XBOX_MAX_ENDPOINTS; i++)
+    {
+        epInfo[i].epAttribs = USB_TRANSFER_TYPE_INTERRUPT;
+        epInfo[i].bmNakPower = USB_NAK_NOWAIT;
+        epInfo[i].bmSndToggle = 0;
+        epInfo[i].bmRcvToggle = 0;
+    }
 
     //Perform some sanity checks of everything
     if (bAddress)
@@ -311,6 +323,16 @@ uint8_t XINPUT::Init(uint8_t parent __attribute__((unused)), uint8_t port __attr
     iManuf = udd->iManufacturer;
     iSerial = udd->iSerialNumber;
 
+    //Hack, Retroflag controller needs a product string request on enumeration to work.
+    if (iProduct)
+    {
+        rcode = pUsb->getStrDescr(bAddress, epInfo[XBOX_CONTROL_PIPE].epAddr, 2, iProduct, 0x0409, xdata);
+        if (rcode == hrSUCCESS && xdata[1] == USB_DESCRIPTOR_STRING)
+        {
+            pUsb->getStrDescr(bAddress, epInfo[XBOX_CONTROL_PIPE].epAddr, min(xdata[0], sizeof(xdata)), iProduct, 0x0409, xdata);
+        }
+    }
+
     //Request the configuration descriptor to determine what xinput device it is and get endpoint info etc.
     rcode = pUsb->getConfDescr(bAddress, XBOX_CONTROL_PIPE, sizeof(xdata), 0, xdata);
     if (rcode)
@@ -320,90 +342,7 @@ uint8_t XINPUT::Init(uint8_t parent __attribute__((unused)), uint8_t port __attr
         return rcode;
     }
 
-    //The interface descriptor is after the config descriptor.
-    USB_INTERFACE_DESCRIPTOR *uid = reinterpret_cast<USB_INTERFACE_DESCRIPTOR *>(xdata +
-                                                                                 sizeof(USB_CONFIGURATION_DESCRIPTOR));
-
-    xinput_type = XINPUT_UNKNOWN;
-    if (uid->bNumEndpoints < 2)
-        xinput_type = XINPUT_UNKNOWN;
-    else if (uid->bInterfaceSubClass == 0x5D && //Xbox360 wireless bInterfaceSubClass
-             uid->bInterfaceProtocol == 0x81)   //Xbox360 wireless bInterfaceProtocol
-        xinput_type = XBOX360_WIRELESS;
-    else if (uid->bInterfaceSubClass == 0x5D && //Xbox360 wired bInterfaceSubClass
-             uid->bInterfaceProtocol == 0x01)   //Xbox360 wired bInterfaceProtocol
-        xinput_type = XBOX360_WIRED;
-    else if (uid->bInterfaceSubClass == 0x47 && //Xbone and SX bInterfaceSubClass
-             uid->bInterfaceProtocol == 0xD0)   //Xbone and SX bInterfaceProtocol
-        xinput_type = XBOXONE;
-    else if (uid->bInterfaceClass == 0x58 &&  //XboxOG bInterfaceClass
-             uid->bInterfaceSubClass == 0x42) //XboxOG bInterfaceSubClass
-        xinput_type = XBOXOG;
-
-    if (xinput_type == XINPUT_UNKNOWN)
-    {
-        Release();
-        USBH_XINPUT_DEBUG(F("USBH XINPUT: XINPUT_UNKNOWN\n"));
-        return USB_DEV_CONFIG_ERROR_DEVICE_NOT_SUPPORTED;
-    }
-
-    USBH_XINPUT_DEBUG(F("USBH XINPUT: XID TYPE: "));
-    USBH_XINPUT_DEBUG(xinput_type);
-    USBH_XINPUT_DEBUG("\n");
-
-    for (uint8_t i = 1; i < XBOX_MAX_ENDPOINTS; i++)
-    {
-        epInfo[i].epAddr = 0x00; //Parsed further down.
-        epInfo[i].epAttribs = USB_TRANSFER_TYPE_INTERRUPT;
-        epInfo[i].bmNakPower = USB_NAK_NOWAIT;
-        epInfo[i].maxPktSize = EP_MAXPKTSIZE;
-        epInfo[i].bmSndToggle = 0;
-        epInfo[i].bmRcvToggle = 0;
-    }
-    //XBOX360_WIRELESS all seem to have the same endpoints. Just manually set them.
-    if (xinput_type == XBOX360_WIRELESS)
-    {
-        epInfo[1].epAddr = 0x01;
-        epInfo[2].epAddr = 0x01;
-        epInfo[3].epAddr = 0x03;
-        epInfo[4].epAddr = 0x03;
-        epInfo[5].epAddr = 0x05;
-        epInfo[6].epAddr = 0x05;
-        epInfo[7].epAddr = 0x07;
-        epInfo[8].epAddr = 0x07;
-    }
-
-    //Parse the configuration descriptor to find the two endpoint addresses (Only used for non wireless receiver)
-    uint8_t cd_len = 0, cd_type = 0, cd_pos = 0;
     USB_CONFIGURATION_DESCRIPTOR *ucd = reinterpret_cast<USB_CONFIGURATION_DESCRIPTOR *>(xdata);
-    while (epInfo[XBOX_INPUT_PIPE].epAddr == 0 || epInfo[XBOX_OUTPUT_PIPE].epAddr == 0)
-    {
-        if (cd_pos >= sizeof(xdata) - 1)
-            break;
-
-        cd_len = xdata[cd_pos];
-        cd_type = xdata[cd_pos + 1];
-
-        if (cd_type == USB_ENDPOINT_DESCRIPTOR_TYPE)
-        {
-            USB_ENDPOINT_DESCRIPTOR *uepd = reinterpret_cast<USB_ENDPOINT_DESCRIPTOR *>(&xdata[cd_pos]);
-            if (uepd->bmAttributes == USB_TRANSFER_TYPE_INTERRUPT)
-            {
-                uint8_t pipe = (uepd->bEndpointAddress & 0x80) ? XBOX_INPUT_PIPE : XBOX_OUTPUT_PIPE;
-                epInfo[pipe].epAddr = uepd->bEndpointAddress & 0x7F;
-            }
-        }
-        cd_pos += cd_len;
-    }
-
-    rcode = pUsb->setEpInfoEntry(bAddress, ((xinput_type == XBOX360_WIRELESS) ? 9 : 3), epInfo);
-    if (rcode)
-    {
-        Release();
-        USBH_XINPUT_DEBUG(F("USBH XINPUT: setEpInfoEntry error\n"));
-        return rcode;
-    }
-
     //Set the device configuration we want to use
     rcode = pUsb->setConf(bAddress, epInfo[XBOX_CONTROL_PIPE].epAddr, ucd->bConfigurationValue);
     if (rcode)
@@ -413,24 +352,113 @@ uint8_t XINPUT::Init(uint8_t parent __attribute__((unused)), uint8_t port __attr
         return rcode;
     }
 
-    //Hack, Retroflag controller needs a product string request on enumeration to work. 
-    rcode = pUsb->getStrDescr(bAddress, epInfo[XBOX_CONTROL_PIPE].epAddr, 2, iProduct, 0x0409, xdata);
-    if (rcode == hrSUCCESS && xdata[1] == USB_DESCRIPTOR_STRING)
+    uint8_t num_itf = ucd->bNumInterfaces;
+    uint8_t *pdesc = (uint8_t *)ucd;
+    uint8_t pdesc_pos = 0;
+    USB_INTERFACE_DESCRIPTOR *uid;
+    while (num_itf)
     {
-        pUsb->getStrDescr(bAddress, epInfo[XBOX_CONTROL_PIPE].epAddr, min(xdata[0], sizeof(xdata)), iProduct, 0x0409, xdata);
+        //Find next interface
+        while (pdesc[1] != USB_DESCRIPTOR_INTERFACE)
+        {
+            //Shift the pointer by bLength
+            pdesc_pos += pdesc[0];
+            if (pdesc_pos > sizeof(xdata) || pdesc_pos > ucd->wTotalLength)
+            {
+                USBH_XINPUT_DEBUG(F("USBH XINPUT: BUFFER OVERLOW PARSING INTERFACES\n"));
+                return hrBADREQ;
+            }
+            pdesc += pdesc[0];
+        }
+        uid = reinterpret_cast<USB_INTERFACE_DESCRIPTOR *>(pdesc);
+        xinput_type_t _type = XINPUT_UNKNOWN;
+        if (uid->bNumEndpoints < 2)
+            _type = XINPUT_UNKNOWN;
+        else if (uid->bInterfaceSubClass == 0x5D && //Xbox360 wireless bInterfaceSubClass
+                uid->bInterfaceProtocol == 0x81)   //Xbox360 wireless bInterfaceProtocol
+            _type = XBOX360_WIRELESS;
+        else if (uid->bInterfaceSubClass == 0x5D && //Xbox360 wired bInterfaceSubClass
+                uid->bInterfaceProtocol == 0x01)   //Xbox360 wired bInterfaceProtocol
+            _type = XBOX360_WIRED;
+        else if (uid->bInterfaceSubClass == 0x47 && //Xbone and SX bInterfaceSubClass
+                uid->bInterfaceProtocol == 0xD0)   //Xbone and SX bInterfaceProtocol
+            _type = XBOXONE;
+        else if (uid->bInterfaceClass == 0x58 &&  //XboxOG bInterfaceClass
+                uid->bInterfaceSubClass == 0x42) //XboxOG bInterfaceSubClass
+            _type = XBOXOG;
+
+        if (_type == XINPUT_UNKNOWN)
+        {
+            num_itf--;
+            pdesc += pdesc[0];
+            continue;
+        }
+
+        USBH_XINPUT_DEBUG(F("USBH XINPUT: XID TYPE: "));
+        USBH_XINPUT_DEBUG(_type);
+        USBH_XINPUT_DEBUG("\n");
+
+        //Parse the configuration descriptor to find the two endpoint addresses (Only used for non wireless receiver)
+        uint8_t cd_len = 0, cd_type = 0, cd_pos = 0, ep_num = 0;
+        while (ep_num < uid->bNumEndpoints)
+        {
+            if (cd_pos >= sizeof(xdata) - 1)
+                break;
+
+            uint8_t *pepdesc = (uint8_t *)uid;
+
+            cd_len = pepdesc[cd_pos];
+            cd_type = pepdesc[cd_pos + 1];
+            if (cd_type == USB_ENDPOINT_DESCRIPTOR_TYPE)
+            {
+                USB_ENDPOINT_DESCRIPTOR *uepd = reinterpret_cast<USB_ENDPOINT_DESCRIPTOR *>(&pdesc[cd_pos]);
+                if (uepd->bmAttributes == USB_TRANSFER_TYPE_INTERRUPT)
+                {
+                    uint8_t pipe = (uepd->bEndpointAddress & 0x80) ? XBOX_INPUT_PIPE : XBOX_OUTPUT_PIPE;
+                    pipe += (dev_num_eps - 1); //Register it after any previous interfaces
+                    epInfo[pipe].epAddr = uepd->bEndpointAddress & 0x7F;
+                    epInfo[pipe].maxPktSize = uepd->wMaxPacketSize & 0xFF;
+                }
+                ep_num++;
+            }
+            cd_pos += cd_len;
+        }
+
+        dev_num_eps += uid->bNumEndpoints;
+        //Update the device EP table with the latest interface
+        rcode = pUsb->setEpInfoEntry(bAddress, dev_num_eps, epInfo);
+        if (rcode)
+        {
+            Release();
+            USBH_XINPUT_DEBUG(F("USBH XINPUT: setEpInfoEntry error\n"));
+            return rcode;
+        }
+
+        //Wired we can allocate immediately.
+        if (_type != XBOX360_WIRELESS)
+        {
+            alloc_xinput_device(bAddress, &epInfo[XBOX_INPUT_PIPE], &epInfo[XBOX_OUTPUT_PIPE], _type);
+        }
+        else
+        {
+            //For the wireless controller send an inquire packet to each endpoint (Even endpoints only)
+            dev_type = XBOX360_WIRELESS;
+            uint8_t cmd[sizeof(xbox360w_inquire_present)];
+            memcpy_P(cmd, xbox360w_inquire_present, sizeof(xbox360w_inquire_present));
+            pUsb->outTransfer(bAddress, epInfo[XBOX_OUTPUT_PIPE].epAddr, sizeof(xbox360w_inquire_present), cmd);
+        }
+        num_itf--;
+        pdesc += pdesc[0];
     }
 
-    //Wired we can allocate immediately.
-    if (xinput_type != XBOX360_WIRELESS)
+    USBH_XINPUT_DEBUG(F("USBH XINPUT: Found valid EPs "));
+    USBH_XINPUT_DEBUG(dev_num_eps);
+    USBH_XINPUT_DEBUG("\n");
+    if (dev_num_eps < 2)
     {
-        alloc_xinput_device(bAddress, &epInfo[XBOX_INPUT_PIPE], &epInfo[XBOX_OUTPUT_PIPE]);
-    }
-    else
-    {
-        //For the wireless controller send an inquire packet to each endpoint (Even endpoints only)
-        memcpy_P(xdata, xbox360w_inquire_present, sizeof(xbox360w_inquire_present));
-        for (uint8_t i = 2; i < 9; i += 2)
-            pUsb->outTransfer(bAddress, epInfo[i].epAddr, sizeof(xbox360w_inquire_present), xdata);
+        Release();
+        USBH_XINPUT_DEBUG(F("USBH XINPUT: NO VALID XINPUTS\n"));
+        return USB_DEV_CONFIG_ERROR_DEVICE_NOT_SUPPORTED;
     }
 
     bIsReady = true;
@@ -466,7 +494,7 @@ uint8_t XINPUT::Poll()
         return 0;
 
     //Read all endpoints on this device, and parse into the xinput linked list as required.
-    for (uint8_t i = 1; i <= ((xinput_type == XBOX360_WIRELESS) ? 8 : 2); i++)
+    for (uint8_t i = 1; i < dev_num_eps; i++)
     {
         //Find the xinput struct this endpoint belongs to. If its not yet initialised, it will return NULL.
         usbh_xinput_t *xinput = NULL;
@@ -524,7 +552,7 @@ uint8_t XINPUT::Poll()
         }
 
         //Handle chatpad initialisation (Wireless 360 controller only)
-        else if (xinput_type == XBOX360_WIRELESS && xinput->chatpad_initialised == 0)
+        else if (xinput->type == XBOX360_WIRELESS && xinput->chatpad_initialised == 0)
         {
             USBH_XINPUT_DEBUG(F("USBH XINPUT: SENDING CHATPAD INIT PACKET\n"));
             WritePacket(xinput, xbox360w_chatpad_init, sizeof(xbox360w_chatpad_init), TRANSFER_PGM);
@@ -532,7 +560,7 @@ uint8_t XINPUT::Poll()
         }
 
         //Handle chatpad leds (Wireless 360 controller only)
-        else if (xinput_type == XBOX360_WIRELESS && xinput->chatpad_led_requested != xinput->chatpad_led_actual)
+        else if (xinput->type == XBOX360_WIRELESS && xinput->chatpad_led_requested != xinput->chatpad_led_actual)
         {
             memcpy_P(xdata, xbox360w_chatpad_led_ctrl, sizeof(xbox360w_chatpad_led_ctrl));
             for (uint8_t led = 0; led < 4; led++)
@@ -564,7 +592,7 @@ uint8_t XINPUT::Poll()
         }
 
         //Handle controller power off, Hold Xbox button. (Wireless 360 controller only)
-        else if (xinput_type == XBOX360_WIRELESS && xinput->pad_state.wButtons & XINPUT_GAMEPAD_XBOX_BUTTON)
+        else if (xinput->type == XBOX360_WIRELESS && xinput->pad_state.wButtons & XINPUT_GAMEPAD_XBOX_BUTTON)
         {
             if ((millis() - xinput->timer_poweroff) > 1000)
             {
@@ -575,7 +603,7 @@ uint8_t XINPUT::Poll()
         }
 
         //Reset xbox button hold timer (Wireless 360 only)
-        if (xinput_type == XBOX360_WIRELESS && !(xinput->pad_state.wButtons & XINPUT_GAMEPAD_XBOX_BUTTON))
+        if (xinput->type == XBOX360_WIRELESS && !(xinput->pad_state.wButtons & XINPUT_GAMEPAD_XBOX_BUTTON))
         {
             xinput->timer_poweroff = millis();
         }
@@ -584,7 +612,7 @@ uint8_t XINPUT::Poll()
         if (millis() - xinput->timer_periodic > 1000)
         {
             USBH_XINPUT_DEBUG(F("USBH XINPUT: BACKGROUND POLL\n"));
-            if (xinput_type == XBOX360_WIRELESS)
+            if (xinput->type == XBOX360_WIRELESS)
             {
                 WritePacket(xinput, xbox360w_inquire_present, sizeof(xbox360w_inquire_present), TRANSFER_PGM);
                 WritePacket(xinput, xbox360w_controller_info, sizeof(xbox360w_controller_info), TRANSFER_PGM);
@@ -608,7 +636,9 @@ bool XINPUT::ParseInputData(usbh_xinput_t **xpad, EpInfo *ep_in)
     uint16_t wButtons;
     usbh_xinput_t *_xpad = *xpad;
 
-    switch(xinput_type)
+    //Wireless controllers havent been allocated yet, work out the type at the device level.
+    xinput_type_t _dev_type = (dev_type == XBOX360_WIRELESS) ? dev_type : _xpad->type;
+    switch(_dev_type)
     {
     case XBOX360_WIRED:
         //Controller led_requested feedback
@@ -690,7 +720,7 @@ bool XINPUT::ParseInputData(usbh_xinput_t **xpad, EpInfo *ep_in)
             if (xdata[1] != 0x00 && _xpad == NULL)
             {
                 USBH_XINPUT_DEBUG(F("USBH XINPUT: WIRELESS CONTROLLER CONNECTED\n"));
-                 _xpad = alloc_xinput_device(bAddress, &ep_in[0], &ep_in[1]);
+                 _xpad = alloc_xinput_device(bAddress, &ep_in[0], &ep_in[1], XBOX360_WIRELESS);
                 if (_xpad == NULL)
                     break;
             }
@@ -879,7 +909,7 @@ uint8_t XINPUT::SetRumble(usbh_xinput_t *xpad, uint8_t lValue, uint8_t rValue)
     xpad->rValue_actual = xpad->rValue_requested;
     xpad->timer_out = millis();
     uint16_t len;
-    switch (xinput_type)
+    switch (xpad->type)
     {
     case XBOX360_WIRELESS:
         memset(xdata, 0x00, 12);
@@ -920,7 +950,7 @@ uint8_t XINPUT::SetLed(usbh_xinput_t *xpad, uint8_t quadrant)
     xpad->led_actual = xpad->led_requested;
     xpad->timer_out = millis();
     uint16_t len;
-    switch (xinput_type)
+    switch (xpad->type)
     {
     case XBOX360_WIRELESS:
         memset(xdata, 0x00, 12);
