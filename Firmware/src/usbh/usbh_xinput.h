@@ -195,8 +195,7 @@ class XINPUT : public USBDeviceConfig
 public:
     XINPUT(USB *pUsb);
 
-    uint8_t ConfigureDevice(uint8_t parent, uint8_t port, bool lowspeed);
-    uint8_t Init(uint8_t parent, uint8_t port, bool lowspeed);
+    uint8_t Init(uint8_t parent, uint8_t port, bool lowspeed, USB_DEVICE_DESCRIPTOR* udd);
     uint8_t Release();
     uint8_t Poll();
     virtual uint8_t GetAddress()
