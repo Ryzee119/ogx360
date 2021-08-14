@@ -3,7 +3,7 @@
 
 #include "usbh_xinput.h"
 
-//#define ENABLE_USBH_XINPUT_DEBUG
+#define ENABLE_USBH_XINPUT_DEBUG
 #ifdef ENABLE_USBH_XINPUT_DEBUG
 #define USBH_XINPUT_DEBUG(a) Serial1.print(a)
 #else
@@ -203,12 +203,11 @@ XINPUT::XINPUT(USB *p) : pUsb(p),
     }
 }
 
-//[1] https://techcommunity.microsoft.com/t5/microsoft-usb-blog/how-does-usb-stack-enumerate-a-device/ba-p/270685
-uint8_t XINPUT::ConfigureDevice(uint8_t parent, uint8_t port, bool lowspeed)
+uint8_t XINPUT::Init(uint8_t parent __attribute__((unused)), uint8_t port __attribute__((unused)), bool lowspeed, USB_DEVICE_DESCRIPTOR* udd)
 {
     uint8_t rcode;
-    USB_DEVICE_DESCRIPTOR *udd;
-    USBH_XINPUT_DEBUG(F("USBH XINPUT: ConfigureDevice\n"));
+    AddressPool &addrPool = pUsb->GetAddressPool();
+    UsbDevice *p;
 
     //Perform some sanity checks of everything
     if (bAddress)
@@ -219,38 +218,9 @@ uint8_t XINPUT::ConfigureDevice(uint8_t parent, uint8_t port, bool lowspeed)
 
     epInfo[XBOX_CONTROL_PIPE].epAddr = 0x00;
     epInfo[XBOX_CONTROL_PIPE].epAttribs = USB_TRANSFER_TYPE_CONTROL;
-    epInfo[XBOX_CONTROL_PIPE].maxPktSize = (lowspeed) ? 8 : 64; //8bytes lowspeed, 64 high speed.
+    epInfo[XBOX_CONTROL_PIPE].maxPktSize = udd->bMaxPacketSize0;
     epInfo[XBOX_CONTROL_PIPE].bmNakPower = USB_NAK_MAX_POWER;
     pUsb->setEpInfoEntry(bAddress, 1, epInfo);
-
-    //Get the first 8 bytes of the device descriptor to determine max packet size.
-    udd = reinterpret_cast<USB_DEVICE_DESCRIPTOR *>(xdata);
-    rcode = pUsb->getDevDescr(0, XBOX_CONTROL_PIPE, 64, (uint8_t *)udd);
-    if (rcode)
-    {
-        Release();
-        USBH_XINPUT_DEBUG(F("USBH XINPUT: COULD NOT GET DEVICE DESRIPTOR\n"));
-        return rcode;
-    }
-
-    //Now we know the control pipe max packet size.
-    epInfo[XBOX_CONTROL_PIPE].maxPktSize = udd->bMaxPacketSize0;
-    dev_num_eps = 1;
-    dev_type = XINPUT_UNKNOWN;
-
-    //In the early days of USB some USB devices would become confused by a second request for
-    //the Device Descriptor if they did not return the complete Device Descriptor for the first request.
-    //To allow these devices to enumerate successfully it was necessary to reset the port between
-    //the first and second requests for the Device Descriptor. Ref [1].
-    return USB_ERROR_CONFIG_REQUIRES_ADDITIONAL_RESET;
-};
-
-uint8_t XINPUT::Init(uint8_t parent __attribute__((unused)), uint8_t port __attribute__((unused)), bool lowspeed)
-{
-    uint8_t rcode;
-    AddressPool &addrPool = pUsb->GetAddressPool();
-    UsbDevice *p;
-    USB_DEVICE_DESCRIPTOR *udd;
 
     for (uint8_t i = 1; i < XBOX_MAX_ENDPOINTS; i++)
     {
@@ -258,13 +228,6 @@ uint8_t XINPUT::Init(uint8_t parent __attribute__((unused)), uint8_t port __attr
         epInfo[i].bmNakPower = USB_NAK_NOWAIT;
         epInfo[i].bmSndToggle = 0;
         epInfo[i].bmRcvToggle = 0;
-    }
-
-    //Perform some sanity checks of everything
-    if (bAddress)
-    {
-        USBH_XINPUT_DEBUG(F("USBH XINPUT: USB_ERROR_CLASS_INSTANCE_ALREADY_IN_USE\n"));
-        return USB_ERROR_CLASS_INSTANCE_ALREADY_IN_USE;
     }
 
     //Get a USB address then set it
@@ -295,18 +258,6 @@ uint8_t XINPUT::Init(uint8_t parent __attribute__((unused)), uint8_t port __attr
     }
 
     p->lowspeed = lowspeed;
-    //Only know control endpoint at this time.
-    pUsb->setEpInfoEntry(bAddress, 1, epInfo);
-
-    //Get the full device descriptor at the new address.
-    udd = reinterpret_cast<USB_DEVICE_DESCRIPTOR *>(xdata);
-    rcode = pUsb->getDevDescr(bAddress, XBOX_CONTROL_PIPE, sizeof(USB_DEVICE_DESCRIPTOR), (uint8_t *)udd);
-    if (rcode)
-    {
-        Release();
-        USBH_XINPUT_DEBUG(F("USBH XINPUT: COULD NOT GET DEVICE DESRIPTOR\n"));
-        return rcode;
-    }
 
     //Check the device descriptor here. Interface class is checked later.
     if (udd->bDeviceClass != USB_CLASS_VENDOR_SPECIFIC && udd->bDeviceClass != USB_CLASS_USE_CLASS_INFO)
