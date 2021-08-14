@@ -208,6 +208,7 @@ uint8_t XINPUT::Init(uint8_t parent __attribute__((unused)), uint8_t port __attr
     uint8_t rcode;
     AddressPool &addrPool = pUsb->GetAddressPool();
     UsbDevice *p;
+    dev_num_eps = 1;
 
     //Perform some sanity checks of everything
     if (bAddress)
