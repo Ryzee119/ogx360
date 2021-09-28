@@ -1,6 +1,7 @@
 // Copyright 2021, Ryan Wendland, ogx360
 // SPDX-License-Identifier: GPL-3.0-or-later
 
+#include <UHS2/usbhid.h>
 #include "usbh_xinput.h"
 
 #define ENABLE_USBH_XINPUT_DEBUG
@@ -32,7 +33,7 @@ static void PrintHex8(uint8_t *data, uint8_t length) // prints 8-bit data in hex
 }
 #endif
 
-usbh_xinput_t *XINPUT::alloc_xinput_device(uint8_t bAddress, EpInfo *in, EpInfo *out, xinput_type_t type)
+usbh_xinput_t *XINPUT::alloc_xinput_device(uint8_t bAddress, uint8_t itf_num, EpInfo *in, EpInfo *out, xinput_type_t type)
 {
     usbh_xinput_t *new_xinput = NULL;
     uint8_t index;
@@ -54,6 +55,7 @@ usbh_xinput_t *XINPUT::alloc_xinput_device(uint8_t bAddress, EpInfo *in, EpInfo 
 
     memset(new_xinput, 0, sizeof(usbh_xinput_t));
     new_xinput->bAddress = bAddress;
+    new_xinput->itf_num = itf_num;
     new_xinput->type = type;
     new_xinput->usbh_inPipe = in;
     new_xinput->usbh_outPipe = out;
@@ -90,6 +92,18 @@ usbh_xinput_t *XINPUT::alloc_xinput_device(uint8_t bAddress, EpInfo *in, EpInfo 
             WritePacket(new_xinput, xboxone_pdp_init2, sizeof(xboxone_pdp_init2), TRANSFER_PGM);
             WritePacket(new_xinput, xboxone_pdp_init3, sizeof(xboxone_pdp_init3), TRANSFER_PGM);
         }
+    }
+    else if (new_xinput->type == XINPUT_MOUSE || new_xinput->type == XINPUT_KEYBOARD)
+    {
+        //Set to BOOT protocol
+        pUsb->ctrlReq(bAddress,
+                      0,                        //ep
+                      bmREQ_HID_OUT,            //bmReqType
+                      HID_REQUEST_SET_PROTOCOL, //bRequest
+                      USB_HID_BOOT_PROTOCOL,    //wValLo
+                      0x00,                     //wValHi
+                      new_xinput->itf_num,      //wIndex
+                      0x0000, 0x0000, NULL, NULL);
     }
 
     return new_xinput;
@@ -209,6 +223,9 @@ uint8_t XINPUT::Init(uint8_t parent __attribute__((unused)), uint8_t port __attr
     AddressPool &addrPool = pUsb->GetAddressPool();
     UsbDevice *p;
     dev_num_eps = 1;
+    iProduct = 0;
+    dev_type = XINPUT_UNKNOWN;
+    bIsReady = false;
 
     //Perform some sanity checks of everything
     if (bAddress)
@@ -225,6 +242,7 @@ uint8_t XINPUT::Init(uint8_t parent __attribute__((unused)), uint8_t port __attr
 
     for (uint8_t i = 1; i < XBOX_MAX_ENDPOINTS; i++)
     {
+        epInfo[i].epAddr = 0x00;
         epInfo[i].epAttribs = USB_TRANSFER_TYPE_INTERRUPT;
         epInfo[i].bmNakPower = USB_NAK_NOWAIT;
         epInfo[i].bmSndToggle = 0;
@@ -324,7 +342,7 @@ uint8_t XINPUT::Init(uint8_t parent __attribute__((unused)), uint8_t port __attr
         }
         uid = reinterpret_cast<USB_INTERFACE_DESCRIPTOR *>(pdesc);
         xinput_type_t _type = XINPUT_UNKNOWN;
-        if (uid->bNumEndpoints < 2)
+        if (uid->bNumEndpoints < 1)
             _type = XINPUT_UNKNOWN;
         else if (uid->bInterfaceSubClass == 0x5D && //Xbox360 wireless bInterfaceSubClass
                 uid->bInterfaceProtocol == 0x81)   //Xbox360 wireless bInterfaceProtocol
@@ -338,6 +356,14 @@ uint8_t XINPUT::Init(uint8_t parent __attribute__((unused)), uint8_t port __attr
         else if (uid->bInterfaceClass == 0x58 &&  //XboxOG bInterfaceClass
                 uid->bInterfaceSubClass == 0x42) //XboxOG bInterfaceSubClass
             _type = XBOXOG;
+        else if (uid->bInterfaceClass == USB_CLASS_HID &&
+                 uid->bInterfaceSubClass == 1 && //Supports boot protocol
+                uid->bInterfaceProtocol  == USB_HID_PROTOCOL_KEYBOARD)
+            _type = XINPUT_KEYBOARD;
+        else if (uid->bInterfaceClass == USB_CLASS_HID &&
+                uid->bInterfaceSubClass == 1 && //Supports boot protocol
+                uid->bInterfaceProtocol  == USB_HID_PROTOCOL_MOUSE)
+            _type = XINPUT_MOUSE;
 
         if (_type == XINPUT_UNKNOWN)
         {
@@ -352,6 +378,7 @@ uint8_t XINPUT::Init(uint8_t parent __attribute__((unused)), uint8_t port __attr
 
         //Parse the configuration descriptor to find the two endpoint addresses (Only used for non wireless receiver)
         uint8_t cd_len = 0, cd_type = 0, cd_pos = 0, ep_num = 0;
+        EpInfo *ep_in, *ep_out = NULL;
         while (ep_num < uid->bNumEndpoints)
         {
             if (cd_pos >= sizeof(xdata) - 1)
@@ -366,10 +393,18 @@ uint8_t XINPUT::Init(uint8_t parent __attribute__((unused)), uint8_t port __attr
                 USB_ENDPOINT_DESCRIPTOR *uepd = reinterpret_cast<USB_ENDPOINT_DESCRIPTOR *>(&pdesc[cd_pos]);
                 if (uepd->bmAttributes == USB_TRANSFER_TYPE_INTERRUPT)
                 {
-                    uint8_t pipe = (uepd->bEndpointAddress & 0x80) ? XBOX_INPUT_PIPE : XBOX_OUTPUT_PIPE;
-                    pipe += (dev_num_eps - 1); //Register it after any previous interfaces
+                    uint8_t pipe = ep_num + dev_num_eps; //Register it after any previous endpoints
                     epInfo[pipe].epAddr = uepd->bEndpointAddress & 0x7F;
                     epInfo[pipe].maxPktSize = uepd->wMaxPacketSize & 0xFF;
+                    epInfo[pipe].dir = uepd->bEndpointAddress & 0x80;
+                    if (uepd->bEndpointAddress & 0x80)
+                    {
+                        ep_in = &epInfo[pipe];
+                    }
+                    else
+                    {
+                        ep_out = &epInfo[pipe];
+                    }
                 }
                 ep_num++;
             }
@@ -389,7 +424,7 @@ uint8_t XINPUT::Init(uint8_t parent __attribute__((unused)), uint8_t port __attr
         //Wired we can allocate immediately.
         if (_type != XBOX360_WIRELESS)
         {
-            alloc_xinput_device(bAddress, &epInfo[XBOX_INPUT_PIPE], &epInfo[XBOX_OUTPUT_PIPE], _type);
+            alloc_xinput_device(bAddress, uid->bInterfaceNumber, ep_in, ep_out, _type);
         }
         else
         {
@@ -397,7 +432,7 @@ uint8_t XINPUT::Init(uint8_t parent __attribute__((unused)), uint8_t port __attr
             dev_type = XBOX360_WIRELESS;
             uint8_t cmd[sizeof(xbox360w_inquire_present)];
             memcpy_P(cmd, xbox360w_inquire_present, sizeof(xbox360w_inquire_present));
-            pUsb->outTransfer(bAddress, epInfo[XBOX_OUTPUT_PIPE].epAddr, sizeof(xbox360w_inquire_present), cmd);
+            pUsb->outTransfer(bAddress, ep_out->epAddr, sizeof(xbox360w_inquire_present), cmd);
         }
         num_itf--;
         pdesc += pdesc[0];
@@ -464,11 +499,13 @@ uint8_t XINPUT::Poll()
             }
         }
 
-        //The odd numbers are the in endpoints. Need to read always
-        if (i % 2 != 0)
+        //Read the in endpoints. For xbox wireless, the controller may not be allocated yet, so
+        //read on all odd endpoints too.
+        if (epInfo[i].dir & 0x80)
         {
-            len = EP_MAXPKTSIZE;
-            rcode = pUsb->inTransfer(bAddress, epInfo[i].epAddr, &len, xdata);
+            len = min(epInfo[i].maxPktSize, EP_MAXPKTSIZE);
+            uint8_t epaddr = (xinput == NULL) ? epInfo[i].epAddr : xinput->usbh_inPipe->epAddr;
+            rcode = pUsb->inTransfer(bAddress, epaddr, &len, xdata);
             if (rcode == hrSUCCESS)
             {
                 ParseInputData(&xinput, &epInfo[i]);
@@ -485,6 +522,11 @@ uint8_t XINPUT::Poll()
 
         //Don't spam output. 20ms is ok for now. (FIXME: Should be bInterval)
         if (millis() - xinput->timer_out < 20)
+        {
+            continue;
+        }
+
+        if (xinput->usbh_outPipe->epAddr == 0x00)
         {
             continue;
         }
@@ -563,7 +605,7 @@ uint8_t XINPUT::Poll()
         //Handle background periodic writes
         if (millis() - xinput->timer_periodic > 1000)
         {
-            USBH_XINPUT_DEBUG(F("USBH XINPUT: BACKGROUND POLL\n"));
+            //USBH_XINPUT_DEBUG(F("USBH XINPUT: BACKGROUND POLL\n"));
             if (xinput->type == XBOX360_WIRELESS)
             {
                 WritePacket(xinput, xbox360w_inquire_present, sizeof(xbox360w_inquire_present), TRANSFER_PGM);
@@ -672,7 +714,7 @@ bool XINPUT::ParseInputData(usbh_xinput_t **xpad, EpInfo *ep_in)
             if (xdata[1] != 0x00 && _xpad == NULL)
             {
                 USBH_XINPUT_DEBUG(F("USBH XINPUT: WIRELESS CONTROLLER CONNECTED\n"));
-                 _xpad = alloc_xinput_device(bAddress, &ep_in[0], &ep_in[1], XBOX360_WIRELESS);
+                 _xpad = alloc_xinput_device(bAddress, 0, &ep_in[0], &ep_in[1], XBOX360_WIRELESS);
                 if (_xpad == NULL)
                     break;
             }
@@ -832,6 +874,14 @@ bool XINPUT::ParseInputData(usbh_xinput_t **xpad, EpInfo *ep_in)
         _xpad->pad_state.sThumbLY = GET_SHORT(&xdata, 14);
         _xpad->pad_state.sThumbRX = GET_SHORT(&xdata, 16);
         _xpad->pad_state.sThumbRY = GET_SHORT(&xdata, 18);   
+        return true;
+    case XINPUT_KEYBOARD:
+        Serial1.println("KB: ");
+        //PrintHex8(xdata, 8);
+        return true;
+    case XINPUT_MOUSE:
+        Serial1.println("MS: ");
+        //PrintHex8(xdata, 8);
         return true;
     default:
         return false;

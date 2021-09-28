@@ -111,11 +111,14 @@ typedef enum
     XBOX360_WIRELESS,
     XBOX360_WIRED,
     XBOXOG,
+    XINPUT_KEYBOARD,
+    XINPUT_MOUSE
 } xinput_type_t;
 
 typedef struct usbh_xinput_t
 {
     //usbh backend handles
+    uint8_t itf_num;
     uint8_t bAddress;
     EpInfo *usbh_inPipe;  //Pipe specific to this pad
     EpInfo *usbh_outPipe; //Pipe specific to this pad
@@ -221,7 +224,7 @@ private:
     uint8_t iProduct, iManuf, iSerial;
     uint8_t dev_num_eps;
     xinput_type_t dev_type;
-    usbh_xinput_t *alloc_xinput_device(uint8_t bAddress, EpInfo *in, EpInfo *out, xinput_type_t type);
+    usbh_xinput_t *alloc_xinput_device(uint8_t bAddress, uint8_t itf_num, EpInfo *in, EpInfo *out, xinput_type_t type);
     uint8_t free_xinput_device(usbh_xinput_t *xinput_dev);
     bool ParseInputData(usbh_xinput_t **xpad, EpInfo *ep_in);
 };
