@@ -91,7 +91,7 @@ bool XID_::setup(USBSetup &setup)
             {
                 USB_SendControl(TRANSFER_PGM, DUKE_DESC_XID, sizeof(DUKE_DESC_XID));
             }
-            else if (xid_type == STEELBATTALTION)
+            else if (xid_type == STEELBATTALION)
             {
                 USB_SendControl(TRANSFER_PGM, BATTALION_DESC_XID, sizeof(BATTALION_DESC_XID));
             }

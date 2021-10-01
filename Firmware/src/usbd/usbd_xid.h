@@ -228,7 +228,7 @@ typedef enum
 {
     DISCONNECTED = 0,
     DUKE,
-    STEELBATTALTION
+    STEELBATTALION
 } xid_type_t;
 
 class XID_ : public PluggableUSBModule
