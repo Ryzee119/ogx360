@@ -118,7 +118,7 @@ void master_task(void)
         }
         else if (usbh_xinput_is_chatpad_pressed(_usbh_xinput, XINPUT_CHATPAD_ORANGE))
         {
-            _usbd_c->type = STEELBATTALTION;
+            _usbd_c->type = STEELBATTALION;
             _usbh_xinput->chatpad_led_requested = CHATPAD_ORANGE;
         }
 
@@ -126,7 +126,7 @@ void master_task(void)
         {
             handle_duke(_usbh_xinput, _usbd_duke, _user_data);
         }
-        else if (_usbd_c->type == STEELBATTALTION)
+        else if (_usbd_c->type == STEELBATTALION)
         {
             handle_sbattalion(_usbh_xinput, _usbd_sbattalion, _user_data);
         }
@@ -138,16 +138,16 @@ void master_task(void)
 
         //Now send data to slaves
         uint8_t *tx_buff = (_usbd_c->type == DUKE)            ? ((uint8_t *)&_usbd_duke->in) :
-                           (_usbd_c->type == STEELBATTALTION) ? ((uint8_t *)&_usbd_sbattalion->in) :
+                           (_usbd_c->type == STEELBATTALION) ? ((uint8_t *)&_usbd_sbattalion->in) :
                            NULL;
         uint8_t  tx_len =  (_usbd_c->type == DUKE)            ? sizeof(usbd_duke_in_t) :
-                           (_usbd_c->type == STEELBATTALTION) ? sizeof(usbd_sbattalion_in_t) :
+                           (_usbd_c->type == STEELBATTALION) ? sizeof(usbd_sbattalion_in_t) :
                            0;
         uint8_t *rx_buff = (_usbd_c->type == DUKE)            ? ((uint8_t *)&_usbd_duke->out) :
-                           (_usbd_c->type == STEELBATTALTION) ? ((uint8_t *)&_usbd_sbattalion->out) :
+                           (_usbd_c->type == STEELBATTALION) ? ((uint8_t *)&_usbd_sbattalion->out) :
                            NULL;
         uint8_t  rx_len =  (_usbd_c->type == DUKE)            ? sizeof(usbd_duke_out_t) :
-                           (_usbd_c->type == STEELBATTALTION) ? sizeof(usbd_sbattalion_out_t) :
+                           (_usbd_c->type == STEELBATTALION) ? sizeof(usbd_sbattalion_out_t) :
                            0;
         uint8_t status = 0xF0 | _usbd_c->type;
 
