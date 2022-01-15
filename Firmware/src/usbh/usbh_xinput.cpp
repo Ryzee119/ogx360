@@ -4,7 +4,7 @@
 #include <UHS2/usbhid.h>
 #include "usbh_xinput.h"
 
-#define ENABLE_USBH_XINPUT_DEBUG
+//#define ENABLE_USBH_XINPUT_DEBUG
 #ifdef ENABLE_USBH_XINPUT_DEBUG
 #define USBH_XINPUT_DEBUG(a) Serial1.print(a)
 #else
@@ -265,7 +265,7 @@ uint8_t XINPUT::Init(uint8_t parent __attribute__((unused)), uint8_t port __attr
         return rcode;
     }
 
-    delay(100); //Give time for address change
+    delay(20); //Give time for address change
 
     //Get our new device at the address
     p = addrPool.GetUsbDevicePtr(bAddress);
@@ -278,14 +278,6 @@ uint8_t XINPUT::Init(uint8_t parent __attribute__((unused)), uint8_t port __attr
 
     p->lowspeed = lowspeed;
 
-    //Check the device descriptor here. Interface class is checked later.
-    if (udd->bDeviceClass != USB_CLASS_VENDOR_SPECIFIC && udd->bDeviceClass != USB_CLASS_USE_CLASS_INFO)
-    {
-        Release();
-        USBH_XINPUT_DEBUG(F("USBH XINPUT: USB_DEV_CONFIG_ERROR_DEVICE_NOT_SUPPORTED\n"));
-        return USB_DEV_CONFIG_ERROR_DEVICE_NOT_SUPPORTED;
-    }
-
     PID = udd->idProduct;
     VID = udd->idVendor;
 
@@ -293,26 +285,29 @@ uint8_t XINPUT::Init(uint8_t parent __attribute__((unused)), uint8_t port __attr
     iManuf = udd->iManufacturer;
     iSerial = udd->iSerialNumber;
 
-    //Hack, Retroflag controller needs a product string request on enumeration to work.
-    if (iProduct)
+    //Get the device descriptor at the new address
+    rcode = pUsb->getDevDescr(bAddress, 0, sizeof(USB_DEVICE_DESCRIPTOR), xdata);
+    if (rcode)
     {
-        rcode = pUsb->getStrDescr(bAddress, epInfo[XBOX_CONTROL_PIPE].epAddr, 2, iProduct, 0x0409, xdata);
-        if (rcode == hrSUCCESS && xdata[1] == USB_DESCRIPTOR_STRING)
-        {
-            pUsb->getStrDescr(bAddress, epInfo[XBOX_CONTROL_PIPE].epAddr, min(xdata[0], sizeof(xdata)), iProduct, 0x0409, xdata);
-        }
+            return rcode;
     }
-
-    //Request the configuration descriptor to determine what xinput device it is and get endpoint info etc.
-    rcode = pUsb->getConfDescr(bAddress, XBOX_CONTROL_PIPE, sizeof(xdata), 0, xdata);
+    //Request the first 9bytes of the configuration descriptor to determine the max length
+    USB_CONFIGURATION_DESCRIPTOR *ucd = reinterpret_cast<USB_CONFIGURATION_DESCRIPTOR *>(xdata);
+    rcode = pUsb->getConfDescr(bAddress, XBOX_CONTROL_PIPE, 9, 0, xdata);
     if (rcode)
     {
         Release();
         USBH_XINPUT_DEBUG(F("USBH XINPUT: getConfDescr error\n"));
         return rcode;
     }
-
-    USB_CONFIGURATION_DESCRIPTOR *ucd = reinterpret_cast<USB_CONFIGURATION_DESCRIPTOR *>(xdata);
+    //Request the full configuration descriptor to determine what xinput device it is and get endpoint info etc.
+    rcode = pUsb->getConfDescr(bAddress, XBOX_CONTROL_PIPE, ucd->wTotalLength, 0, xdata);
+    if (rcode)
+    {
+        Release();
+        USBH_XINPUT_DEBUG(F("USBH XINPUT: getConfDescr error\n"));
+        return rcode;
+    }
     //Set the device configuration we want to use
     rcode = pUsb->setConf(bAddress, epInfo[XBOX_CONTROL_PIPE].epAddr, ucd->bConfigurationValue);
     if (rcode)
@@ -364,6 +359,11 @@ uint8_t XINPUT::Init(uint8_t parent __attribute__((unused)), uint8_t port __attr
                 uid->bInterfaceSubClass == 1 && //Supports boot protocol
                 uid->bInterfaceProtocol  == USB_HID_PROTOCOL_MOUSE)
             _type = XINPUT_MOUSE;
+        else if (uid->bInterfaceClass == USB_CLASS_HID &&
+                uid->bInterfaceSubClass == 0 && //Supports boot protocol
+                uid->bInterfaceProtocol  == USB_HID_PROTOCOL_NONE &&
+                VID == 0x2DC8)
+            _type = XINPUT_8BITDO_IDLE;
 
         if (_type == XINPUT_UNKNOWN)
         {
@@ -436,6 +436,16 @@ uint8_t XINPUT::Init(uint8_t parent __attribute__((unused)), uint8_t port __attr
         }
         num_itf--;
         pdesc += pdesc[0];
+    }
+
+    //Hack, Retroflag controller needs a product string request on enumeration to work.
+    if (iProduct)
+    {
+        rcode = pUsb->getStrDescr(bAddress, epInfo[XBOX_CONTROL_PIPE].epAddr, 2, iProduct, 0x0409, xdata);
+        if (rcode == hrSUCCESS && xdata[1] == USB_DESCRIPTOR_STRING)
+        {
+            pUsb->getStrDescr(bAddress, epInfo[XBOX_CONTROL_PIPE].epAddr, min(xdata[0], sizeof(xdata)), iProduct, 0x0409, xdata);
+        }
     }
 
     USBH_XINPUT_DEBUG(F("USBH XINPUT: Found valid EPs "));
