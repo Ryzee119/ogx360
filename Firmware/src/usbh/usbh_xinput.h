@@ -112,7 +112,8 @@ typedef enum
     XBOX360_WIRED,
     XBOXOG,
     XINPUT_KEYBOARD,
-    XINPUT_MOUSE
+    XINPUT_MOUSE,
+    XINPUT_8BITDO_IDLE
 } xinput_type_t;
 
 typedef struct usbh_xinput_t
