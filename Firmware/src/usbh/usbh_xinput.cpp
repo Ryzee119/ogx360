@@ -92,6 +92,13 @@ usbh_xinput_t *XINPUT::alloc_xinput_device(uint8_t bAddress, uint8_t itf_num, Ep
             WritePacket(new_xinput, xboxone_pdp_init2, sizeof(xboxone_pdp_init2), TRANSFER_PGM);
             WritePacket(new_xinput, xboxone_pdp_init3, sizeof(xboxone_pdp_init3), TRANSFER_PGM);
         }
+        
+        //Required for PowerA aftermarket controllers
+        if (VID == 0x24c6)
+        {
+            WritePacket(new_xinput, xboxone_powera_init1, sizeof(xboxone_powera_init1), TRANSFER_PGM);
+            WritePacket(new_xinput, xboxone_powera_init2, sizeof(xboxone_powera_init2), TRANSFER_PGM);
+        }
     }
     else if (new_xinput->type == XINPUT_MOUSE || new_xinput->type == XINPUT_KEYBOARD)
     {
