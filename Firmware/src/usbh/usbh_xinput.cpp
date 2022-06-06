@@ -379,6 +379,12 @@ uint8_t XINPUT::Init(uint8_t parent __attribute__((unused)), uint8_t port __attr
             continue;
         }
 
+        if (_type == XBOXONE)
+        {
+            //For XBONE we only want the first interface
+            num_itf = 1;
+        }
+
         USBH_XINPUT_DEBUG(F("USBH XINPUT: XID TYPE: "));
         USBH_XINPUT_DEBUG(_type);
         USBH_XINPUT_DEBUG("\n");
