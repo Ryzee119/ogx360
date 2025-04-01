@@ -1,5 +1,7 @@
 # ogx360 - Overview
-![CI](https://github.com/Ryzee119/ogx360/workflows/CI/badge.svg)  
+![CI](https://github.com/Ryzee119/ogx360/actions/workflows/ci.yml/badge.svg)  
+
+
 
 If you like my work please consider a small donation<br>
 [![paypal](https://img.shields.io/badge/Donate-PayPal-green.svg)](https://www.paypal.com/cgi-bin/webscr?cmd=_donations&business=49HV7N8QH9KQ8&currency_code=AUD&source=url)<br>
