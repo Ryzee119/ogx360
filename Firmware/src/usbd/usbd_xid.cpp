@@ -10,6 +10,10 @@
 #define USBD_XID_DEBUG(...)
 #endif
 
+#ifndef MIN
+#define MIN(a, b) ((a) < (b) ? (a) : (b))
+#endif
+
 XID_ &XID()
 {
     static XID_ obj;
@@ -31,7 +35,7 @@ int XID_::getInterface(uint8_t *interfaceCount)
 int XID_::getDescriptor(USBSetup &setup)
 {
     //Device descriptor for duke, seems to work fine for Steel Battalion. Keep constant.
-    USB_SendControl(TRANSFER_PGM, &xid_dev_descriptor, sizeof(xid_dev_descriptor));
+    USB_SendControl(TRANSFER_PGM, &xid_dev_descriptor, MIN(sizeof(xid_dev_descriptor), setup.wLength));
     return sizeof(xid_dev_descriptor);
 }
 
@@ -89,24 +93,24 @@ bool XID_::setup(USBSetup &setup)
             USBD_XID_DEBUG("USBD XID: SENDING XID DESCRIPTOR\n");
             if (xid_type == DUKE)
             {
-                USB_SendControl(TRANSFER_PGM, DUKE_DESC_XID, sizeof(DUKE_DESC_XID));
+                USB_SendControl(TRANSFER_PGM, DUKE_DESC_XID, MIN(sizeof(DUKE_DESC_XID), setup.wLength));
             }
             else if (xid_type == STEELBATTALION)
             {
-                USB_SendControl(TRANSFER_PGM, BATTALION_DESC_XID, sizeof(BATTALION_DESC_XID));
+                USB_SendControl(TRANSFER_PGM, BATTALION_DESC_XID, MIN(sizeof(BATTALION_DESC_XID), setup.wLength));
             }
             return true;
         }
         if (request == 0x01 && wValue == 0x0100)
         {
             USBD_XID_DEBUG("USBD XID: SENDING XID CAPABILITIES IN\n");
-            USB_SendControl(TRANSFER_PGM, DUKE_CAPABILITIES_IN, sizeof(DUKE_CAPABILITIES_IN));
+            USB_SendControl(TRANSFER_PGM, DUKE_CAPABILITIES_IN, MIN(sizeof(DUKE_CAPABILITIES_IN), setup.wLength));
             return true;
         }
         if (request == 0x01 && wValue == 0x0200)
         {
             USBD_XID_DEBUG("USBD XID: SENDING XID CAPABILITIES OUT\n");
-            USB_SendControl(TRANSFER_PGM, DUKE_CAPABILITIES_OUT, sizeof(DUKE_CAPABILITIES_OUT));
+            USB_SendControl(TRANSFER_PGM, DUKE_CAPABILITIES_OUT, MIN(sizeof(DUKE_CAPABILITIES_OUT), setup.wLength));
             return true;
         }
     }
@@ -116,7 +120,7 @@ bool XID_::setup(USBSetup &setup)
         if (request == HID_GET_REPORT && setup.wValueH == HID_REPORT_TYPE_INPUT)
         {
             USBD_XID_DEBUG("USBD XID: SENDING HID REPORT IN\n");
-            USB_SendControl(0, xid_in_data, sizeof(xid_in_data));
+            USB_SendControl(0, xid_in_data, MIN(sizeof(xid_in_data), setup.wLength));
             return true;
         }
     }
